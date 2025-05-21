@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,11 +14,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.app_learn_chinese_2025.R;
 import com.example.app_learn_chinese_2025.controller.AuthController;
+import com.example.app_learn_chinese_2025.model.data.RegisterRequest;
+import com.example.app_learn_chinese_2025.model.data.User;
+import com.example.app_learn_chinese_2025.util.Constants;
 import com.google.android.material.textfield.TextInputEditText;
 
 public class RegisterActivity extends AppCompatActivity {
     private ImageView ivBack;
     private TextInputEditText etUsername, etEmail, etPassword, etConfirmPassword, etFullName, etPhone;
+    private RadioGroup rgRole;
+    private RadioButton rbStudent, rbTeacher;
     private Button btnRegister;
     private TextView tvLogin;
     private AuthController authController;
@@ -44,6 +51,9 @@ public class RegisterActivity extends AppCompatActivity {
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         etFullName = findViewById(R.id.etFullName);
         etPhone = findViewById(R.id.etPhone);
+        rgRole = findViewById(R.id.rgRole);
+        rbStudent = findViewById(R.id.rbStudent);
+        rbTeacher = findViewById(R.id.rbTeacher);
         btnRegister = findViewById(R.id.btnRegister);
         tvLogin = findViewById(R.id.tvLogin);
     }
@@ -66,16 +76,33 @@ public class RegisterActivity extends AppCompatActivity {
         String fullName = etFullName.getText().toString().trim();
         String phone = etPhone.getText().toString().trim();
 
+        // Kiểm tra mật khẩu rỗng
+        if (password.isEmpty()) {
+            Toast.makeText(this, "Mật khẩu không được để trống", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Lấy vai trò người dùng đã chọn
+        int selectedRole = rbTeacher.isChecked() ? Constants.ROLE_TEACHER : Constants.ROLE_STUDENT;
+
         progressDialog.show();
 
-        authController.register(username, email, password, confirmPassword, fullName, phone,
+        // Tạo đối tượng request (phương án 1)
+        RegisterRequest request = new RegisterRequest();
+        request.setTenDangNhap(username);
+        request.setEmail(email);
+        request.setMatKhau(password);
+        request.setHoTen(fullName);
+        request.setSoDienThoai(phone);
+        request.setVaiTro(selectedRole);
+
+        // Sử dụng AuthController để đăng ký
+        authController.register(username, email, password, confirmPassword, fullName, phone, selectedRole,
                 new AuthController.AuthCallback() {
                     @Override
                     public void onSuccess(String message) {
                         progressDialog.dismiss();
                         Toast.makeText(RegisterActivity.this, message, Toast.LENGTH_SHORT).show();
-
-                        // Show success dialog
                         showSuccessDialog();
                     }
 

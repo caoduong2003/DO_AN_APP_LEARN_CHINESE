@@ -2,7 +2,6 @@ package com.example.app_learn_chinese_2025.controller;
 
 import android.content.Context;
 
-import com.example.app_learn_chinese_2025.model.data.ApiResponse;
 import com.example.app_learn_chinese_2025.model.data.RegisterRequest;
 import com.example.app_learn_chinese_2025.model.data.User;
 import com.example.app_learn_chinese_2025.model.repository.UserRepository;
@@ -16,7 +15,6 @@ public class AuthController {
 
     public interface AuthCallback {
         void onSuccess(String message);
-
         void onError(String errorMessage);
     }
 
@@ -35,32 +33,19 @@ public class AuthController {
         // Gọi repository để đăng nhập
         userRepository.login(username, password, new UserRepository.OnUserResponseCallback() {
             @Override
-            public void onSuccess(ApiResponse<User> response) {
-                if (response.isSuccess() && response.getData() != null) {
-                    callback.onSuccess("Đăng nhập thành công");
-                } else {
-                    // Xử lý trường hợp message null
-                    String errorMessage = response.getMessage();
-                    if (errorMessage == null || errorMessage.isEmpty()) {
-                        errorMessage = "Đăng nhập thất bại";
-                    }
-                    callback.onError(errorMessage);
-                }
+            public void onSuccess(User user, String token) {
+                callback.onSuccess("Đăng nhập thành công");
             }
 
             @Override
             public void onError(String errorMessage) {
-                // Xử lý trường hợp message null
-                if (errorMessage == null || errorMessage.isEmpty()) {
-                    errorMessage = "Lỗi kết nối server";
-                }
                 callback.onError(errorMessage);
             }
         });
     }
 
     public void register(String username, String email, String password, String confirmPassword,
-                         String fullName, String phone, AuthCallback callback) {
+                         String fullName, String phone, int role, AuthCallback callback) {
         // Kiểm tra đầu vào
         if (!validateRegisterInput(username, email, password, confirmPassword, fullName, phone, callback)) {
             return;
@@ -73,30 +58,49 @@ public class AuthController {
         request.setMatKhau(password);
         request.setHoTen(fullName);
         request.setSoDienThoai(phone);
-        // Mặc định là học sinh với TrinhDoHSK = 0
+        request.setVaiTro(role); // Thiết lập vai trò từ tham số
+        request.setTrinhDoHSK(0); // Mặc định trình độ HSK = 0
 
         // Gọi repository để đăng ký
         userRepository.register(request, new UserRepository.OnUserResponseCallback() {
             @Override
-            public void onSuccess(ApiResponse<User> response) {
-                if (response.isSuccess()) {
-                    callback.onSuccess("Đăng ký thành công");
-                } else {
-                    // Xử lý trường hợp message null
-                    String errorMessage = response.getMessage();
-                    if (errorMessage == null || errorMessage.isEmpty()) {
-                        errorMessage = "Đăng ký thất bại";
-                    }
-                    callback.onError(errorMessage);
-                }
+            public void onSuccess(User user, String token) {
+                callback.onSuccess("Đăng ký thành công");
             }
 
             @Override
             public void onError(String errorMessage) {
-                // Xử lý trường hợp message null
-                if (errorMessage == null || errorMessage.isEmpty()) {
-                    errorMessage = "Lỗi kết nối server";
-                }
+                callback.onError(errorMessage);
+            }
+        });
+    }
+
+    public void registerWithRole(String username, String email, String password, String confirmPassword,
+                                 String fullName, String phone, int role, AuthCallback callback) {
+        // Kiểm tra đầu vào
+        if (!validateRegisterInput(username, email, password, confirmPassword, fullName, phone, callback)) {
+            return;
+        }
+
+        // Tạo đối tượng request
+        RegisterRequest request = new RegisterRequest();
+        request.setTenDangNhap(username);
+        request.setEmail(email);
+        request.setMatKhau(password);
+        request.setHoTen(fullName);
+        request.setSoDienThoai(phone);
+        request.setVaiTro(role); // Vai trò do người dùng chọn
+        request.setTrinhDoHSK(0); // Mặc định là trình độ 0
+
+        // Gọi repository để đăng ký
+        userRepository.register(request, new UserRepository.OnUserResponseCallback() {
+            @Override
+            public void onSuccess(User user, String token) {
+                callback.onSuccess("Đăng ký thành công");
+            }
+
+            @Override
+            public void onError(String errorMessage) {
                 callback.onError(errorMessage);
             }
         });

@@ -1,6 +1,7 @@
 package com.example.app_learn_chinese_2025.model.repository;
 
 import android.util.Log;
+
 import com.example.app_learn_chinese_2025.model.data.JwtResponse;
 import com.example.app_learn_chinese_2025.model.data.LoginRequest;
 import com.example.app_learn_chinese_2025.model.data.RegisterRequest;
@@ -8,6 +9,7 @@ import com.example.app_learn_chinese_2025.model.data.User;
 import com.example.app_learn_chinese_2025.model.remote.RetrofitClient;
 import com.example.app_learn_chinese_2025.util.SessionManager;
 import com.google.gson.Gson;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -18,6 +20,7 @@ public class UserRepository {
 
     public interface OnUserResponseCallback {
         void onSuccess(User user, String token);
+
         void onError(String errorMessage);
     }
 
@@ -67,7 +70,21 @@ public class UserRepository {
     }
 
     public void register(RegisterRequest request, OnUserResponseCallback callback) {
+        // Kiểm tra đối tượng request
+        if (request == null) {
+            callback.onError("Dữ liệu đăng ký không hợp lệ");
+            return;
+        }
+
+        // Kiểm tra matKhau không null
+        if (request.getMatKhau() == null || request.getMatKhau().isEmpty()) {
+            callback.onError("Mật khẩu không được để trống");
+            return;
+        }
+
+        // Log request để debug
         Log.d(TAG, "Sending register request: " + new Gson().toJson(request));
+
         RetrofitClient.getInstance().getApiService().register(request)
                 .enqueue(new Callback<User>() {
                     @Override

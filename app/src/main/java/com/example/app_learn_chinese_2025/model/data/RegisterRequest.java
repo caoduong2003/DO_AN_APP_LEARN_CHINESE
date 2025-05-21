@@ -1,14 +1,29 @@
 package com.example.app_learn_chinese_2025.model.data;
 
+import com.google.gson.annotations.SerializedName;
 
 public class RegisterRequest {
+    // Sử dụng @SerializedName để đảm bảo đúng tên field khi gửi JSON
+    @SerializedName("tenDangNhap")
     private String TenDangNhap;
+
+    @SerializedName("email")
     private String Email;
+
+    @SerializedName("matKhau")
     private String MatKhau;
+
+    @SerializedName("hoTen")
     private String HoTen;
+
+    @SerializedName("soDienThoai")
     private String SoDienThoai;
-    private int VaiTro; // Mặc định 2 - học sinh
-    private int TrinhDoHSK; // Mặc định 0
+
+    @SerializedName("vaiTro")
+    private int VaiTro;
+
+    @SerializedName("trinhDoHSK")
+    private int TrinhDoHSK;
 
     public RegisterRequest() {
         this.VaiTro = 2; // Mặc định là học sinh
@@ -25,7 +40,7 @@ public class RegisterRequest {
         this.TrinhDoHSK = 0; // Mặc định là cấp độ 0
     }
 
-    // Getters và Setters
+    // Các getters và setters
     public String getTenDangNhap() {
         return TenDangNhap;
     }
