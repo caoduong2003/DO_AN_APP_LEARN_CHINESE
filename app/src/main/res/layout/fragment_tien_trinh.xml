@@ -6,23 +6,60 @@
     android:padding="16dp">
 
     <TextView
-        android:id="@+id/tvTienTrinh"
-        android:layout_width="wrap_content"
+        android:id="@+id/tvTienTrinhTitle"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Tiến trình học tập của bạn"
-        android:textSize="16sp"
+        android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTienTrinh"
+    <TextView
+        android:id="@+id/tvTongTienTrinh"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Tiến trình tổng thể: 0% (0/0)"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTienTrinhTitle" />
+
+    <ProgressBar
+        android:id="@+id/progressBarTongTienTrinh"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:max="100"
+        android:progress="0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTongTienTrinh" />
+
+    <TextView
+        android:id="@+id/tvDanhSachBaiGiang"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Danh sách bài giảng đã học"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/progressBarTongTienTrinh" />
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTienTrinh" />
+        app:layout_constraintTop_toBottomOf="@+id/tvDanhSachBaiGiang">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTienTrinh"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -201,4 +201,24 @@ public class TuVungRepository {
                     }
                 });
     }
+    // Add this method to TuVungRepository.java
+    public void getTuVungById(long id, OnTuVungCallback callback) {
+        // Send API request to get a specific TuVung by ID
+        RetrofitClient.getInstance().getApiService().getTuVungById(id)
+                .enqueue(new Callback<TuVung>() {
+                    @Override
+                    public void onResponse(Call<TuVung> call, Response<TuVung> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            callback.onSuccess(response.body());
+                        } else {
+                            callback.onError("Không thể tải thông tin từ vựng");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<TuVung> call, Throwable t) {
+                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                    }
+                });
+    }
 }

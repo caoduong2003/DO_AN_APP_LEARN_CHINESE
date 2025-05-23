@@ -10,6 +10,9 @@ import com.example.app_learn_chinese_2025.model.data.RegisterRequest;
 import com.example.app_learn_chinese_2025.model.data.TranslationResponse;
 import com.example.app_learn_chinese_2025.model.data.TuVung;
 import com.example.app_learn_chinese_2025.model.data.User;
+import com.example.app_learn_chinese_2025.model.data.MauCau;
+import com.example.app_learn_chinese_2025.model.data.TienTrinh;
+
 
 import java.util.List;
 
@@ -50,12 +53,13 @@ public interface ApiService {
     @GET("api/loaibaigiang")
     Call<List<LoaiBaiGiang>> getAllLoaiBaiGiang();
 
-    // BaiGiang APIs
+    // Update this method in ApiService.java
     @GET("api/baigiang")
     Call<List<BaiGiang>> getAllBaiGiang(@Query("giangVienId") Long giangVienId,
                                         @Query("loaiBaiGiangId") Integer loaiBaiGiangId,
                                         @Query("capDoHSK_ID") Integer capDoHSK_ID,
-                                        @Query("chuDeId") Integer chuDeId);
+                                        @Query("chuDeId") Integer chuDeId,
+                                        @Query("published") Boolean published);
 
     @GET("api/baigiang/{id}")
     Call<BaiGiang> getBaiGiangById(@Path("id") long id);
@@ -105,4 +109,38 @@ public interface ApiService {
     @Multipart
     @POST("api/files/upload")
     Call<ResponseBody> uploadFile(@Header("Authorization") String token, @Part MultipartBody.Part file);
+
+    // Add these methods to ApiService.java
+
+    @GET("api/tien-trinh/user/{userId}")
+    Call<List<TienTrinh>> getTienTrinhByUser(@Header("Authorization") String token, @Path("userId") long userId);
+
+    @GET("api/tien-trinh/user/{userId}/bai-giang/{baiGiangId}")
+    Call<TienTrinh> getTienTrinhByUserAndBaiGiang(@Header("Authorization") String token, @Path("userId") long userId, @Path("baiGiangId") long baiGiangId);
+
+    @POST("api/tien-trinh")
+    Call<TienTrinh> createTienTrinh(@Header("Authorization") String token, @Body TienTrinh tienTrinh);
+
+    @PUT("api/tien-trinh/{id}")
+    Call<TienTrinh> updateTienTrinh(@Header("Authorization") String token, @Path("id") long id, @Body TienTrinh tienTrinh);
+
+    @PUT("api/tien-trinh/{id}/complete")
+    Call<TienTrinh> markTienTrinhCompleted(@Header("Authorization") String token, @Path("id") long id);
+
+    // Add these methods to ApiService.java
+
+    @GET("api/maucau/baigiang/{baiGiangId}")
+    Call<List<MauCau>> getMauCauByBaiGiang(@Path("baiGiangId") long baiGiangId);
+
+    @GET("api/maucau/{id}")
+    Call<MauCau> getMauCauById(@Path("id") long id);
+
+    @POST("api/maucau")
+    Call<MauCau> createMauCau(@Header("Authorization") String token, @Body MauCau mauCau);
+
+    @PUT("api/maucau/{id}")
+    Call<MauCau> updateMauCau(@Header("Authorization") String token, @Path("id") long id, @Body MauCau mauCau);
+
+    @DELETE("api/maucau/{id}")
+    Call<Void> deleteMauCau(@Header("Authorization") String token, @Path("id") long id);
 }

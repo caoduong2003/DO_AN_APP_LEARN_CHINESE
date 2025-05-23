@@ -288,4 +288,23 @@ public class BaiGiangRepository {
                     }
                 });
     }
+    // Add this method to BaiGiangRepository.java
+    public void getAllBaiGiang(Long giangVienId, Integer loaiBaiGiangId, Integer capDoHSK_ID, Integer chuDeId, Boolean published, OnBaiGiangListCallback callback) {
+        RetrofitClient.getInstance().getApiService().getAllBaiGiang(giangVienId, loaiBaiGiangId, capDoHSK_ID, chuDeId, published)
+                .enqueue(new Callback<List<BaiGiang>>() {
+                    @Override
+                    public void onResponse(Call<List<BaiGiang>> call, Response<List<BaiGiang>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            callback.onSuccess(response.body());
+                        } else {
+                            callback.onError("Không thể tải danh sách bài giảng");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<BaiGiang>> call, Throwable t) {
+                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                    }
+                });
+    }
 }
