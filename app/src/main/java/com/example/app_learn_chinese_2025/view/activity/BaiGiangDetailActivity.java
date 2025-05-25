@@ -230,7 +230,7 @@ public class BaiGiangDetailActivity extends AppCompatActivity {
     private void updateFAB() {
         if (currentTienTrinh != null && currentTienTrinh.isDaHoanThanh()) {
             // Lesson already completed
-            fabMarkComplete.setImageResource(android.R.drawable.ic_menu_check);
+            fabMarkComplete.setImageResource(android.R.drawable.ic_menu_add);
             fabMarkComplete.setOnClickListener(v -> {
                 Toast.makeText(this, "Bài giảng đã hoàn thành", Toast.LENGTH_SHORT).show();
             });

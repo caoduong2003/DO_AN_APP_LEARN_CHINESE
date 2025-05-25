@@ -110,25 +110,28 @@ public interface ApiService {
     @POST("api/files/upload")
     Call<ResponseBody> uploadFile(@Header("Authorization") String token, @Part MultipartBody.Part file);
 
-    // Add these methods to ApiService.java
+    // Updated ApiService.java để khớp với database schema
+    // 1. Cập nhật method getTuVungById (đã có trong API)
+    @GET("api/tuvung/{id}")
+    Call<TuVung> getTuVungById(@Path("id") long id);
 
-    @GET("api/tien-trinh/user/{userId}")
+    // 2. Thêm các API endpoints cho TienTrinhHocTap
+    @GET("api/tientrinh/user/{userId}")
     Call<List<TienTrinh>> getTienTrinhByUser(@Header("Authorization") String token, @Path("userId") long userId);
 
-    @GET("api/tien-trinh/user/{userId}/bai-giang/{baiGiangId}")
+    @GET("api/tientrinh/user/{userId}/baigiang/{baiGiangId}")
     Call<TienTrinh> getTienTrinhByUserAndBaiGiang(@Header("Authorization") String token, @Path("userId") long userId, @Path("baiGiangId") long baiGiangId);
 
-    @POST("api/tien-trinh")
+    @POST("api/tientrinh")
     Call<TienTrinh> createTienTrinh(@Header("Authorization") String token, @Body TienTrinh tienTrinh);
 
-    @PUT("api/tien-trinh/{id}")
+    @PUT("api/tientrinh/{id}")
     Call<TienTrinh> updateTienTrinh(@Header("Authorization") String token, @Path("id") long id, @Body TienTrinh tienTrinh);
 
-    @PUT("api/tien-trinh/{id}/complete")
+    @PUT("api/tientrinh/{id}/complete")
     Call<TienTrinh> markTienTrinhCompleted(@Header("Authorization") String token, @Path("id") long id);
 
-    // Add these methods to ApiService.java
-
+    // 3. API cho MauCau
     @GET("api/maucau/baigiang/{baiGiangId}")
     Call<List<MauCau>> getMauCauByBaiGiang(@Path("baiGiangId") long baiGiangId);
 
@@ -143,4 +146,23 @@ public interface ApiService {
 
     @DELETE("api/maucau/{id}")
     Call<Void> deleteMauCau(@Header("Authorization") String token, @Path("id") long id);
+
+    // User Management APIs (Admin only)
+    @GET("api/admin/users/role/{role}")
+    Call<List<User>> getUsersByRole(@Header("Authorization") String token, @Path("role") int role);
+
+    @GET("api/admin/users/{id}")
+    Call<User> getUserById(@Header("Authorization") String token, @Path("id") long id);
+
+    @POST("api/admin/users")
+    Call<User> createUser(@Header("Authorization") String token, @Body User user);
+
+    @PUT("api/admin/users/{id}")
+    Call<User> updateUser(@Header("Authorization") String token, @Path("id") long id, @Body User user);
+
+    @DELETE("api/admin/users/{id}")
+    Call<Void> deleteUser(@Header("Authorization") String token, @Path("id") long id);
+
+    @PUT("api/admin/users/{id}/toggle-status")
+    Call<User> toggleUserStatus(@Header("Authorization") String token, @Path("id") long id);
 }

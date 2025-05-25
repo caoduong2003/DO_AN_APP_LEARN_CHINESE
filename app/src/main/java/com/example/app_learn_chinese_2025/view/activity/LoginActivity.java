@@ -16,14 +16,15 @@ import com.example.app_learn_chinese_2025.R;
 import com.example.app_learn_chinese_2025.controller.AuthController;
 import com.example.app_learn_chinese_2025.util.Constants;
 import com.google.android.material.textfield.TextInputEditText;
-import android.util.Log;  // Thêm import Log
+import android.util.Log;
+
 public class LoginActivity extends AppCompatActivity {
     private TextInputEditText etUsername, etPassword;
     private Button btnLogin;
     private TextView tvRegister;
     private AuthController authController;
     private ProgressDialog progressDialog;
-    private static final String TAG = "LoginActivity"; // Thêm TAG để log
+    private static final String TAG = "LoginActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,19 +83,18 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-
     private void redirectBasedOnRole(int role) {
         Intent intent;
 
         switch (role) {
             case Constants.ROLE_ADMIN:
-                intent = new Intent(LoginActivity.this, AdminActivity.class);
+                intent = new Intent(LoginActivity.this, AdminDashboardActivity.class);
                 break;
             case Constants.ROLE_TEACHER:
-                intent = new Intent(LoginActivity.this, TeacherActivity.class);
+                intent = new Intent(LoginActivity.this, TeacherDashboardActivity.class);
                 break;
             case Constants.ROLE_STUDENT:
-                intent = new Intent(LoginActivity.this, StudentActivity.class);
+                intent = new Intent(LoginActivity.this, StudentDashboardActivity.class);
                 break;
             default:
                 Toast.makeText(this, "Vai trò không hợp lệ", Toast.LENGTH_SHORT).show();

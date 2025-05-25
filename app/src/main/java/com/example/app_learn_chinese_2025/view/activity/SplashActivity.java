@@ -40,13 +40,13 @@ public class SplashActivity extends AppCompatActivity {
 
         switch (role) {
             case Constants.ROLE_ADMIN:
-                intent = new Intent(SplashActivity.this, AdminActivity.class);
+                intent = new Intent(SplashActivity.this, AdminDashboardActivity.class);
                 break;
             case Constants.ROLE_TEACHER:
-                intent = new Intent(SplashActivity.this, TeacherActivity.class);
+                intent = new Intent(SplashActivity.this, TeacherDashboardActivity.class);
                 break;
             case Constants.ROLE_STUDENT:
-                intent = new Intent(SplashActivity.this, StudentActivity.class);
+                intent = new Intent(SplashActivity.this, StudentDashboardActivity.class);
                 break;
             default:
                 intent = new Intent(SplashActivity.this, LoginActivity.class);

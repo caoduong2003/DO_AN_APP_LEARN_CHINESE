@@ -3,7 +3,7 @@ package com.example.app_learn_chinese_2025.util;
 
 public class Constants {
     // URL của API Spring Boot
-    public static final String BASE_URL = "http://118.68.28.226:8080/";
+    public static final String BASE_URL = "http://42.118.1.119:8080/";
 
 
 

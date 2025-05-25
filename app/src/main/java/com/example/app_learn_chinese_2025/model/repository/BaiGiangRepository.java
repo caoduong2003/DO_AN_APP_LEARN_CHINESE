@@ -112,9 +112,35 @@ public class BaiGiangRepository {
                 });
     }
 
-    // Methods for BaiGiang
+    // Methods for BaiGiang - FIXED VERSION
     public void getAllBaiGiang(OnBaiGiangListCallback callback) {
-        RetrofitClient.getInstance().getApiService().getAllBaiGiang(null, null, null, null)
+        // Gọi method với 5 tham số, truyền null cho tất cả filter
+        getAllBaiGiang(null, null, null, null, null, callback);
+    }
+
+    public void getBaiGiangByGiangVien(Long giangVienId, OnBaiGiangListCallback callback) {
+        // Gọi method với 5 tham số
+        getAllBaiGiang(giangVienId, null, null, null, null, callback);
+    }
+
+    public void getBaiGiangByLoai(Integer loaiBaiGiangId, OnBaiGiangListCallback callback) {
+        // Gọi method với 5 tham số
+        getAllBaiGiang(null, loaiBaiGiangId, null, null, null, callback);
+    }
+
+    public void getBaiGiangByCapDoHSK(Integer capDoHSK_ID, OnBaiGiangListCallback callback) {
+        // Gọi method với 5 tham số
+        getAllBaiGiang(null, null, capDoHSK_ID, null, null, callback);
+    }
+
+    public void getBaiGiangByChuDe(Integer chuDeId, OnBaiGiangListCallback callback) {
+        // Gọi method với 5 tham số
+        getAllBaiGiang(null, null, null, chuDeId, null, callback);
+    }
+
+    // Method chính với đủ 5 tham số
+    public void getAllBaiGiang(Long giangVienId, Integer loaiBaiGiangId, Integer capDoHSK_ID, Integer chuDeId, Boolean published, OnBaiGiangListCallback callback) {
+        RetrofitClient.getInstance().getApiService().getAllBaiGiang(giangVienId, loaiBaiGiangId, capDoHSK_ID, chuDeId, published)
                 .enqueue(new Callback<List<BaiGiang>>() {
                     @Override
                     public void onResponse(Call<List<BaiGiang>> call, Response<List<BaiGiang>> response) {
@@ -122,82 +148,6 @@ public class BaiGiangRepository {
                             callback.onSuccess(response.body());
                         } else {
                             callback.onError("Không thể tải danh sách bài giảng");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<BaiGiang>> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
-                    }
-                });
-    }
-
-    public void getBaiGiangByGiangVien(Long giangVienId, OnBaiGiangListCallback callback) {
-        RetrofitClient.getInstance().getApiService().getAllBaiGiang(giangVienId, null, null, null)
-                .enqueue(new Callback<List<BaiGiang>>() {
-                    @Override
-                    public void onResponse(Call<List<BaiGiang>> call, Response<List<BaiGiang>> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            callback.onSuccess(response.body());
-                        } else {
-                            callback.onError("Không thể tải danh sách bài giảng của giảng viên");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<BaiGiang>> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
-                    }
-                });
-    }
-
-    public void getBaiGiangByLoai(Integer loaiBaiGiangId, OnBaiGiangListCallback callback) {
-        RetrofitClient.getInstance().getApiService().getAllBaiGiang(null, loaiBaiGiangId, null, null)
-                .enqueue(new Callback<List<BaiGiang>>() {
-                    @Override
-                    public void onResponse(Call<List<BaiGiang>> call, Response<List<BaiGiang>> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            callback.onSuccess(response.body());
-                        } else {
-                            callback.onError("Không thể tải danh sách bài giảng theo loại");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<BaiGiang>> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
-                    }
-                });
-    }
-
-    public void getBaiGiangByCapDoHSK(Integer capDoHSK_ID, OnBaiGiangListCallback callback) {
-        RetrofitClient.getInstance().getApiService().getAllBaiGiang(null, null, capDoHSK_ID, null)
-                .enqueue(new Callback<List<BaiGiang>>() {
-                    @Override
-                    public void onResponse(Call<List<BaiGiang>> call, Response<List<BaiGiang>> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            callback.onSuccess(response.body());
-                        } else {
-                            callback.onError("Không thể tải danh sách bài giảng theo cấp độ HSK");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<BaiGiang>> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
-                    }
-                });
-    }
-
-    public void getBaiGiangByChuDe(Integer chuDeId, OnBaiGiangListCallback callback) {
-        RetrofitClient.getInstance().getApiService().getAllBaiGiang(null, null, null, chuDeId)
-                .enqueue(new Callback<List<BaiGiang>>() {
-                    @Override
-                    public void onResponse(Call<List<BaiGiang>> call, Response<List<BaiGiang>> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            callback.onSuccess(response.body());
-                        } else {
-                            callback.onError("Không thể tải danh sách bài giảng theo chủ đề");
                         }
                     }
 
@@ -279,25 +229,6 @@ public class BaiGiangRepository {
                             callback.onSuccess(response.body());
                         } else {
                             callback.onError("Không thể tìm kiếm bài giảng");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<List<BaiGiang>> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
-                    }
-                });
-    }
-    // Add this method to BaiGiangRepository.java
-    public void getAllBaiGiang(Long giangVienId, Integer loaiBaiGiangId, Integer capDoHSK_ID, Integer chuDeId, Boolean published, OnBaiGiangListCallback callback) {
-        RetrofitClient.getInstance().getApiService().getAllBaiGiang(giangVienId, loaiBaiGiangId, capDoHSK_ID, chuDeId, published)
-                .enqueue(new Callback<List<BaiGiang>>() {
-                    @Override
-                    public void onResponse(Call<List<BaiGiang>> call, Response<List<BaiGiang>> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            callback.onSuccess(response.body());
-                        } else {
-                            callback.onError("Không thể tải danh sách bài giảng");
                         }
                     }
 
