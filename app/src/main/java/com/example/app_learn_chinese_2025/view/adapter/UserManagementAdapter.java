@@ -24,7 +24,9 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
 
     public interface OnUserActionListener {
         void onEditUser(User user);
+
         void onDeleteUser(User user);
+
         void onToggleStatus(User user);
     }
 
@@ -46,7 +48,7 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
         User user = userList.get(position);
 
         // Set user info
-        holder.tvHoTen.setText(user.getHoTen());
+        holder.tvHoTen.setText(user.getHoTen() != null ? user.getHoTen() : "Chưa có tên");
         holder.tvTenDangNhap.setText("@" + user.getTenDangNhap());
 
         if (user.getEmail() != null && !user.getEmail().isEmpty()) {
@@ -63,27 +65,11 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
             holder.tvSoDienThoai.setVisibility(View.GONE);
         }
 
-        // Set role
-        String vaiTro = "";
-        switch (user.getVaiTro()) {
-            case Constants.ROLE_ADMIN:
-                vaiTro = "Quản trị viên";
-                break;
-            case Constants.ROLE_TEACHER:
-                vaiTro = "Giáo viên";
-                break;
-            case Constants.ROLE_STUDENT:
-                vaiTro = "Học viên";
-                if (user.getTrinhDoHSK() > 0) {
-                    vaiTro += " (HSK " + user.getTrinhDoHSK() + ")";
-                }
-                break;
-        }
-        holder.tvVaiTro.setText(vaiTro);
-
+        // Set role - Sử dụng logic tương tự backend
         // Set status
-        holder.switchStatus.setChecked(user.getTrangThai());
-        holder.switchStatus.setText(user.getTrangThai() ? "Hoạt động" : "Đã khóa");
+        boolean trangThai = user.getTrangThai();
+        holder.switchStatus.setChecked(trangThai);
+        holder.switchStatus.setText(trangThai ? "Hoạt động" : "Đã khóa");
 
         // Set listeners
         holder.btnEdit.setOnClickListener(v -> {
@@ -103,14 +89,57 @@ public class UserManagementAdapter extends RecyclerView.Adapter<UserManagementAd
                 listener.onToggleStatus(user);
             }
             // Reset switch to current state (will be updated after API call)
-            holder.switchStatus.setChecked(user.getTrangThai());
+            holder.switchStatus.setChecked(trangThai);
         });
 
         // Set background color based on status
-        if (user.getTrangThai()) {
+        if (trangThai) {
             holder.itemView.setAlpha(1.0f);
         } else {
             holder.itemView.setAlpha(0.6f);
+        }
+
+        // Set listeners
+        holder.btnEdit.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onEditUser(user);
+            }
+        });
+
+        holder.btnDelete.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onDeleteUser(user);
+            }
+        });
+
+        holder.switchStatus.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onToggleStatus(user);
+            }
+            // Reset switch to current state (will be updated after API call)
+            holder.switchStatus.setChecked(trangThai);
+        });
+
+        // Set background color based on status
+        if (trangThai) {
+            holder.itemView.setAlpha(1.0f);
+        } else {
+            holder.itemView.setAlpha(0.6f);
+        }
+    }
+
+    // Thêm method helper để convert vai trò
+    private String getVaiTroText(Integer vaiTro) {
+        if (vaiTro == null) return "Không xác định";
+        switch (vaiTro) {
+            case Constants.ROLE_ADMIN:
+                return "Quản trị viên";
+            case Constants.ROLE_TEACHER:
+                return "Giáo viên";
+            case Constants.ROLE_STUDENT:
+                return "Học viên";
+            default:
+                return "Không xác định";
         }
     }
 

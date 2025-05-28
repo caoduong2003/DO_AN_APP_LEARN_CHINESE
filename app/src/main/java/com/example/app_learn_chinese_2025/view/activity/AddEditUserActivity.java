@@ -161,23 +161,26 @@ public class AddEditUserActivity extends AppCompatActivity {
         });
     }
 
+
     private void populateFields(User user) {
         etUsername.setText(user.getTenDangNhap());
-        etEmail.setText(user.getEmail());
-        etFullName.setText(user.getHoTen());
-        etPhone.setText(user.getSoDienThoai());
+        etEmail.setText(user.getEmail() != null ? user.getEmail() : "");
+        etFullName.setText(user.getHoTen() != null ? user.getHoTen() : "");
+        etPhone.setText(user.getSoDienThoai() != null ? user.getSoDienThoai() : "");
 
-        // Set role
-        if (user.getVaiTro() == Constants.ROLE_TEACHER) {
+        // Set role - Đảm bảo null safety
+        Integer vaiTro = user.getVaiTro();
+        if (vaiTro != null && vaiTro == Constants.ROLE_TEACHER) {
             rbTeacher.setChecked(true);
             showHSKLevel(false);
         } else {
             rbStudent.setChecked(true);
             showHSKLevel(true);
 
-            // Set HSK level
-            if (user.getTrinhDoHSK() >= 0 && user.getTrinhDoHSK() <= 6) {
-                spinnerHSKLevel.setSelection(user.getTrinhDoHSK());
+            // Set HSK level - Đảm bảo null safety
+            Integer trinhDoHSK = user.getTrinhDoHSK();
+            if (trinhDoHSK != null && trinhDoHSK >= 0 && trinhDoHSK <= 6) {
+                spinnerHSKLevel.setSelection(trinhDoHSK);
             }
         }
 
@@ -186,6 +189,7 @@ public class AddEditUserActivity extends AppCompatActivity {
         etConfirmPassword.setVisibility(View.GONE);
     }
 
+    // Cập nhật method saveUser để đảm bảo null safety
     private void saveUser() {
         // Validate input
         String username = etUsername.getText().toString().trim();
@@ -211,9 +215,9 @@ public class AddEditUserActivity extends AppCompatActivity {
 
         // Set basic fields
         user.setTenDangNhap(username);
-        user.setEmail(email);
+        user.setEmail(email.isEmpty() ? null : email);
         user.setHoTen(fullName);
-        user.setSoDienThoai(phone);
+        user.setSoDienThoai(phone.isEmpty() ? null : phone);
 
         // Set role
         if (rbTeacher.isChecked()) {
@@ -267,6 +271,7 @@ public class AddEditUserActivity extends AppCompatActivity {
             });
         }
     }
+
 
     private boolean validateInput(String username, String email, String password,
                                   String confirmPassword, String fullName, String phone) {

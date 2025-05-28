@@ -2,12 +2,43 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="colorPrimary">#4CAF50</color>
-    <color name="colorPrimaryDark">#388E3C</color>
-    <color name="colorAccent">#FF9800</color>
 
     <!-- Thêm các màu alpha cho tab -->
     <color name="white_alpha_80">#CCFFFFFF</color>
     <color name="white_alpha_60">#99FFFFFF</color>
     <color name="white_alpha_40">#66FFFFFF</color>
+
+    <!-- Primary Colors -->
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <!-- Background Colors -->
+    <color name="background_light">#FAFAFA</color>
+    <color name="background_white">#FFFFFF</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+
+    <!-- Status Colors -->
+    <color name="success_green">#4CAF50</color>
+    <color name="warning_orange">#FF9800</color>
+    <color name="error_red">#F44336</color>
+
+    <!-- Card Colors -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_shadow">#1F000000</color>
+
+    <!-- Progress Colors -->
+    <color name="progress_completed">#4CAF50</color>
+    <color name="progress_in_progress">#2196F3</color>
+    <color name="progress_not_started">#E0E0E0</color>
+
+    <!-- Quick Study Colors -->
+    <color name="correct_answer">#C8E6C9</color>
+    <color name="wrong_answer">#FFCDD2</color>
+    <color name="option_normal">#FFFFFF</color>
+    <color name="option_border">#E0E0E0</color>
 </resources>

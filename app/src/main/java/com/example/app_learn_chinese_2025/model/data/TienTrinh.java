@@ -107,7 +107,7 @@ public class TienTrinh implements Serializable {
         this.ghiChu = ghiChu;
     }
 
-    // Utility methods
+    // Utility methods - FIXED: Thêm method bị thiếu
     public boolean isDaHoanThanh() {
         return trangThai == 2;  // Trạng thái 2 = Đã hoàn thành
     }
@@ -130,6 +130,47 @@ public class TienTrinh implements Serializable {
     }
 
     public void setNgayCapNhat(Date ngayCapNhat) {
-        // Compatibility method - không làm gì
+        // Compatibility method - cập nhật ngày hoàn thành hoặc ngày bắt đầu
+        if (isDaHoanThanh()) {
+            this.ngayHoanThanh = ngayCapNhat;
+        } else if (this.ngayBatDau == null) {
+            this.ngayBatDau = ngayCapNhat;
+        }
+    }
+
+    // Thêm method kiểm tra trạng thái
+    public boolean isChuaHoc() {
+        return trangThai == 0;
+    }
+
+    public boolean isDangHoc() {
+        return trangThai == 1;
+    }
+
+    // Method để cập nhật trạng thái dựa trên tiến độ
+    public void updateTrangThaiFromTienDo() {
+        if (tienDo >= 100) {
+            this.trangThai = 2; // Đã hoàn thành
+            if (ngayHoanThanh == null) {
+                ngayHoanThanh = new Date();
+            }
+        } else if (tienDo > 0) {
+            this.trangThai = 1; // Đang học
+            if (ngayBatDau == null) {
+                ngayBatDau = new Date();
+            }
+        } else {
+            this.trangThai = 0; // Chưa học
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "TienTrinh{" +
+                "id=" + id +
+                ", tienDo=" + tienDo +
+                ", trangThai=" + trangThai +
+                ", isDaHoanThanh=" + isDaHoanThanh() +
+                '}';
     }
 }
