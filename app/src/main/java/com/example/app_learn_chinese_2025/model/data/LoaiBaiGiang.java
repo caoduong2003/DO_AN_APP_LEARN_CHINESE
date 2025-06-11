@@ -1,10 +1,16 @@
 package com.example.app_learn_chinese_2025.model.data;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class LoaiBaiGiang implements Serializable {
+    @SerializedName("id")
     private int ID;
+
+    @SerializedName("tenLoai")
     private String TenLoai;
+
+    @SerializedName("moTa")
     private String MoTa;
 
     // Constructor mặc định

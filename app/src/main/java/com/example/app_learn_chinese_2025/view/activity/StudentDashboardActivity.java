@@ -16,9 +16,10 @@ import com.example.app_learn_chinese_2025.controller.AuthController;
 import com.example.app_learn_chinese_2025.model.data.User;
 import com.example.app_learn_chinese_2025.util.SessionManager;
 import com.example.app_learn_chinese_2025.view.adapter.ViewPagerAdapter;
-import com.example.app_learn_chinese_2025.view.fragment.BaiGiangListFragment;
+import com.example.app_learn_chinese_2025.view.fragment.StudentBaiGiangListFragment;
 import com.example.app_learn_chinese_2025.view.fragment.SearchFragment;
 import com.example.app_learn_chinese_2025.view.fragment.TienTrinhFragment;
+import com.example.app_learn_chinese_2025.view.fragment.LearningStatsFragment;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -111,14 +112,14 @@ public class StudentDashboardActivity extends AppCompatActivity {
         try {
             Log.d(TAG, "Setting up ViewPager...");
 
-            // Tạo từng fragment một cách an toàn
+            // Tạo từng fragment một cách an toàn - SỬ DỤNG FRAGMENT DÀNH CHO HỌC SINH
             try {
-                BaiGiangListFragment baiGiangFragment = new BaiGiangListFragment();
+                StudentBaiGiangListFragment baiGiangFragment = new StudentBaiGiangListFragment();
                 fragmentList.add(baiGiangFragment);
-                Log.d(TAG, "BaiGiangListFragment added");
+                Log.d(TAG, "StudentBaiGiangListFragment added");
             } catch (Exception e) {
-                Log.e(TAG, "Error creating BaiGiangListFragment: " + e.getMessage());
-                throw new RuntimeException("Cannot create BaiGiangListFragment");
+                Log.e(TAG, "Error creating StudentBaiGiangListFragment: " + e.getMessage());
+                throw new RuntimeException("Cannot create StudentBaiGiangListFragment");
             }
 
             try {
@@ -128,6 +129,15 @@ public class StudentDashboardActivity extends AppCompatActivity {
             } catch (Exception e) {
                 Log.e(TAG, "Error creating TienTrinhFragment: " + e.getMessage());
                 throw new RuntimeException("Cannot create TienTrinhFragment");
+            }
+
+            try {
+                LearningStatsFragment statsFragment = new LearningStatsFragment();
+                fragmentList.add(statsFragment);
+                Log.d(TAG, "LearningStatsFragment added");
+            } catch (Exception e) {
+                Log.e(TAG, "Error creating LearningStatsFragment: " + e.getMessage());
+                throw new RuntimeException("Cannot create LearningStatsFragment");
             }
 
             try {
@@ -157,7 +167,8 @@ public class StudentDashboardActivity extends AppCompatActivity {
         try {
             Log.d(TAG, "Setting up TabLayout...");
 
-            String[] tabTitles = {"Bài giảng", "Tiến trình", "Tìm kiếm"};
+            // Cập nhật tab titles cho học sinh
+            String[] tabTitles = {"📚 Bài giảng", "📊 Tiến trình", "📈 Thống kê", "🔍 Tìm kiếm"};
 
             new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
                 if (position < tabTitles.length) {

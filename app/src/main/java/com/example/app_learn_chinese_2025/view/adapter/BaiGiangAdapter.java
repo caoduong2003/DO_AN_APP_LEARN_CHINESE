@@ -85,7 +85,7 @@ public class BaiGiangAdapter extends RecyclerView.Adapter<BaiGiangAdapter.BaiGia
             holder.ivBaiGiang.setImageResource(R.drawable.ic_launcher_foreground);
         }
 
-        // Hiển thị/ẩn các nút sửa/xóa dựa trên vai trò người dùng
+        // QUAN TRỌNG: Hiển thị/ẩn các nút sửa/xóa dựa trên vai trò người dùng
         if (isTeacher) {
             holder.btnEdit.setVisibility(View.VISIBLE);
             holder.btnDelete.setVisibility(View.VISIBLE);
@@ -94,19 +94,25 @@ public class BaiGiangAdapter extends RecyclerView.Adapter<BaiGiangAdapter.BaiGia
             holder.btnDelete.setVisibility(View.GONE);
         }
 
-        // Xử lý sự kiện khi click vào item
+        // QUAN TRỌNG: Xử lý sự kiện khi click vào item - học sinh có thể xem chi tiết
         holder.itemView.setOnClickListener(v -> {
-            listener.onItemClick(baiGiang);
+            if (listener != null) {
+                listener.onItemClick(baiGiang);
+            }
         });
 
-        // Xử lý sự kiện khi click vào nút sửa
+        // Xử lý sự kiện khi click vào nút sửa (chỉ cho giáo viên)
         holder.btnEdit.setOnClickListener(v -> {
-            listener.onEditClick(baiGiang);
+            if (listener != null && isTeacher) {
+                listener.onEditClick(baiGiang);
+            }
         });
 
-        // Xử lý sự kiện khi click vào nút xóa
+        // Xử lý sự kiện khi click vào nút xóa (chỉ cho giáo viên)
         holder.btnDelete.setOnClickListener(v -> {
-            listener.onDeleteClick(baiGiang);
+            if (listener != null && isTeacher) {
+                listener.onDeleteClick(baiGiang);
+            }
         });
     }
 

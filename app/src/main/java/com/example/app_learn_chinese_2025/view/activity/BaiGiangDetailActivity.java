@@ -3,6 +3,7 @@ package com.example.app_learn_chinese_2025.view.activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
 import com.example.app_learn_chinese_2025.R;
+import com.example.app_learn_chinese_2025.controller.BaiGiangController;
 import com.example.app_learn_chinese_2025.model.data.BaiGiang;
 import com.example.app_learn_chinese_2025.model.data.TienTrinh;
 import com.example.app_learn_chinese_2025.model.data.User;
@@ -30,17 +32,21 @@ import com.example.app_learn_chinese_2025.view.fragment.TuVungListFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.ui.PlayerView;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class BaiGiangDetailActivity extends AppCompatActivity {
+public class BaiGiangDetailActivity extends AppCompatActivity implements BaiGiangController.OnBaiGiangListener {
     private long baiGiangId;
 
     private Toolbar toolbar;
     private ImageView ivBaiGiang;
-    private TextView tvProgress, tvTimeSpent;
+    private PlayerView playerView;
+    private TextView tvTieuDe, tvMoTa, tvNoiDung, tvThoiLuong, tvLuotXem, tvProgress;
     private ProgressBar progressBar;
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
@@ -55,6 +61,8 @@ public class BaiGiangDetailActivity extends AppCompatActivity {
     private List<Fragment> fragmentList;
     private ViewPagerAdapter viewPagerAdapter;
     private long startTime; // Track learning time
+    private ExoPlayer player;
+    private BaiGiangController baiGiangController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,9 +81,14 @@ public class BaiGiangDetailActivity extends AppCompatActivity {
             return;
         }
 
+        // Khởi tạo controller và session manager
+        baiGiangController = new BaiGiangController(this, this);
+        sessionManager = new SessionManager(this);
+
         initViews();
         setupToolbar();
         setupListeners();
+        initExoPlayer();
 
         // Load data
         loadBaiGiang();
@@ -84,8 +97,13 @@ public class BaiGiangDetailActivity extends AppCompatActivity {
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         ivBaiGiang = findViewById(R.id.ivBaiGiang);
+        playerView = findViewById(R.id.playerView);
+        tvTieuDe = findViewById(R.id.tvTieuDe);
+        tvMoTa = findViewById(R.id.tvMoTa);
+        tvNoiDung = findViewById(R.id.tvNoiDung);
+        tvThoiLuong = findViewById(R.id.tvThoiLuong);
+        tvLuotXem = findViewById(R.id.tvLuotXem);
         tvProgress = findViewById(R.id.tvProgress);
-        tvTimeSpent = findViewById(R.id.tvTimeSpent);
         progressBar = findViewById(R.id.progressBar);
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
@@ -179,36 +197,73 @@ public class BaiGiangDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void initExoPlayer() {
+        player = new ExoPlayer.Builder(this).build();
+        playerView.setPlayer(player);
+    }
+
     private void loadBaiGiang() {
+        showLoading(true);
         baiGiangRepository.getBaiGiangById(baiGiangId, new BaiGiangRepository.OnBaiGiangCallback() {
             @Override
             public void onSuccess(BaiGiang baiGiang) {
+                showLoading(false);
                 currentBaiGiang = baiGiang;
-                updateUI();
+                displayBaiGiang(baiGiang);
                 setupViewPager();
                 loadTienTrinh();
             }
 
             @Override
             public void onError(String errorMessage) {
+                showLoading(false);
                 Toast.makeText(BaiGiangDetailActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 finish();
             }
         });
     }
 
-    private void updateUI() {
-        if (currentBaiGiang != null) {
-            getSupportActionBar().setTitle(currentBaiGiang.getTieuDe());
+    private void displayBaiGiang(BaiGiang baiGiang) {
+        if (baiGiang != null) {
+            getSupportActionBar().setTitle(baiGiang.getTieuDe());
 
-            if (currentBaiGiang.getHinhAnh() != null && !currentBaiGiang.getHinhAnh().isEmpty()) {
-                String imageUrl = Constants.BASE_URL + currentBaiGiang.getHinhAnh();
+            // Hiển thị thông tin cơ bản
+            tvTieuDe.setText(baiGiang.getTieuDe());
+            tvMoTa.setText(baiGiang.getMoTa());
+            tvNoiDung.setText(baiGiang.getNoiDung());
+            tvThoiLuong.setText(formatThoiLuong(baiGiang.getThoiLuong()));
+            tvLuotXem.setText(baiGiang.getLuotXem() + " lượt xem");
+
+            // Load hình ảnh
+            if (baiGiang.getHinhAnh() != null && !baiGiang.getHinhAnh().isEmpty()) {
+                String imageUrl = Constants.BASE_URL + baiGiang.getHinhAnh();
                 Glide.with(this)
                         .load(imageUrl)
-                        .placeholder(R.drawable.ic_launcher_foreground)
-                        .error(R.drawable.ic_launcher_foreground)
+                        .placeholder(R.drawable.placeholder_image)
+                        .error(R.drawable.placeholder_image)
                         .into(ivBaiGiang);
             }
+
+            // Load video nếu có
+            if (baiGiang.getVideoURL() != null && !baiGiang.getVideoURL().isEmpty()) {
+                String videoUrl = Constants.BASE_URL + baiGiang.getVideoURL();
+                playerView.setVisibility(View.VISIBLE);
+                MediaItem mediaItem = MediaItem.fromUri(videoUrl);
+                player.setMediaItem(mediaItem);
+                player.prepare();
+            } else {
+                playerView.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    private String formatThoiLuong(int phut) {
+        if (phut < 60) {
+            return phut + " phút";
+        } else {
+            int gio = phut / 60;
+            int phutConLai = phut % 60;
+            return gio + " giờ " + phutConLai + " phút";
         }
     }
 
@@ -421,5 +476,43 @@ public class BaiGiangDetailActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    private void showLoading(boolean isLoading) {
+        progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (player != null) {
+            player.release();
+            player = null;
+        }
+    }
+
+    // Implement các phương thức của OnBaiGiangListener
+    @Override
+    public void onBaiGiangLoaded(BaiGiang baiGiang) {
+        displayBaiGiang(baiGiang);
+    }
+
+    @Override
+    public void onBaiGiangError(String error) {
+        Toast.makeText(this, "Lỗi: " + error, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onTienTrinhLoaded(TienTrinh tienTrinh) {
+        if (tienTrinh != null) {
+            int progress = (int) ((tienTrinh.getThoiGianHoc() * 100) / (baiGiangController.getBaiGiang().getThoiLuong() * 60));
+            tvProgress.setText("Tiến độ: " + progress + "%");
+            progressBar.setProgress(progress);
+        }
+    }
+
+    @Override
+    public void onTienTrinhError(String error) {
+        Toast.makeText(this, "Lỗi cập nhật tiến độ: " + error, Toast.LENGTH_SHORT).show();
     }
 }

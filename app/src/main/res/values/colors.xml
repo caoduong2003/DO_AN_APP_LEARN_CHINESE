@@ -41,4 +41,22 @@
     <color name="wrong_answer">#FFCDD2</color>
     <color name="option_normal">#FFFFFF</color>
     <color name="option_border">#E0E0E0</color>
+
+    <!-- Video player colors -->
+    <color name="video_overlay">#80000000</color>
+    <color name="video_control_background">#B3000000</color>
+
+    <!-- Primary colors -->
+    <color name="primary_color">#2196F3</color>
+    <color name="primary_dark">#1976D2</color>
+    <color name="accent_color">#FF4081</color>
+
+    <!-- Background colors -->
+    <color name="background_primary">#FFFFFF</color>
+    <color name="background_secondary">#F5F5F5</color>
+
+    <!-- Status colors -->
+    <color name="success_color">#4CAF50</color>
+    <color name="error_color">#F44336</color>
+    <color name="warning_color">#FF9800</color>
 </resources>

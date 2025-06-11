@@ -1,11 +1,19 @@
 package com.example.app_learn_chinese_2025.model.data;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class CapDoHSK implements Serializable {
+    @SerializedName("id")
     private int ID;
+
+    @SerializedName("capDo")
     private int CapDo;
+
+    @SerializedName("tenCapDo")
     private String TenCapDo;
+
+    @SerializedName("moTa")
     private String MoTa;
 
     // Constructor mặc định

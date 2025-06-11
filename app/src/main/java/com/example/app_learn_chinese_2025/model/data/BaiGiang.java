@@ -1,30 +1,63 @@
 package com.example.app_learn_chinese_2025.model.data;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import java.util.Date;
 
 public class BaiGiang implements Serializable {
+    @SerializedName("id")
     private long ID;
-    private String MaBaiGiang;
-    private String TieuDe;
-    private String MoTa;
-    private String NoiDung;
-    private Date NgayTao;
-    private Date NgayCapNhat;
-    private long GiangVienID;
-    private LoaiBaiGiang LoaiBaiGiang;
-    private CapDoHSK CapDoHSK;
-    private ChuDe ChuDe;
-    private int LuotXem;
-    private int ThoiLuong;
-    private String HinhAnh;
-    private String VideoURL;
-    private String AudioURL;
-    private boolean TrangThai;
-    private boolean LaBaiGiangGoi;
 
-    // Các trường bổ sung không lưu trong database
-    private String TenGiangVien;
+    @SerializedName("maBaiGiang")
+    private String MaBaiGiang;
+
+    @SerializedName("tieuDe")
+    private String TieuDe;
+
+    @SerializedName("moTa")
+    private String MoTa;
+
+    @SerializedName("noiDung")
+    private String NoiDung;
+
+    @SerializedName("ngayTao")
+    private Date NgayTao;
+
+    @SerializedName("ngayCapNhat")
+    private Date NgayCapNhat;
+
+    @SerializedName("giangVienID")
+    private long GiangVienID;
+
+    @SerializedName("loaiBaiGiang")
+    private LoaiBaiGiang LoaiBaiGiang;
+
+    @SerializedName("capDoHSK")
+    private CapDoHSK CapDoHSK;
+
+    @SerializedName("chuDe")
+    private ChuDe ChuDe;
+
+    @SerializedName("luotXem")
+    private int LuotXem;
+
+    @SerializedName("thoiLuong")
+    private int ThoiLuong;
+
+    @SerializedName("hinhAnh")
+    private String HinhAnh;
+
+    @SerializedName("videoURL")
+    private String VideoURL;
+
+    @SerializedName("audioURL")
+    private String AudioURL;
+
+    @SerializedName("trangThai")
+    private boolean TrangThai;
+
+    @SerializedName("laBaiGiangGoi")
+    private boolean LaBaiGiangGoi;
 
     // Constructor mặc định
     public BaiGiang() {
@@ -56,7 +89,7 @@ public class BaiGiang implements Serializable {
         this.LaBaiGiangGoi = laBaiGiangGoi;
     }
 
-    // Getters và Setters
+    // Getters và Setters (giữ nguyên tên PascalCase để tương thích với code hiện tại)
     public long getID() {
         return ID;
     }
@@ -199,13 +232,5 @@ public class BaiGiang implements Serializable {
 
     public void setLaBaiGiangGoi(boolean laBaiGiangGoi) {
         this.LaBaiGiangGoi = laBaiGiangGoi;
-    }
-
-    public String getTenGiangVien() {
-        return TenGiangVien;
-    }
-
-    public void setTenGiangVien(String tenGiangVien) {
-        this.TenGiangVien = tenGiangVien;
     }
 }

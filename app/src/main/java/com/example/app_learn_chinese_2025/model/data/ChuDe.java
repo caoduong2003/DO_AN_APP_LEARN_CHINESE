@@ -1,11 +1,20 @@
+// ChuDe.java
 package com.example.app_learn_chinese_2025.model.data;
 
+import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class ChuDe implements Serializable {
+    @SerializedName("id")
     private int ID;
+
+    @SerializedName("tenChuDe")
     private String TenChuDe;
+
+    @SerializedName("moTa")
     private String MoTa;
+
+    @SerializedName("hinhAnh")
     private String HinhAnh;
 
     // Constructor mặc định

@@ -16,6 +16,7 @@ import com.example.app_learn_chinese_2025.model.data.TienTrinh;
 
 
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.ResponseBody;
@@ -106,10 +107,6 @@ public interface ApiService {
     @POST("api/translation/zh-to-vi")
     Call<TranslationResponse> translateChineseToVietnamese(@Body String text);
 
-    // File upload API
-    @Multipart
-    @POST("api/files/upload")
-    Call<ResponseBody> uploadFile(@Header("Authorization") String token, @Part MultipartBody.Part file);
 
     // Updated ApiService.java để khớp với database schema
     // 1. Cập nhật method getTuVungById (đã có trong API)
@@ -189,6 +186,29 @@ public interface ApiService {
     Call<List<UserResponse>> searchUsers(@Header("Authorization") String token,
                                          @Query("keyword") String keyword,
                                          @Query("vaiTro") Integer vaiTro);
+
+    // File upload APIs
+    @Multipart
+    @POST("api/files/upload")
+    Call<ResponseBody> uploadFile(@Header("Authorization") String token, @Part MultipartBody.Part file);
+
+    // Video upload APIs
+    @Multipart
+    @POST("api/baigiang/{id}/upload-video")
+    Call<Map<String, Object>> uploadVideoForLesson(@Path("id") long id, @Part MultipartBody.Part video);
+
+    @Multipart
+    @POST("api/baigiang/{id}/upload-thumbnail")
+    Call<Map<String, Object>> uploadThumbnailForLesson(@Path("id") long id, @Part MultipartBody.Part image);
+
+    // Media upload APIs
+    @Multipart
+    @POST("api/media/upload/video")
+    Call<Map<String, Object>> uploadVideo(@Part MultipartBody.Part video);
+
+    @Multipart
+    @POST("api/media/upload/image")
+    Call<Map<String, Object>> uploadImage(@Part MultipartBody.Part image);
 
     // DTO Classes để khớp với backend
     public static class CreateUserRequest {
@@ -660,4 +680,5 @@ public interface ApiService {
             this.last = last;
         }
     }
+
 }

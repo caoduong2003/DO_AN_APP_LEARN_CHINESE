@@ -2,31 +2,51 @@ package com.example.app_learn_chinese_2025.view.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.bumptech.glide.Glide;
 import com.example.app_learn_chinese_2025.R;
 import com.example.app_learn_chinese_2025.model.data.BaiGiang;
 import com.example.app_learn_chinese_2025.model.data.CapDoHSK;
 import com.example.app_learn_chinese_2025.model.data.ChuDe;
 import com.example.app_learn_chinese_2025.model.data.LoaiBaiGiang;
 import com.example.app_learn_chinese_2025.model.data.User;
+import com.example.app_learn_chinese_2025.model.remote.RetrofitClient;
 import com.example.app_learn_chinese_2025.model.repository.BaiGiangRepository;
 import com.example.app_learn_chinese_2025.util.SessionManager;
 import com.google.android.material.textfield.TextInputEditText;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+
+import android.provider.OpenableColumns;
+import androidx.annotation.Nullable;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 public class EditBaiGiangActivity extends AppCompatActivity {
     private TextView tvTitle;
@@ -48,6 +68,14 @@ public class EditBaiGiangActivity extends AppCompatActivity {
     private int selectedLoaiBaiGiangPosition = 0;
     private int selectedCapDoHSKPosition = 0;
     private int selectedChuDePosition = 0;
+
+    private static final int REQUEST_VIDEO_PICK = 1001;
+    private static final int REQUEST_IMAGE_PICK = 1002;
+
+    private Button btnSelectVideo, btnUploadVideo, btnSelectImage, btnUploadImage;
+    private TextView tvSelectedVideo;
+    private ImageView ivThumbnail;
+    private Uri selectedVideoUri, selectedImageUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,11 +130,24 @@ public class EditBaiGiangActivity extends AppCompatActivity {
         loaiBaiGiangList = new ArrayList<>();
         capDoHSKList = new ArrayList<>();
         chuDeList = new ArrayList<>();
+
+        btnSelectVideo = findViewById(R.id.btnSelectVideo);
+        btnUploadVideo = findViewById(R.id.btnUploadVideo);
+        btnSelectImage = findViewById(R.id.btnSelectImage);
+        btnUploadImage = findViewById(R.id.btnUploadImage);
+        tvSelectedVideo = findViewById(R.id.tvSelectedVideo);
+        ivThumbnail = findViewById(R.id.ivThumbnail);
     }
 
     private void setupListeners() {
         btnSave.setOnClickListener(v -> saveBaiGiang());
         btnCancel.setOnClickListener(v -> finish());
+
+        btnSelectVideo.setOnClickListener(v -> selectVideo());
+        btnUploadVideo.setOnClickListener(v -> uploadVideo());
+        btnSelectImage.setOnClickListener(v -> selectImage());
+        btnUploadImage.setOnClickListener(v -> uploadImage());
+
 
         btnManageTuVung.setOnClickListener(v -> {
             if (baiGiangId != -1) {
@@ -435,5 +476,216 @@ public class EditBaiGiangActivity extends AppCompatActivity {
                 })
                 .setNegativeButton("Không", (dialog, which) -> finish())
                 .show();
+    }
+
+    private void selectVideo() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("video/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(Intent.createChooser(intent, "Chọn video"), REQUEST_VIDEO_PICK);
+    }
+
+    private void selectImage() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(Intent.createChooser(intent, "Chọn hình ảnh"), REQUEST_IMAGE_PICK);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK && data != null) {
+            if (requestCode == REQUEST_VIDEO_PICK) {
+                selectedVideoUri = data.getData();
+                if (selectedVideoUri != null) {
+                    String fileName = getFileName(selectedVideoUri);
+                    tvSelectedVideo.setText("Đã chọn: " + fileName);
+                    btnUploadVideo.setEnabled(true);
+                }
+            } else if (requestCode == REQUEST_IMAGE_PICK) {
+                selectedImageUri = data.getData();
+                if (selectedImageUri != null) {
+                    // Show preview
+                    Glide.with(this)
+                            .load(selectedImageUri)
+                            .into(ivThumbnail);
+                    btnUploadImage.setEnabled(true);
+                }
+            }
+        }
+    }
+
+    private String getFileName(Uri uri) {
+        String result = null;
+        if (uri.getScheme().equals("content")) {
+            try (Cursor cursor = getContentResolver().query(uri, null, null, null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
+                    if (nameIndex >= 0) {
+                        result = cursor.getString(nameIndex);
+                    }
+                }
+            }
+        }
+        if (result == null) {
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if (cut != -1) {
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
+    }
+
+    private void uploadVideo() {
+        if (selectedVideoUri == null) {
+            Toast.makeText(this, "Vui lòng chọn video trước", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (baiGiangId == -1) {
+            Toast.makeText(this, "Vui lòng lưu bài giảng trước khi upload video", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressDialog.setMessage("Đang upload video...");
+        progressDialog.show();
+
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(selectedVideoUri);
+            String fileName = getFileName(selectedVideoUri);
+
+            // Create multipart request
+            RequestBody requestFile = RequestBody.create(
+                    MediaType.parse("video/*"),
+                    getBytes(inputStream)
+            );
+
+            MultipartBody.Part videoPart = MultipartBody.Part.createFormData("video", fileName, requestFile);
+
+            RetrofitClient.getInstance().getApiService().uploadVideoForLesson(baiGiangId, videoPart)
+                    .enqueue(new Callback<Map<String, Object>>() {
+                        @Override
+                        public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                            progressDialog.dismiss();
+                            if (response.isSuccessful() && response.body() != null) {
+                                Map<String, Object> result = response.body();
+                                Boolean success = (Boolean) result.get("success");
+                                if (success != null && success) {
+                                    String videoUrl = (String) result.get("videoUrl");
+                                    Toast.makeText(EditBaiGiangActivity.this, "Upload video thành công", Toast.LENGTH_SHORT).show();
+
+                                    // Update current bai giang
+                                    if (currentBaiGiang != null) {
+                                        currentBaiGiang.setVideoURL(videoUrl);
+                                    }
+
+                                    // Reset UI
+                                    selectedVideoUri = null;
+                                    tvSelectedVideo.setText("Video đã được upload");
+                                    btnUploadVideo.setEnabled(false);
+                                } else {
+                                    String error = (String) result.get("error");
+                                    Toast.makeText(EditBaiGiangActivity.this, "Upload thất bại: " + error, Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(EditBaiGiangActivity.this, "Upload thất bại", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                            progressDialog.dismiss();
+                            Toast.makeText(EditBaiGiangActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        } catch (Exception e) {
+            progressDialog.dismiss();
+            Toast.makeText(this, "Lỗi đọc file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void uploadImage() {
+        if (selectedImageUri == null) {
+            Toast.makeText(this, "Vui lòng chọn hình ảnh trước", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (baiGiangId == -1) {
+            Toast.makeText(this, "Vui lòng lưu bài giảng trước khi upload hình ảnh", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressDialog.setMessage("Đang upload hình ảnh...");
+        progressDialog.show();
+
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
+            String fileName = getFileName(selectedImageUri);
+
+            // Create multipart request
+            RequestBody requestFile = RequestBody.create(
+                    MediaType.parse("image/*"),
+                    getBytes(inputStream)
+            );
+
+            MultipartBody.Part imagePart = MultipartBody.Part.createFormData("image", fileName, requestFile);
+
+            RetrofitClient.getInstance().getApiService().uploadThumbnailForLesson(baiGiangId, imagePart)
+                    .enqueue(new Callback<Map<String, Object>>() {
+                        @Override
+                        public void onResponse(Call<Map<String, Object>> call, Response<Map<String, Object>> response) {
+                            progressDialog.dismiss();
+                            if (response.isSuccessful() && response.body() != null) {
+                                Map<String, Object> result = response.body();
+                                Boolean success = (Boolean) result.get("success");
+                                if (success != null && success) {
+                                    String imageUrl = (String) result.get("imageUrl");
+                                    Toast.makeText(EditBaiGiangActivity.this, "Upload hình ảnh thành công", Toast.LENGTH_SHORT).show();
+
+                                    // Update current bai giang
+                                    if (currentBaiGiang != null) {
+                                        currentBaiGiang.setHinhAnh(imageUrl);
+                                    }
+
+                                    // Reset UI
+                                    selectedImageUri = null;
+                                    btnUploadImage.setEnabled(false);
+                                } else {
+                                    String error = (String) result.get("error");
+                                    Toast.makeText(EditBaiGiangActivity.this, "Upload thất bại: " + error, Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(EditBaiGiangActivity.this, "Upload thất bại", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<Map<String, Object>> call, Throwable t) {
+                            progressDialog.dismiss();
+                            Toast.makeText(EditBaiGiangActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+        } catch (Exception e) {
+            progressDialog.dismiss();
+            Toast.makeText(this, "Lỗi đọc file: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+
+        return byteBuffer.toByteArray();
     }
 }
