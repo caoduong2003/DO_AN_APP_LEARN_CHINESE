@@ -1,120 +1,256 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    android:layout_marginStart="8dp"
+    android:layout_marginTop="4dp"
+    android:layout_marginEnd="8dp"
+    android:layout_marginBottom="4dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="8dp">
+        android:orientation="vertical"
+        android:padding="12dp">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/placeholder_image" />
+        <!-- Header với thumbnail và video indicator -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="160dp"
+            android:layout_marginBottom="8dp">
 
+            <!-- Thumbnail bài giảng -->
+            <ImageView
+                android:id="@+id/ivBaiGiang"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/gray_light"
+                android:contentDescription="Hình ảnh bài giảng"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_launcher_foreground" />
+
+            <!-- Video indicator overlay -->
+            <ImageView
+                android:id="@+id/ivVideoIndicator"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_centerInParent="true"
+                android:background="@drawable/bg_circle_semi_transparent"
+                android:contentDescription="Có video"
+                android:padding="6dp"
+                android:src="@drawable/ic_play_arrow"
+                android:visibility="gone"
+                app:tint="@android:color/white" />
+
+            <!-- Premium badge -->
+            <TextView
+                android:id="@+id/tvPremiumBadge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_premium_badge"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="4dp"
+                android:text="PREMIUM"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone" />
+
+            <!-- Status overlay -->
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="8dp"
+                android:background="@drawable/bg_status_inactive"
+                android:paddingStart="8dp"
+                android:paddingTop="4dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="4dp"
+                android:text="Không hoạt động"
+                android:textColor="@android:color/white"
+                android:textSize="10sp"
+                android:visibility="gone" />
+
+        </RelativeLayout>
+
+        <!-- Tiêu đề bài giảng -->
+        <TextView
+            android:id="@+id/tvTieuDe"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="Tiêu đề bài giảng"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="Học chào hỏi tiếng Trung cơ bản" />
+
+        <!-- Mô tả bài giảng -->
+        <TextView
+            android:id="@+id/tvMoTa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:text="Mô tả bài giảng..."
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp"
+            tools:text="Bài học này sẽ giúp bạn học cách chào hỏi cơ bản trong tiếng Trung" />
+
+        <!-- Thông tin chi tiết -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:orientation="vertical">
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal">
 
+            <!-- Cấp độ HSK -->
             <TextView
-                android:id="@+id/titleTextView"
-                android:layout_width="match_parent"
+                android:id="@+id/tvCapDoHSK"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textColor="@android:color/black"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_weight="1"
+                android:background="@drawable/bg_tag_hsk"
+                android:paddingStart="6dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="2dp"
+                android:text="HSK 1"
+                android:textColor="@color/hsk_color"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="HSK 1" />
 
+            <View
+                android:layout_width="8dp"
+                android:layout_height="1dp" />
+
+            <!-- Chủ đề -->
             <TextView
-                android:id="@+id/descriptionTextView"
-                android:layout_width="match_parent"
+                android:id="@+id/tvChuDe"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:ellipsize="end"
-                android:maxLines="2"
-                android:textColor="@android:color/darker_gray"
-                android:textSize="14sp" />
+                android:layout_weight="1"
+                android:background="@drawable/bg_tag_topic"
+                android:paddingStart="6dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="2dp"
+                android:text="Chào hỏi"
+                android:textColor="@color/topic_color"
+                android:textSize="12sp"
+                tools:text="Chào hỏi" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <View
+                android:layout_width="8dp"
+                android:layout_height="1dp" />
+
+            <!-- Loại bài giảng -->
+            <TextView
+                android:id="@+id/tvLoaiBaiGiang"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:background="@drawable/bg_tag_type"
+                android:paddingStart="6dp"
+                android:paddingTop="2dp"
+                android:paddingEnd="6dp"
+                android:paddingBottom="2dp"
+                android:text="Giao tiếp"
+                android:textColor="@color/type_color"
+                android:textSize="12sp"
+                tools:text="Giao tiếp" />
 
-                <TextView
-                    android:id="@+id/categoryTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_tag"
-                    android:padding="4dp"
-                    android:textColor="@android:color/white"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/levelTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:background="@drawable/bg_tag"
-                    android:padding="4dp"
-                    android:textColor="@android:color/white"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/topicTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:background="@drawable/bg_tag"
-                    android:padding="4dp"
-                    android:textColor="@android:color/white"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/dateTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:drawableStart="@drawable/ic_calendar"
-                    android:drawablePadding="4dp"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/durationTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:drawableStart="@drawable/ic_time"
-                    android:drawablePadding="4dp"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/viewsTextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:drawableStart="@drawable/ic_views"
-                    android:drawablePadding="4dp"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp" />
-            </LinearLayout>
         </LinearLayout>
+
+        <!-- Thống kê -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:orientation="horizontal">
+
+            <!-- Lượt xem -->
+            <TextView
+                android:id="@+id/tvLuotXem"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableStart="@drawable/ic_visibility"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:text="0 lượt xem"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                tools:text="125 lượt xem" />
+
+            <!-- Thời lượng -->
+            <TextView
+                android:id="@+id/tvThoiLuong"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:drawableStart="@drawable/ic_schedule"
+                android:drawablePadding="4dp"
+                android:gravity="center_vertical"
+                android:text="30 phút"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                tools:text="45 phút" />
+
+        </LinearLayout>
+
+        <!-- Action buttons cho giáo viên -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button_secondary"
+                android:text="Sửa"
+                android:textColor="@color/button_secondary_text"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="0dp"
+                android:layout_height="36dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_button_danger"
+                android:text="Xóa"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
     </LinearLayout>
+
 </androidx.cardview.widget.CardView>

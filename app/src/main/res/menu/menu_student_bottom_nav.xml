@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_lessons"
+        android:icon="@drawable/ic_school"
+        android:title="Bài giảng" />
+
+    <item
+        android:id="@+id/nav_progress"
+        android:icon="@drawable/ic_trending_up"
+        android:title="Tiến trình" />
+
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/ic_person"
+        android:title="Hồ sơ" />
+
+</menu>

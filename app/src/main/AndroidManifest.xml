@@ -2,10 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Thêm quyền Internet -->
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- Nếu cần truy cập trạng thái mạng -->
+    <!-- QUAN TRỌNG: Thêm các permissions cho network và media -->
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!-- Thêm permission cho video và audio -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
     <application
         android:hardwareAccelerated="true"
         android:allowBackup="true"
@@ -20,6 +25,7 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
 
+
         <activity
             android:name=".view.activity.AddEditUserActivity"
             android:exported="false" />
@@ -31,7 +37,9 @@
             android:exported="false" />
         <activity
             android:name=".view.activity.BaiGiangDetailActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".view.activity.StudentDashboardActivity"
             android:exported="false" />
