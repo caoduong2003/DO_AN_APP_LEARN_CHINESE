@@ -20,6 +20,14 @@ public class CapDoHSK implements Serializable {
     public CapDoHSK() {
     }
 
+    // Constructor đơn giản cho giá trị mặc định
+    public CapDoHSK(int id, String tenCapDo) {
+        this.ID = id;
+        this.CapDo = id; // Giả sử capDo bằng id (ví dụ: HSK 1 -> capDo = 1)
+        this.TenCapDo = tenCapDo;
+        this.MoTa = "Cấp độ " + tenCapDo; // Mô tả mặc định
+    }
+
     // Constructor đầy đủ
     public CapDoHSK(int ID, int capDo, String tenCapDo, String moTa) {
         this.ID = ID;

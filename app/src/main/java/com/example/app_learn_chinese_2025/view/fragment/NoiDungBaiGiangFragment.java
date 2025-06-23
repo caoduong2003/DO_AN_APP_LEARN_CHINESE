@@ -60,7 +60,7 @@ public class NoiDungBaiGiangFragment extends Fragment {
         webViewNoiDung = view.findViewById(R.id.webViewNoiDung);
 
         sessionManager = new SessionManager(requireContext());
-        baiGiangRepository = new BaiGiangRepository(sessionManager);
+        baiGiangRepository = new BaiGiangRepository(requireContext(), sessionManager);
     }
 
     private void loadBaiGiang() {

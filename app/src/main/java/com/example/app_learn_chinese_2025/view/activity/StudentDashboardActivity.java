@@ -52,18 +52,23 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_student_dashboard);
+        try {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_student_dashboard);
+            Log.d(TAG, "StudentDashboardActivity onCreate started");
 
-        Log.d(TAG, "StudentDashboardActivity onCreate started");
+            initViews();
+            setupToolbar();
+            loadUserInfo();
+            setupViewPager();
+            setupBottomNavigation();
 
-        initViews();
-        setupToolbar();
-        loadUserInfo();
-        setupViewPager();
-        setupBottomNavigation();
-
-        Log.d(TAG, "StudentDashboardActivity onCreate completed");
+            Log.d(TAG, "StudentDashboardActivity onCreate completed");
+        } catch (Exception e) {
+            Log.e(TAG, "Crash in onCreate: " + e.getMessage(), e);
+            Toast.makeText(this, "Lỗi khởi tạo: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            redirectToLogin();
+        }
     }
 
     private void initViews() {
@@ -90,15 +95,20 @@ public class StudentDashboardActivity extends AppCompatActivity {
     }
 
     private void loadUserInfo() {
-        User user = sessionManager.getUserDetails();
-        if (user != null) {
-            String welcomeText = "Xin chào " + user.getHoTen() + "! 👋";
-            tvWelcome.setText(welcomeText);
-            Log.d(TAG, "User loaded: " + user.getHoTen() + " (ID: " + user.getID() + ")");
-        } else {
+        try {
+            User user = sessionManager.getUserDetails();
+            if (user != null && user.getHoTen() != null && !user.getHoTen().isEmpty()) {
+                String welcomeText = "Xin chào " + user.getHoTen() + "! 👋";
+                tvWelcome.setText(welcomeText);
+                Log.d(TAG, "User loaded: " + user.getHoTen() + " (ID: " + user.getID() + ")");
+            } else {
+                tvWelcome.setText("Xin chào học viên!");
+                Log.w(TAG, "User is null or HoTen is invalid");
+                redirectToLogin();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error loading user info: " + e.getMessage(), e);
             tvWelcome.setText("Xin chào học viên!");
-            Log.e(TAG, "User is null - should not happen");
-            // Redirect to login if user is null
             redirectToLogin();
         }
     }
@@ -198,7 +208,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
             refreshCurrentFragment();
             return true;
         } else if (id == R.id.action_settings) {
-            // TODO: Navigate to settings
             Toast.makeText(this, "Tính năng cài đặt đang phát triển", Toast.LENGTH_SHORT).show();
             return true;
         } else if (id == R.id.action_logout) {

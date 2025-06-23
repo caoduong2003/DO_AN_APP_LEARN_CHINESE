@@ -28,6 +28,7 @@ import com.example.app_learn_chinese_2025.model.repository.BaiGiangRepository;
 import com.example.app_learn_chinese_2025.util.SessionManager;
 import com.example.app_learn_chinese_2025.view.activity.BaiGiangDetailActivity;
 import com.example.app_learn_chinese_2025.view.adapter.BaiGiangAdapter;
+
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -35,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.OnBaiGiangItemClickListener {
+
+    private static final String TAG = "BaiGiangListFragment";
 
     // UI Components
     private Spinner spinnerCapDoHSK, spinnerChuDe;
@@ -71,7 +74,7 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
 
         // Load data
         loadSpinnerData();
-        loadBaiGiangs(null, null); // Load all initially
+        loadBaiGiangs(null, null, null, null); // Load all initially
 
         return view;
     }
@@ -88,23 +91,22 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
         chipGridView = view.findViewById(R.id.chipGridView);
 
         sessionManager = new SessionManager(requireContext());
-        baiGiangRepository = new BaiGiangRepository(sessionManager);
+        baiGiangRepository = new BaiGiangRepository(requireContext(), sessionManager);
 
         baiGiangList = new ArrayList<>();
         filteredList = new ArrayList<>();
         capDoHSKList = new ArrayList<>();
         chuDeList = new ArrayList<>();
 
-        Log.d("BAIGIANG_FRAGMENT", "Fragment initialized");
+        Log.d(TAG, "Fragment initialized");
     }
 
     private void setupRecyclerView() {
-        // QUAN TRỌNG: Sử dụng interface đúng và set isTeacher = false cho học sinh
-        adapter = new BaiGiangAdapter(requireContext(), filteredList, false, this);
+        adapter = new BaiGiangAdapter(requireContext(), filteredList, this);
         rvBaiGiang.setLayoutManager(new LinearLayoutManager(requireContext()));
         rvBaiGiang.setAdapter(adapter);
 
-        Log.d("BAIGIANG_FRAGMENT", "RecyclerView setup completed");
+        Log.d(TAG, "RecyclerView setup completed");
     }
 
     private void setupViewModeChips() {
@@ -140,12 +142,12 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
         }
 
         adapter.notifyDataSetChanged();
-        Log.d("BAIGIANG_FRAGMENT", "View mode toggled to: " + (isGridView ? "Grid" : "List"));
+        Log.d(TAG, "View mode toggled to: " + (isGridView ? "Grid" : "List"));
     }
 
     private void setupListeners() {
         swipeRefresh.setOnRefreshListener(() -> {
-            Log.d("BAIGIANG_FRAGMENT", "Refresh triggered");
+            Log.d(TAG, "Refresh triggered");
             applyFilters();
         });
 
@@ -155,7 +157,7 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (selectedCapDoHSKPosition != position) {
                     selectedCapDoHSKPosition = position;
-                    Log.d("BAIGIANG_FRAGMENT", "CapDoHSK filter changed to position: " + position);
+                    Log.d(TAG, "CapDoHSK filter changed to position: " + position);
                     applyFilters();
                 }
             }
@@ -171,7 +173,7 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (selectedChuDePosition != position) {
                     selectedChuDePosition = position;
-                    Log.d("BAIGIANG_FRAGMENT", "ChuDe filter changed to position: " + position);
+                    Log.d(TAG, "ChuDe filter changed to position: " + position);
                     applyFilters();
                 }
             }
@@ -184,20 +186,20 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
     }
 
     private void loadSpinnerData() {
-        Log.d("BAIGIANG_FRAGMENT", "Loading spinner data");
+        Log.d(TAG, "Loading spinner data");
 
         // Load CapDoHSK data
         baiGiangRepository.getAllCapDoHSK(new BaiGiangRepository.OnCapDoHSKListCallback() {
             @Override
             public void onSuccess(List<CapDoHSK> capDoHSKs) {
-                Log.d("BAIGIANG_FRAGMENT", "Loaded " + capDoHSKs.size() + " CapDoHSK items");
+                Log.d(TAG, "Loaded " + capDoHSKs.size() + " CapDoHSK items");
                 capDoHSKList = capDoHSKs;
                 setupCapDoHSKSpinner();
             }
 
             @Override
             public void onError(String errorMessage) {
-                Log.e("BAIGIANG_FRAGMENT", "Error loading CapDoHSK: " + errorMessage);
+                Log.e(TAG, "Error loading CapDoHSK: " + errorMessage);
                 Toast.makeText(requireContext(), "Lỗi tải cấp độ HSK: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -206,14 +208,14 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
         baiGiangRepository.getAllChuDe(new BaiGiangRepository.OnChuDeListCallback() {
             @Override
             public void onSuccess(List<ChuDe> chuDes) {
-                Log.d("BAIGIANG_FRAGMENT", "Loaded " + chuDes.size() + " ChuDe items");
+                Log.d(TAG, "Loaded " + chuDes.size() + " ChuDe items");
                 chuDeList = chuDes;
                 setupChuDeSpinner();
             }
 
             @Override
             public void onError(String errorMessage) {
-                Log.e("BAIGIANG_FRAGMENT", "Error loading ChuDe: " + errorMessage);
+                Log.e(TAG, "Error loading ChuDe: " + errorMessage);
                 Toast.makeText(requireContext(), "Lỗi tải chủ đề: " + errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -234,7 +236,7 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
 
         // Set default selection
         spinnerCapDoHSK.setSelection(0);
-        Log.d("BAIGIANG_FRAGMENT", "CapDoHSK spinner setup completed with " + spinnerItems.size() + " items");
+        Log.d(TAG, "CapDoHSK spinner setup completed with " + spinnerItems.size() + " items");
     }
 
     private void setupChuDeSpinner() {
@@ -252,7 +254,7 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
 
         // Set default selection
         spinnerChuDe.setSelection(0);
-        Log.d("BAIGIANG_FRAGMENT", "ChuDe spinner setup completed with " + spinnerItems.size() + " items");
+        Log.d(TAG, "ChuDe spinner setup completed with " + spinnerItems.size() + " items");
     }
 
     private void applyFilters() {
@@ -268,26 +270,25 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
             chuDeId = chuDeList.get(selectedChuDePosition - 1).getID(); // -1 because first item is "Tất cả"
         }
 
-        Log.d("BAIGIANG_FRAGMENT", "Applying filters - CapDoHSK_ID: " + capDoHSK_ID + ", ChuDeId: " + chuDeId);
+        Log.d(TAG, "Applying filters - CapDoHSK_ID: " + capDoHSK_ID + ", ChuDeId: " + chuDeId);
 
         // Load bai giang with filters
-        loadBaiGiangs(capDoHSK_ID, chuDeId);
+        loadBaiGiangs(null, null, capDoHSK_ID, chuDeId);
     }
 
-    private void loadBaiGiangs(Integer capDoHSK_ID, Integer chuDeId) {
+    private void loadBaiGiangs(Integer loaiBaiGiangId, Long giangVienId, Integer capDoHSK_ID, Integer chuDeId) {
         swipeRefresh.setRefreshing(true);
         showEmptyState(false);
 
-        // Add parameter to only get published lessons (trangThai = true)
+        // Only get published lessons
         Boolean published = true;
 
-        Log.d("BAIGIANG_FRAGMENT", "Loading bài giảng with filters - CapDoHSK: " + capDoHSK_ID + ", ChuDe: " + chuDeId);
+        Log.d(TAG, "Loading bài giảng with filters - loaiBaiGiangId: " + loaiBaiGiangId + ", giangVienId: " + giangVienId + ", capDoHSK_ID: " + capDoHSK_ID + ", chuDeId: " + chuDeId);
 
-        baiGiangRepository.getAllBaiGiang(null, null, capDoHSK_ID, chuDeId, published, new BaiGiangRepository.OnBaiGiangListCallback() {
+        baiGiangRepository.getAllBaiGiang(giangVienId, loaiBaiGiangId, capDoHSK_ID, chuDeId, published, new BaiGiangRepository.OnBaiGiangListCallback() {
             @Override
             public void onSuccess(List<BaiGiang> baiGiangs) {
-                Log.d("BAIGIANG_FRAGMENT", "Successfully loaded " + baiGiangs.size() + " bài giảng");
-
+                Log.d(TAG, "Successfully loaded " + baiGiangs.size() + " bài giảng");
                 baiGiangList = baiGiangs;
                 filteredList.clear();
                 filteredList.addAll(baiGiangs);
@@ -304,7 +305,7 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
 
             @Override
             public void onError(String errorMessage) {
-                Log.e("BAIGIANG_FRAGMENT", "Error loading bài giảng: " + errorMessage);
+                Log.e(TAG, "Error loading BaiGiang: " + errorMessage);
                 Toast.makeText(requireContext(), "Lỗi tải dữ liệu: " + errorMessage, Toast.LENGTH_LONG).show();
                 swipeRefresh.setRefreshing(false);
                 showEmptyState(true);
@@ -344,44 +345,37 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
         }
     }
 
-    // QUAN TRỌNG: Implement interface OnBaiGiangItemClickListener đúng
     @Override
     public void onItemClick(BaiGiang baiGiang) {
-        Log.d("BAIGIANG_FRAGMENT", "Clicked on bài giảng: " + baiGiang.getTieuDe());
+        Log.d(TAG, "Clicked on bài giảng: " + baiGiang.getTieuDe());
 
-        // Navigate to lesson detail screen
         Intent intent = new Intent(requireContext(), BaiGiangDetailActivity.class);
-        intent.putExtra("BAI_GIANG_ID", baiGiang.getID());
+        intent.putExtra("BAI_GIANG_ID", baiGiang.getId());
         startActivity(intent);
     }
 
     @Override
     public void onEditClick(BaiGiang baiGiang) {
-        // Not used for student - này chỉ dành cho giáo viên
-        Log.d("BAIGIANG_FRAGMENT", "Edit click not available for students");
+        Log.d(TAG, "Edit click not available for students");
     }
 
     @Override
     public void onDeleteClick(BaiGiang baiGiang) {
-        // Not used for student - này chỉ dành cho giáo viên
-        Log.d("BAIGIANG_FRAGMENT", "Delete click not available for students");
+        Log.d(TAG, "Delete click not available for students");
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        // Refresh data when returning to fragment
         if (adapter != null && !baiGiangList.isEmpty()) {
             adapter.notifyDataSetChanged();
         }
     }
 
-    // Public method để refresh từ bên ngoài
     public void refreshData() {
         applyFilters();
     }
 
-    // Public method để reset filters
     public void resetFilters() {
         selectedCapDoHSKPosition = 0;
         selectedChuDePosition = 0;
@@ -394,6 +388,6 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
             spinnerChuDe.setSelection(0);
         }
 
-        loadBaiGiangs(null, null);
+        loadBaiGiangs(null, null, null, null);
     }
 }

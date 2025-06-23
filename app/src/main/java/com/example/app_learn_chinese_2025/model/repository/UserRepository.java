@@ -3,7 +3,6 @@ package com.example.app_learn_chinese_2025.model.repository;
 import android.util.Log;
 
 import com.example.app_learn_chinese_2025.model.data.JwtResponse;
-import com.example.app_learn_chinese_2025.model.data.LoginRequest;
 import com.example.app_learn_chinese_2025.model.data.RegisterRequest;
 import com.example.app_learn_chinese_2025.model.data.User;
 import com.example.app_learn_chinese_2025.model.remote.RetrofitClient;
@@ -15,12 +14,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class UserRepository {
-    private SessionManager sessionManager;
     private static final String TAG = "UserRepository";
+    private final SessionManager sessionManager;
 
     public interface OnUserResponseCallback {
         void onSuccess(User user, String token);
-
         void onError(String errorMessage);
     }
 
@@ -29,87 +27,90 @@ public class UserRepository {
     }
 
     public void login(String username, String password, OnUserResponseCallback callback) {
-        LoginRequest loginRequest = new LoginRequest(username, password);
+        RegisterRequest loginRequest = new RegisterRequest();
+        loginRequest.setTenDangNhap(username);
+        loginRequest.setMatKhau(password);
         Log.d(TAG, "Sending login request: " + new Gson().toJson(loginRequest));
 
-        RetrofitClient.getInstance().getApiService().login(loginRequest)
+        RetrofitClient.getInstanceWithoutToken().getApiService().login(loginRequest)
                 .enqueue(new Callback<JwtResponse>() {
                     @Override
                     public void onResponse(Call<JwtResponse> call, Response<JwtResponse> response) {
+                        Log.d(TAG, "Login URL: " + call.request().url());
                         Log.d(TAG, "Login response code: " + response.code());
                         if (response.isSuccessful() && response.body() != null) {
                             JwtResponse jwtResponse = response.body();
-                            Log.d(TAG, "Login response: " + new Gson().toJson(jwtResponse));
                             User user = new User();
                             user.setID(jwtResponse.getId());
                             user.setTenDangNhap(jwtResponse.getTenDangNhap());
                             user.setEmail(jwtResponse.getEmail());
                             user.setHoTen(jwtResponse.getHoTen());
                             user.setVaiTro(jwtResponse.getVaiTro());
-                            user.setTrangThai(true); // Giả sử đăng nhập thành công là true
+                            user.setTrangThai(true);
                             sessionManager.createSession(user, jwtResponse.getToken());
                             callback.onSuccess(user, jwtResponse.getToken());
                         } else {
+                            String errorMessage = "Đăng nhập thất bại: HTTP " + response.code();
                             try {
-                                String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
-                                Log.e(TAG, "Login failed: HTTP " + response.code() + ", Error: " + errorBody);
-                                callback.onError("Đăng nhập thất bại: " + errorBody);
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing error body: " + e.getMessage());
-                                callback.onError("Đăng nhập thất bại");
                             }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<JwtResponse> call, Throwable t) {
-                        Log.e(TAG, "Login network error: " + t.getMessage(), t);
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
 
     public void register(RegisterRequest request, OnUserResponseCallback callback) {
-        // Kiểm tra đối tượng request
         if (request == null) {
             callback.onError("Dữ liệu đăng ký không hợp lệ");
             return;
         }
-
-        // Kiểm tra matKhau không null
         if (request.getMatKhau() == null || request.getMatKhau().isEmpty()) {
             callback.onError("Mật khẩu không được để trống");
             return;
         }
-
-        // Log request để debug
         Log.d(TAG, "Sending register request: " + new Gson().toJson(request));
 
-        RetrofitClient.getInstance().getApiService().register(request)
+        RetrofitClient.getInstanceWithoutToken().getApiService().register(request)
                 .enqueue(new Callback<User>() {
                     @Override
                     public void onResponse(Call<User> call, Response<User> response) {
+                        Log.d(TAG, "Register URL: " + call.request().url());
                         Log.d(TAG, "Register response code: " + response.code());
                         if (response.isSuccessful() && response.body() != null) {
                             User user = response.body();
-                            Log.d(TAG, "Register response: " + new Gson().toJson(user));
-                            callback.onSuccess(user, null); // Không có token khi đăng ký
+                            callback.onSuccess(user, null);
                         } else {
+                            String errorMessage = "Đăng ký thất bại: HTTP " + response.code();
                             try {
-                                String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
-                                Log.e(TAG, "Register failed: HTTP " + response.code() + ", Error: " + errorBody);
-                                callback.onError("Đăng ký thất bại: " + errorBody);
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
                             } catch (Exception e) {
                                 Log.e(TAG, "Error parsing error body: " + e.getMessage());
-                                callback.onError("Đăng ký thất bại");
                             }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
-                        Log.e(TAG, "Register network error: " + t.getMessage(), t);
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
@@ -121,25 +122,32 @@ public class UserRepository {
         }
 
         String token = "Bearer " + sessionManager.getToken();
-        RetrofitClient.getInstance().getApiService().getUserProfile(token)
+        RetrofitClient.getInstance(sessionManager).getApiService().getUserProfile(token)
                 .enqueue(new Callback<User>() {
                     @Override
                     public void onResponse(Call<User> call, Response<User> response) {
+                        Log.d(TAG, "getUserProfile URL: " + call.request().url());
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onSuccess(response.body(), null);
                         } else {
+                            String errorMessage = "Lấy thông tin thất bại: HTTP " + response.code();
                             try {
-                                String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
-                                callback.onError("Lấy thông tin thất bại: " + errorBody);
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
                             } catch (Exception e) {
-                                callback.onError("Lấy thông tin thất bại");
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
                             }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<User> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }

@@ -4,16 +4,12 @@ import com.example.app_learn_chinese_2025.model.data.BaiGiang;
 import com.example.app_learn_chinese_2025.model.data.CapDoHSK;
 import com.example.app_learn_chinese_2025.model.data.ChuDe;
 import com.example.app_learn_chinese_2025.model.data.JwtResponse;
-import com.example.app_learn_chinese_2025.model.data.LoaiBaiGiang;
-import com.example.app_learn_chinese_2025.model.data.LoginRequest;
 import com.example.app_learn_chinese_2025.model.data.RegisterRequest;
 import com.example.app_learn_chinese_2025.model.data.TranslationResponse;
+import com.example.app_learn_chinese_2025.model.data.LoaiBaiGiang;
 import com.example.app_learn_chinese_2025.model.data.TuVung;
-import com.example.app_learn_chinese_2025.model.data.User;
 import com.example.app_learn_chinese_2025.model.data.MauCau;
-import com.example.app_learn_chinese_2025.model.data.TienTrinh;
-
-
+import com.example.app_learn_chinese_2025.model.data.User;
 
 import java.util.List;
 import java.util.Map;
@@ -35,7 +31,7 @@ import retrofit2.http.Query;
 public interface ApiService {
     // Auth APIs
     @POST("api/auth/dangnhap")
-    Call<JwtResponse> login(@Body LoginRequest loginRequest);
+    Call<JwtResponse> login(@Body RegisterRequest loginRequest);
 
     @POST("api/auth/dangky")
     Call<User> register(@Body RegisterRequest registerRequest);
@@ -55,13 +51,14 @@ public interface ApiService {
     @GET("api/loaibaigiang")
     Call<List<LoaiBaiGiang>> getAllLoaiBaiGiang();
 
-    // Update this method in ApiService.java
+    // BaiGiang APIs
     @GET("api/baigiang")
-    Call<List<BaiGiang>> getAllBaiGiang(@Query("giangVienId") Long giangVienId,
-                                        @Query("loaiBaiGiangId") Integer loaiBaiGiangId,
-                                        @Query("capDoHSK_ID") Integer capDoHSK_ID,
-                                        @Query("chuDeId") Integer chuDeId,
-                                        @Query("published") Boolean published);
+    Call<List<BaiGiang>> getAllBaiGiang(
+            @Query("giangVienId") Long giangVienId,
+            @Query("loaiBaiGiangId") Integer loaiBaiGiangId,
+            @Query("capDoHSK_ID") Integer capDoHSK_ID,
+            @Query("chuDeId") Integer chuDeId,
+            @Query("published") Boolean published);
 
     @GET("api/baigiang/{id}")
     Call<BaiGiang> getBaiGiangById(@Path("id") long id);
@@ -75,12 +72,18 @@ public interface ApiService {
     @DELETE("api/baigiang/{id}")
     Call<Void> deleteBaiGiang(@Header("Authorization") String token, @Path("id") long id);
 
+    @DELETE("api/baigiang/admin/{id}")
+    Call<Void> deleteBaiGiangByAdmin(@Header("Authorization") String token, @Path("id") long id);
+
     @GET("api/baigiang/search")
     Call<List<BaiGiang>> searchBaiGiang(@Query("keyword") String keyword);
 
     // TuVung APIs
     @GET("api/tuvung/baigiang/{baiGiangId}")
     Call<List<TuVung>> getTuVungByBaiGiang(@Path("baiGiangId") long baiGiangId);
+
+    @GET("api/tuvung/{id}")
+    Call<TuVung> getTuVungById(@Path("id") long id);
 
     @POST("api/tuvung")
     Call<TuVung> createTuVung(@Header("Authorization") String token, @Body TuVung tuVung);
@@ -107,29 +110,7 @@ public interface ApiService {
     @POST("api/translation/zh-to-vi")
     Call<TranslationResponse> translateChineseToVietnamese(@Body String text);
 
-
-    // Updated ApiService.java để khớp với database schema
-    // 1. Cập nhật method getTuVungById (đã có trong API)
-    @GET("api/tuvung/{id}")
-    Call<TuVung> getTuVungById(@Path("id") long id);
-
-    // 2. Thêm các API endpoints cho TienTrinhHocTap
-    @GET("api/tientrinh/user/{userId}")
-    Call<List<TienTrinh>> getTienTrinhByUser(@Header("Authorization") String token, @Path("userId") long userId);
-
-    @GET("api/tientrinh/user/{userId}/baigiang/{baiGiangId}")
-    Call<TienTrinh> getTienTrinhByUserAndBaiGiang(@Header("Authorization") String token, @Path("userId") long userId, @Path("baiGiangId") long baiGiangId);
-
-    @POST("api/tientrinh")
-    Call<TienTrinh> createTienTrinh(@Header("Authorization") String token, @Body TienTrinh tienTrinh);
-
-    @PUT("api/tientrinh/{id}")
-    Call<TienTrinh> updateTienTrinh(@Header("Authorization") String token, @Path("id") long id, @Body TienTrinh tienTrinh);
-
-    @PUT("api/tientrinh/{id}/complete")
-    Call<TienTrinh> markTienTrinhCompleted(@Header("Authorization") String token, @Path("id") long id);
-
-    // 3. API cho MauCau
+    // MauCau APIs
     @GET("api/maucau/baigiang/{baiGiangId}")
     Call<List<MauCau>> getMauCauByBaiGiang(@Path("baiGiangId") long baiGiangId);
 
@@ -145,15 +126,16 @@ public interface ApiService {
     @DELETE("api/maucau/{id}")
     Call<Void> deleteMauCau(@Header("Authorization") String token, @Path("id") long id);
 
-    // User Management APIs (Admin only) - Khớp với backend
+    // User Management APIs (Admin only)
     @GET("api/admin/users")
-    Call<PageResponse<UserResponse>> getAllUsers(@Header("Authorization") String token,
-                                                 @Query("page") int page,
-                                                 @Query("size") int size,
-                                                 @Query("sortBy") String sortBy,
-                                                 @Query("sortDir") String sortDir,
-                                                 @Query("vaiTro") Integer vaiTro,
-                                                 @Query("keyword") String keyword);
+    Call<PageResponse<UserResponse>> getAllUsers(
+            @Header("Authorization") String token,
+            @Query("page") int page,
+            @Query("size") int size,
+            @Query("sortBy") String sortBy,
+            @Query("sortDir") String sortDir,
+            @Query("vaiTro") Integer vaiTro,
+            @Query("keyword") String keyword);
 
     @GET("api/admin/users/teachers")
     Call<List<UserResponse>> getAllTeachers(@Header("Authorization") String token);
@@ -171,7 +153,7 @@ public interface ApiService {
     Call<UserResponse> updateUser(@Header("Authorization") String token, @Path("id") long id, @Body UpdateUserRequest user);
 
     @PUT("api/admin/users/{id}/status")
-    Call<UserResponse> changeUserStatus(@Header("Authorization") String token, @Path("id") long id, @Query("trangThai") Boolean trangThai);
+    Call<Void> changeUserStatus(@Header("Authorization") String token, @Path("id") long id, @Query("trangThai") Boolean trangThai);
 
     @PUT("api/admin/users/{id}/reset-password")
     Call<String> resetUserPassword(@Header("Authorization") String token, @Path("id") long id);
@@ -183,34 +165,33 @@ public interface ApiService {
     Call<UserStatistics> getUserStatistics(@Header("Authorization") String token);
 
     @GET("api/admin/users/search")
-    Call<List<UserResponse>> searchUsers(@Header("Authorization") String token,
-                                         @Query("keyword") String keyword,
-                                         @Query("vaiTro") Integer vaiTro);
+    Call<List<UserResponse>> searchUsers(
+            @Header("Authorization") String token,
+            @Query("keyword") String keyword,
+            @Query("vaiTro") Integer vaiTro);
 
     // File upload APIs
     @Multipart
     @POST("api/files/upload")
     Call<ResponseBody> uploadFile(@Header("Authorization") String token, @Part MultipartBody.Part file);
 
-    // Video upload APIs
     @Multipart
     @POST("api/baigiang/{id}/upload-video")
-    Call<Map<String, Object>> uploadVideoForLesson(@Path("id") long id, @Part MultipartBody.Part video);
+    Call<Map<String, Object>> uploadVideoForLesson(@Header("Authorization") String token, @Path("id") long id, @Part MultipartBody.Part video);
 
     @Multipart
     @POST("api/baigiang/{id}/upload-thumbnail")
-    Call<Map<String, Object>> uploadThumbnailForLesson(@Path("id") long id, @Part MultipartBody.Part image);
+    Call<Map<String, Object>> uploadThumbnailForLesson(@Header("Authorization") String token, @Path("id") long id, @Part MultipartBody.Part image);
 
-    // Media upload APIs
     @Multipart
     @POST("api/media/upload/video")
-    Call<Map<String, Object>> uploadVideo(@Part MultipartBody.Part video);
+    Call<Map<String, Object>> uploadVideo(@Header("Authorization") String token, @Part MultipartBody.Part video);
 
     @Multipart
     @POST("api/media/upload/image")
-    Call<Map<String, Object>> uploadImage(@Part MultipartBody.Part image);
+    Call<Map<String, Object>> uploadImage(@Header("Authorization") String token, @Part MultipartBody.Part image);
 
-    // DTO Classes để khớp với backend
+    // DTO Classes
     public static class CreateUserRequest {
         private String tenDangNhap;
         private String email;
@@ -223,77 +204,24 @@ public interface ApiService {
         private Boolean trangThai = true;
 
         // Getters and setters
-        public String getTenDangNhap() {
-            return tenDangNhap;
-        }
-
-        public void setTenDangNhap(String tenDangNhap) {
-            this.tenDangNhap = tenDangNhap;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getMatKhau() {
-            return matKhau;
-        }
-
-        public void setMatKhau(String matKhau) {
-            this.matKhau = matKhau;
-        }
-
-        public String getHoTen() {
-            return hoTen;
-        }
-
-        public void setHoTen(String hoTen) {
-            this.hoTen = hoTen;
-        }
-
-        public String getSoDienThoai() {
-            return soDienThoai;
-        }
-
-        public void setSoDienThoai(String soDienThoai) {
-            this.soDienThoai = soDienThoai;
-        }
-
-        public Integer getVaiTro() {
-            return vaiTro;
-        }
-
-        public void setVaiTro(Integer vaiTro) {
-            this.vaiTro = vaiTro;
-        }
-
-        public Integer getTrinhDoHSK() {
-            return trinhDoHSK;
-        }
-
-        public void setTrinhDoHSK(Integer trinhDoHSK) {
-            this.trinhDoHSK = trinhDoHSK;
-        }
-
-        public String getHinhDaiDien() {
-            return hinhDaiDien;
-        }
-
-        public void setHinhDaiDien(String hinhDaiDien) {
-            this.hinhDaiDien = hinhDaiDien;
-        }
-
-        public Boolean getTrangThai() {
-            return trangThai;
-        }
-
-        public void setTrangThai(Boolean trangThai) {
-            this.trangThai = trangThai;
-        }
+        public String getTenDangNhap() { return tenDangNhap; }
+        public void setTenDangNhap(String tenDangNhap) { this.tenDangNhap = tenDangNhap; }
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getMatKhau() { return matKhau; }
+        public void setMatKhau(String matKhau) { this.matKhau = matKhau; }
+        public String getHoTen() { return hoTen; }
+        public void setHoTen(String hoTen) { this.hoTen = hoTen; }
+        public String getSoDienThoai() { return soDienThoai; }
+        public void setSoDienThoai(String soDienThoai) { this.soDienThoai = soDienThoai; }
+        public Integer getVaiTro() { return vaiTro; }
+        public void setVaiTro(Integer vaiTro) { this.vaiTro = vaiTro; }
+        public Integer getTrinhDoHSK() { return trinhDoHSK; }
+        public void setTrinhDoHSK(Integer trinhDoHSK) { this.trinhDoHSK = trinhDoHSK; }
+        public String getHinhDaiDien() { return hinhDaiDien; }
+        public void setHinhDaiDien(String hinhDaiDien) { this.hinhDaiDien = hinhDaiDien; }
+        public Boolean getTrangThai() { return trangThai; }
+        public void setTrangThai(Boolean trangThai) { this.trangThai = trangThai; }
     }
 
     public static class UpdateUserRequest {
@@ -306,61 +234,20 @@ public interface ApiService {
         private Boolean trangThai;
 
         // Getters and setters
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getHoTen() {
-            return hoTen;
-        }
-
-        public void setHoTen(String hoTen) {
-            this.hoTen = hoTen;
-        }
-
-        public String getSoDienThoai() {
-            return soDienThoai;
-        }
-
-        public void setSoDienThoai(String soDienThoai) {
-            this.soDienThoai = soDienThoai;
-        }
-
-        public Integer getVaiTro() {
-            return vaiTro;
-        }
-
-        public void setVaiTro(Integer vaiTro) {
-            this.vaiTro = vaiTro;
-        }
-
-        public Integer getTrinhDoHSK() {
-            return trinhDoHSK;
-        }
-
-        public void setTrinhDoHSK(Integer trinhDoHSK) {
-            this.trinhDoHSK = trinhDoHSK;
-        }
-
-        public String getHinhDaiDien() {
-            return hinhDaiDien;
-        }
-
-        public void setHinhDaiDien(String hinhDaiDien) {
-            this.hinhDaiDien = hinhDaiDien;
-        }
-
-        public Boolean getTrangThai() {
-            return trangThai;
-        }
-
-        public void setTrangThai(Boolean trangThai) {
-            this.trangThai = trangThai;
-        }
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getHoTen() { return hoTen; }
+        public void setHoTen(String hoTen) { this.hoTen = hoTen; }
+        public String getSoDienThoai() { return soDienThoai; }
+        public void setSoDienThoai(String soDienThoai) { this.soDienThoai = soDienThoai; }
+        public Integer getVaiTro() { return vaiTro; }
+        public void setVaiTro(Integer vaiTro) { this.vaiTro = vaiTro; }
+        public Integer getTrinhDoHSK() { return trinhDoHSK; }
+        public void setTrinhDoHSK(Integer trinhDoHSK) { this.trinhDoHSK = trinhDoHSK; }
+        public String getHinhDaiDien() { return hinhDaiDien; }
+        public void setHinhDaiDien(String hinhDaiDien) { this.hinhDaiDien = hinhDaiDien; }
+        public Boolean getTrangThai() { return trangThai; }
+        public void setTrangThai(Boolean trangThai) { this.trangThai = trangThai; }
     }
 
     public static class UserResponse {
@@ -383,141 +270,40 @@ public interface ApiService {
         private Integer tienDoHocTap;
 
         // Getters and setters
-        public Long getId() {
-            return id;
-        }
-
-        public void setId(Long id) {
-            this.id = id;
-        }
-
-        public String getTenDangNhap() {
-            return tenDangNhap;
-        }
-
-        public void setTenDangNhap(String tenDangNhap) {
-            this.tenDangNhap = tenDangNhap;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getHoTen() {
-            return hoTen;
-        }
-
-        public void setHoTen(String hoTen) {
-            this.hoTen = hoTen;
-        }
-
-        public String getSoDienThoai() {
-            return soDienThoai;
-        }
-
-        public void setSoDienThoai(String soDienThoai) {
-            this.soDienThoai = soDienThoai;
-        }
-
-        public Integer getVaiTro() {
-            return vaiTro;
-        }
-
-        public void setVaiTro(Integer vaiTro) {
-            this.vaiTro = vaiTro;
-        }
-
-        public String getVaiTroText() {
-            return vaiTroText;
-        }
-
-        public void setVaiTroText(String vaiTroText) {
-            this.vaiTroText = vaiTroText;
-        }
-
-        public Integer getTrinhDoHSK() {
-            return trinhDoHSK;
-        }
-
-        public void setTrinhDoHSK(Integer trinhDoHSK) {
-            this.trinhDoHSK = trinhDoHSK;
-        }
-
-        public String getHinhDaiDien() {
-            return hinhDaiDien;
-        }
-
-        public void setHinhDaiDien(String hinhDaiDien) {
-            this.hinhDaiDien = hinhDaiDien;
-        }
-
-        public String getNgayTao() {
-            return ngayTao;
-        }
-
-        public void setNgayTao(String ngayTao) {
-            this.ngayTao = ngayTao;
-        }
-
-        public String getNgayCapNhat() {
-            return ngayCapNhat;
-        }
-
-        public void setNgayCapNhat(String ngayCapNhat) {
-            this.ngayCapNhat = ngayCapNhat;
-        }
-
-        public String getLanDangNhapCuoi() {
-            return lanDangNhapCuoi;
-        }
-
-        public void setLanDangNhapCuoi(String lanDangNhapCuoi) {
-            this.lanDangNhapCuoi = lanDangNhapCuoi;
-        }
-
-        public Boolean getTrangThai() {
-            return trangThai;
-        }
-
-        public void setTrangThai(Boolean trangThai) {
-            this.trangThai = trangThai;
-        }
-
-        public String getTrangThaiText() {
-            return trangThaiText;
-        }
-
-        public void setTrangThaiText(String trangThaiText) {
-            this.trangThaiText = trangThaiText;
-        }
-
-        public Integer getSoBaiGiangDaTao() {
-            return soBaiGiangDaTao;
-        }
-
-        public void setSoBaiGiangDaTao(Integer soBaiGiangDaTao) {
-            this.soBaiGiangDaTao = soBaiGiangDaTao;
-        }
-
-        public Integer getSoBaiGiangDaHoc() {
-            return soBaiGiangDaHoc;
-        }
-
-        public void setSoBaiGiangDaHoc(Integer soBaiGiangDaHoc) {
-            this.soBaiGiangDaHoc = soBaiGiangDaHoc;
-        }
-
-        public Integer getTienDoHocTap() {
-            return tienDoHocTap;
-        }
-
-        public void setTienDoHocTap(Integer tienDoHocTap) {
-            this.tienDoHocTap = tienDoHocTap;
-        }
+        public Long getId() { return id; }
+        public void setId(Long id) { this.id = id; }
+        public String getTenDangNhap() { return tenDangNhap; }
+        public void setTenDangNhap(String tenDangNhap) { this.tenDangNhap = tenDangNhap; }
+        public String getEmail() { return email; }
+        public void setEmail(String email) { this.email = email; }
+        public String getHoTen() { return hoTen; }
+        public void setHoTen(String hoTen) { this.hoTen = hoTen; }
+        public String getSoDienThoai() { return soDienThoai; }
+        public void setSoDienThoai(String soDienThoai) { this.soDienThoai = soDienThoai; }
+        public Integer getVaiTro() { return vaiTro; }
+        public void setVaiTro(Integer vaiTro) { this.vaiTro = vaiTro; }
+        public String getVaiTroText() { return vaiTroText; }
+        public void setVaiTroText(String vaiTroText) { this.vaiTroText = vaiTroText; }
+        public Integer getTrinhDoHSK() { return trinhDoHSK; }
+        public void setTrinhDoHSK(Integer trinhDoHSK) { this.trinhDoHSK = trinhDoHSK; }
+        public String getHinhDaiDien() { return hinhDaiDien; }
+        public void setHinhDaiDien(String hinhDaiDien) { this.hinhDaiDien = hinhDaiDien; }
+        public String getNgayTao() { return ngayTao; }
+        public void setNgayTao(String ngayTao) { this.ngayTao = ngayTao; }
+        public String getNgayCapNhat() { return ngayCapNhat; }
+        public void setNgayCapNhat(String ngayCapNhat) { this.ngayCapNhat = ngayCapNhat; }
+        public String getLanDangNhapCuoi() { return lanDangNhapCuoi; }
+        public void setLanDangNhapCuoi(String lanDangNhapCuoi) { this.lanDangNhapCuoi = lanDangNhapCuoi; }
+        public Boolean getTrangThai() { return trangThai; }
+        public void setTrangThai(Boolean trangThai) { this.trangThai = trangThai; }
+        public String getTrangThaiText() { return trangThaiText; }
+        public void setTrangThaiText(String trangThaiText) { this.trangThaiText = trangThaiText; }
+        public Integer getSoBaiGiangDaTao() { return soBaiGiangDaTao; }
+        public void setSoBaiGiangDaTao(Integer soBaiGiangDaTao) { this.soBaiGiangDaTao = soBaiGiangDaTao; }
+        public Integer getSoBaiGiangDaHoc() { return soBaiGiangDaHoc; }
+        public void setSoBaiGiangDaHoc(Integer soBaiGiangDaHoc) { this.soBaiGiangDaHoc = soBaiGiangDaHoc; }
+        public Integer getTienDoHocTap() { return tienDoHocTap; }
+        public void setTienDoHocTap(Integer tienDoHocTap) { this.tienDoHocTap = tienDoHocTap; }
     }
 
     public static class UserStatistics {
@@ -533,85 +319,26 @@ public interface ApiService {
         private Long soNguoiDungDangNhap7Ngay;
 
         // Getters and setters
-        public Long getTongSoNguoiDung() {
-            return tongSoNguoiDung;
-        }
-
-        public void setTongSoNguoiDung(Long tongSoNguoiDung) {
-            this.tongSoNguoiDung = tongSoNguoiDung;
-        }
-
-        public Long getSoAdmin() {
-            return soAdmin;
-        }
-
-        public void setSoAdmin(Long soAdmin) {
-            this.soAdmin = soAdmin;
-        }
-
-        public Long getSoGiangVien() {
-            return soGiangVien;
-        }
-
-        public void setSoGiangVien(Long soGiangVien) {
-            this.soGiangVien = soGiangVien;
-        }
-
-        public Long getSoHocVien() {
-            return soHocVien;
-        }
-
-        public void setSoHocVien(Long soHocVien) {
-            this.soHocVien = soHocVien;
-        }
-
-        public Long getSoNguoiDungHoatDong() {
-            return soNguoiDungHoatDong;
-        }
-
-        public void setSoNguoiDungHoatDong(Long soNguoiDungHoatDong) {
-            this.soNguoiDungHoatDong = soNguoiDungHoatDong;
-        }
-
-        public Long getSoNguoiDungBiKhoa() {
-            return soNguoiDungBiKhoa;
-        }
-
-        public void setSoNguoiDungBiKhoa(Long soNguoiDungBiKhoa) {
-            this.soNguoiDungBiKhoa = soNguoiDungBiKhoa;
-        }
-
-        public Long getSoNguoiDungMoi7Ngay() {
-            return soNguoiDungMoi7Ngay;
-        }
-
-        public void setSoNguoiDungMoi7Ngay(Long soNguoiDungMoi7Ngay) {
-            this.soNguoiDungMoi7Ngay = soNguoiDungMoi7Ngay;
-        }
-
-        public Long getSoNguoiDungMoi30Ngay() {
-            return soNguoiDungMoi30Ngay;
-        }
-
-        public void setSoNguoiDungMoi30Ngay(Long soNguoiDungMoi30Ngay) {
-            this.soNguoiDungMoi30Ngay = soNguoiDungMoi30Ngay;
-        }
-
-        public Long getSoNguoiDungDangNhapHomNay() {
-            return soNguoiDungDangNhapHomNay;
-        }
-
-        public void setSoNguoiDungDangNhapHomNay(Long soNguoiDungDangNhapHomNay) {
-            this.soNguoiDungDangNhapHomNay = soNguoiDungDangNhapHomNay;
-        }
-
-        public Long getSoNguoiDungDangNhap7Ngay() {
-            return soNguoiDungDangNhap7Ngay;
-        }
-
-        public void setSoNguoiDungDangNhap7Ngay(Long soNguoiDungDangNhap7Ngay) {
-            this.soNguoiDungDangNhap7Ngay = soNguoiDungDangNhap7Ngay;
-        }
+        public Long getTongSoNguoiDung() { return tongSoNguoiDung; }
+        public void setTongSoNguoiDung(Long tongSoNguoiDung) { this.tongSoNguoiDung = tongSoNguoiDung; }
+        public Long getSoAdmin() { return soAdmin; }
+        public void setSoAdmin(Long soAdmin) { this.soAdmin = soAdmin; }
+        public Long getSoGiangVien() { return soGiangVien; }
+        public void setSoGiangVien(Long soGiangVien) { this.soGiangVien = soGiangVien; }
+        public Long getSoHocVien() { return soHocVien; }
+        public void setSoHocVien(Long soHocVien) { this.soHocVien = soHocVien; }
+        public Long getSoNguoiDungHoatDong() { return soNguoiDungHoatDong; }
+        public void setSoNguoiDungHoatDong(Long soNguoiDungHoatDong) { this.soNguoiDungHoatDong = soNguoiDungHoatDong; }
+        public Long getSoNguoiDungBiKhoa() { return soNguoiDungBiKhoa; }
+        public void setSoNguoiDungBiKhoa(Long soNguoiDungBiKhoa) { this.soNguoiDungBiKhoa = soNguoiDungBiKhoa; }
+        public Long getSoNguoiDungMoi7Ngay() { return soNguoiDungMoi7Ngay; }
+        public void setSoNguoiDungMoi7Ngay(Long soNguoiDungMoi7Ngay) { this.soNguoiDungMoi7Ngay = soNguoiDungMoi7Ngay; }
+        public Long getSoNguoiDungMoi30Ngay() { return soNguoiDungMoi30Ngay; }
+        public void setSoNguoiDungMoi30Ngay(Long soNguoiDungMoi30Ngay) { this.soNguoiDungMoi30Ngay = soNguoiDungMoi30Ngay; }
+        public Long getSoNguoiDungDangNhapHomNay() { return soNguoiDungDangNhapHomNay; }
+        public void setSoNguoiDungDangNhapHomNay(Long soNguoiDungDangNhapHomNay) { this.soNguoiDungDangNhapHomNay = soNguoiDungDangNhapHomNay; }
+        public Long getSoNguoiDungDangNhap7Ngay() { return soNguoiDungDangNhap7Ngay; }
+        public void setSoNguoiDungDangNhap7Ngay(Long soNguoiDungDangNhap7Ngay) { this.soNguoiDungDangNhap7Ngay = soNguoiDungDangNhap7Ngay; }
     }
 
     public static class PageResponse<T> {
@@ -624,61 +351,19 @@ public interface ApiService {
         private boolean last;
 
         // Getters and setters
-        public List<T> getContent() {
-            return content;
-        }
-
-        public void setContent(List<T> content) {
-            this.content = content;
-        }
-
-        public int getTotalPages() {
-            return totalPages;
-        }
-
-        public void setTotalPages(int totalPages) {
-            this.totalPages = totalPages;
-        }
-
-        public long getTotalElements() {
-            return totalElements;
-        }
-
-        public void setTotalElements(long totalElements) {
-            this.totalElements = totalElements;
-        }
-
-        public int getSize() {
-            return size;
-        }
-
-        public void setSize(int size) {
-            this.size = size;
-        }
-
-        public int getNumber() {
-            return number;
-        }
-
-        public void setNumber(int number) {
-            this.number = number;
-        }
-
-        public boolean isFirst() {
-            return first;
-        }
-
-        public void setFirst(boolean first) {
-            this.first = first;
-        }
-
-        public boolean isLast() {
-            return last;
-        }
-
-        public void setLast(boolean last) {
-            this.last = last;
-        }
+        public List<T> getContent() { return content; }
+        public void setContent(List<T> content) { this.content = content; }
+        public int getTotalPages() { return totalPages; }
+        public void setTotalPages(int totalPages) { this.totalPages = totalPages; }
+        public long getTotalElements() { return totalElements; }
+        public void setTotalElements(long totalElements) { this.totalElements = totalElements; }
+        public int getSize() { return size; }
+        public void setSize(int size) { this.size = size; }
+        public int getNumber() { return number; }
+        public void setNumber(int number) { this.number = number; }
+        public boolean isFirst() { return first; }
+        public void setFirst(boolean first) { this.first = first; }
+        public boolean isLast() { return last; }
+        public void setLast(boolean last) { this.last = last; }
     }
-
 }

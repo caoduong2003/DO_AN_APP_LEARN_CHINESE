@@ -1,17 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="16dp">
-
+    android:layout_height="match_parent">
     <TextView
         android:id="@+id/tvProgress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Đang tải tiến trình học tập..."
-        android:textSize="16sp"
-        android:textColor="@color/text_primary" />
-
-</LinearLayout>
+        android:layout_gravity="center"
+        android:text="Tiến trình học tập của bạn sẽ hiển thị ở đây"
+        android:textSize="16sp"/>
+</FrameLayout>

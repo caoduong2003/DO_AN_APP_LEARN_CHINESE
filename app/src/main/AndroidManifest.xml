@@ -55,12 +55,7 @@
         <activity
             android:name=".view.activity.TeacherDashboardActivity"
             android:exported="false" />
-        <activity
-            android:name=".view.activity.StudentActivity"
-            android:exported="false" />
-        <activity
-            android:name=".view.activity.TeacherActivity"
-            android:exported="false" />
+        
         <activity
             android:name=".view.activity.AdminActivity"
             android:exported="false" />

@@ -1,15 +1,23 @@
 package com.example.app_learn_chinese_2025.controller;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.example.app_learn_chinese_2025.model.data.JwtResponse;
 import com.example.app_learn_chinese_2025.model.data.RegisterRequest;
 import com.example.app_learn_chinese_2025.model.data.User;
-import com.example.app_learn_chinese_2025.model.repository.UserRepository;
+import com.example.app_learn_chinese_2025.model.remote.ApiService;
+import com.example.app_learn_chinese_2025.model.remote.RetrofitClient;
 import com.example.app_learn_chinese_2025.util.SessionManager;
 import com.example.app_learn_chinese_2025.util.ValidationUtils;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class AuthController {
-    private UserRepository userRepository;
+    private static final String TAG = "AuthController";
+    private ApiService apiService;
     private SessionManager sessionManager;
     private Context context;
 
@@ -21,7 +29,7 @@ public class AuthController {
     public AuthController(Context context) {
         this.context = context;
         this.sessionManager = new SessionManager(context);
-        this.userRepository = new UserRepository(sessionManager);
+        this.apiService = RetrofitClient.getInstance(sessionManager).getApiService();
     }
 
     public void login(String username, String password, AuthCallback callback) {
@@ -30,16 +38,48 @@ public class AuthController {
             return;
         }
 
-        // Gọi repository để đăng nhập
-        userRepository.login(username, password, new UserRepository.OnUserResponseCallback() {
+        // Tạo request với constructor mới
+        RegisterRequest request = new RegisterRequest(username, password);
+
+        apiService.login(request).enqueue(new Callback<JwtResponse>() {
             @Override
-            public void onSuccess(User user, String token) {
-                callback.onSuccess("Đăng nhập thành công");
+            public void onResponse(Call<JwtResponse> call, Response<JwtResponse> response) {
+                Log.d(TAG, "Login response code: " + response.code());
+                if (response.isSuccessful() && response.body() != null) {
+                    JwtResponse jwtResponse = response.body();
+                    User user = jwtResponse.getUser();
+                    String token = jwtResponse.getToken();
+
+                    if (user == null) {
+                        Log.e(TAG, "User object is null");
+                        callback.onError("Lỗi: Không tìm thấy thông tin người dùng");
+                        return;
+                    }
+
+                    if (user.getVaiTro() != 0) {
+                        Log.e(TAG, "User is not admin: " + user.getTenDangNhap());
+                        callback.onError("Chỉ admin có quyền đăng nhập vào chức năng quản lý");
+                    } else {
+                        sessionManager.createSession(user, token);
+                        Log.d(TAG, "Login success: " + user.getTenDangNhap());
+                        callback.onSuccess("Đăng nhập thành công");
+                    }
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e(TAG, "Login failed: HTTP " + response.code() + ", Error: " + errorBody);
+                        callback.onError("Đăng nhập thất bại: " + errorBody);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                        callback.onError("Đăng nhập thất bại: Lỗi xử lý phản hồi");
+                    }
+                }
             }
 
             @Override
-            public void onError(String errorMessage) {
-                callback.onError(errorMessage);
+            public void onFailure(Call<JwtResponse> call, Throwable t) {
+                Log.e(TAG, "Login network error: " + t.getMessage(), t);
+                callback.onError("Lỗi kết nối: " + t.getMessage());
             }
         });
     }
@@ -51,57 +91,33 @@ public class AuthController {
             return;
         }
 
-        // Tạo đối tượng request
-        RegisterRequest request = new RegisterRequest();
-        request.setTenDangNhap(username);
-        request.setEmail(email);
-        request.setMatKhau(password);
-        request.setHoTen(fullName);
-        request.setSoDienThoai(phone);
-        request.setVaiTro(role); // Thiết lập vai trò từ tham số
-        request.setTrinhDoHSK(0); // Mặc định trình độ HSK = 0
+        RegisterRequest request = new RegisterRequest(username, email, password, fullName, phone);
+        request.setVaiTro(role);
+        request.setTrinhDoHSK(0);
 
-        // Gọi repository để đăng ký
-        userRepository.register(request, new UserRepository.OnUserResponseCallback() {
+        apiService.register(request).enqueue(new Callback<User>() {
             @Override
-            public void onSuccess(User user, String token) {
-                callback.onSuccess("Đăng ký thành công");
+            public void onResponse(Call<User> call, Response<User> response) {
+                Log.d(TAG, "Register response code: " + response.code());
+                if (response.isSuccessful() && response.body() != null) {
+                    Log.d(TAG, "Register success: " + response.body().getTenDangNhap());
+                    callback.onSuccess("Đăng ký thành công");
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e(TAG, "Register failed: HTTP " + response.code() + ", Error: " + errorBody);
+                        callback.onError("Đăng ký thất bại: " + errorBody);
+                    } catch (Exception e) {
+                        Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                        callback.onError("Đăng ký thất bại: Lỗi xử lý phản hồi");
+                    }
+                }
             }
 
             @Override
-            public void onError(String errorMessage) {
-                callback.onError(errorMessage);
-            }
-        });
-    }
-
-    public void registerWithRole(String username, String email, String password, String confirmPassword,
-                                 String fullName, String phone, int role, AuthCallback callback) {
-        // Kiểm tra đầu vào
-        if (!validateRegisterInput(username, email, password, confirmPassword, fullName, phone, callback)) {
-            return;
-        }
-
-        // Tạo đối tượng request
-        RegisterRequest request = new RegisterRequest();
-        request.setTenDangNhap(username);
-        request.setEmail(email);
-        request.setMatKhau(password);
-        request.setHoTen(fullName);
-        request.setSoDienThoai(phone);
-        request.setVaiTro(role); // Vai trò do người dùng chọn
-        request.setTrinhDoHSK(0); // Mặc định là trình độ 0
-
-        // Gọi repository để đăng ký
-        userRepository.register(request, new UserRepository.OnUserResponseCallback() {
-            @Override
-            public void onSuccess(User user, String token) {
-                callback.onSuccess("Đăng ký thành công");
-            }
-
-            @Override
-            public void onError(String errorMessage) {
-                callback.onError(errorMessage);
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.e(TAG, "Register network error: " + t.getMessage(), t);
+                callback.onError("Lỗi kết nối: " + t.getMessage());
             }
         });
     }
@@ -122,7 +138,6 @@ public class AuthController {
         return sessionManager.getUserRole();
     }
 
-    // Validation methods
     private boolean validateLoginInput(String username, String password, AuthCallback callback) {
         if (username.isEmpty()) {
             callback.onError("Vui lòng nhập tên đăng nhập");

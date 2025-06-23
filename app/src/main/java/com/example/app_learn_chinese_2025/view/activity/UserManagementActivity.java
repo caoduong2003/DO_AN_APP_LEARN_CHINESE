@@ -5,9 +5,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +33,7 @@ import java.util.List;
 public class UserManagementActivity extends AppCompatActivity implements UserManagementAdapter.OnUserActionListener {
     private static final int REQUEST_ADD_USER = 1001;
     private static final int REQUEST_EDIT_USER = 1002;
+    private static final String TAG = "UserManagementActivity";
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -48,11 +49,20 @@ public class UserManagementActivity extends AppCompatActivity implements UserMan
 
     private List<User> allUsers;
     private List<User> filteredUsers;
-    private int currentUserType = Constants.ROLE_STUDENT; // Default to students
+    private int currentUserType = Constants.ROLE_STUDENT;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Kiểm tra quyền admin
+        sessionManager = new SessionManager(this);
+        if (sessionManager.getUserDetails().getVaiTro() != Constants.ROLE_ADMIN) {
+            Toast.makeText(this, "Chỉ admin có quyền truy cập", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
         setContentView(R.layout.activity_user_management);
 
         initViews();
@@ -61,7 +71,6 @@ public class UserManagementActivity extends AppCompatActivity implements UserMan
         setupRecyclerView();
         setupListeners();
 
-        // Load initial data
         loadUsers();
     }
 
@@ -74,7 +83,6 @@ public class UserManagementActivity extends AppCompatActivity implements UserMan
         fabAddUser = findViewById(R.id.fabAddUser);
         tvEmptyMessage = findViewById(R.id.tvEmptyMessage);
 
-        sessionManager = new SessionManager(this);
         userRepository = new UserManagementRepository(sessionManager);
 
         allUsers = new ArrayList<>();
@@ -157,7 +165,6 @@ public class UserManagementActivity extends AppCompatActivity implements UserMan
                 updateEmptyState();
                 swipeRefresh.setRefreshing(false);
 
-                // Apply current search filter
                 String currentSearch = etSearch.getText().toString().trim();
                 if (!currentSearch.isEmpty()) {
                     filterUsers(currentSearch);
@@ -215,9 +222,9 @@ public class UserManagementActivity extends AppCompatActivity implements UserMan
     @Override
     public void onDeleteUser(User user) {
         new AlertDialog.Builder(this)
-                .setTitle("Xác nhận xóa")
-                .setMessage("Bạn có chắc chắn muốn xóa người dùng \"" + user.getHoTen() + "\"?\n\nHành động này không thể hoàn tác.")
-                .setPositiveButton("Xóa", (dialog, which) -> deleteUser(user))
+                .setTitle("Xác nhận khóa")
+                .setMessage("Bạn có chắc chắn muốn khóa tài khoản \"" + user.getHoTen() + "\"?\n\nTài khoản này sẽ không thể đăng nhập và không hiển thị trong danh sách.")
+                .setPositiveButton("Khóa", (dialog, which) -> updateUserStatus(user, false))
                 .setNegativeButton("Hủy", null)
                 .show();
     }
@@ -230,33 +237,25 @@ public class UserManagementActivity extends AppCompatActivity implements UserMan
         new AlertDialog.Builder(this)
                 .setTitle("Xác nhận " + action)
                 .setMessage(message)
-                .setPositiveButton("Xác nhận", (dialog, which) -> toggleUserStatus(user))
+                .setPositiveButton("Xác nhận", (dialog, which) -> updateUserStatus(user, !user.getTrangThai()))
                 .setNegativeButton("Hủy", null)
                 .show();
     }
 
-    private void deleteUser(User user) {
-        userRepository.deleteUser(user.getID(), new UserManagementRepository.OnUserCallback() {
-            @Override
-            public void onSuccess(User user) {
-                Toast.makeText(UserManagementActivity.this, "Xóa người dùng thành công", Toast.LENGTH_SHORT).show();
-                loadUsers(); // Reload the list
-            }
+    private void updateUserStatus(User user, boolean trangThai) {
+        if (sessionManager.getUserDetails().getVaiTro() != Constants.ROLE_ADMIN) {
+            Toast.makeText(this, "Chỉ admin có quyền cập nhật trạng thái", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            @Override
-            public void onError(String errorMessage) {
-                Toast.makeText(UserManagementActivity.this, "Xóa người dùng thất bại: " + errorMessage, Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
+        Log.d(TAG, "Updating status for user: " + user.getTenDangNhap() + ", trangThai: " + trangThai);
 
-    private void toggleUserStatus(User user) {
-        userRepository.toggleUserStatus(user.getID(), new UserManagementRepository.OnUserCallback() {
+        userRepository.updateUserStatus(user, trangThai, new UserManagementRepository.OnUserCallback() {
             @Override
             public void onSuccess(User updatedUser) {
-                String status = updatedUser.getTrangThai() ? "kích hoạt" : "khóa";
+                String status = trangThai ? "kích hoạt" : "khóa";
                 Toast.makeText(UserManagementActivity.this, "Đã " + status + " tài khoản thành công", Toast.LENGTH_SHORT).show();
-                loadUsers(); // Reload the list
+                loadUsers();
             }
 
             @Override

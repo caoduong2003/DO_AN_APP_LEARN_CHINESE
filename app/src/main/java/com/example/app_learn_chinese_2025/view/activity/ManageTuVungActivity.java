@@ -2,6 +2,7 @@ package com.example.app_learn_chinese_2025.view.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -14,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.app_learn_chinese_2025.R;
 import com.example.app_learn_chinese_2025.model.data.BaiGiang;
+import com.example.app_learn_chinese_2025.model.data.CapDoHSK;
 import com.example.app_learn_chinese_2025.model.data.TuVung;
 import com.example.app_learn_chinese_2025.model.repository.BaiGiangRepository;
 import com.example.app_learn_chinese_2025.model.repository.TuVungRepository;
@@ -30,6 +32,7 @@ import retrofit2.Response;
 public class ManageTuVungActivity extends AppCompatActivity implements TuVungAdapter.OnTuVungActionListener {
     private static final int REQUEST_ADD_TU_VUNG = 1001;
     private static final int REQUEST_EDIT_TU_VUNG = 1002;
+    private static final String TAG = "ManageTuVungActivity";
 
     private TextView tvTitle;
     private Button btnAddTuVung;
@@ -75,8 +78,8 @@ public class ManageTuVungActivity extends AppCompatActivity implements TuVungAda
         swipeRefresh = findViewById(R.id.swipeRefresh);
 
         sessionManager = new SessionManager(this);
-        baiGiangRepository = new BaiGiangRepository(sessionManager);
-        tuVungRepository = new TuVungRepository(sessionManager);
+        baiGiangRepository = new BaiGiangRepository(this, sessionManager); // Sửa: truyền Context
+        tuVungRepository = new TuVungRepository(sessionManager); // Giữ nguyên
         tuVungList = new ArrayList<>();
     }
 
@@ -101,13 +104,18 @@ public class ManageTuVungActivity extends AppCompatActivity implements TuVungAda
             @Override
             public void onSuccess(BaiGiang baiGiang) {
                 currentBaiGiang = baiGiang;
-
+                // Xử lý capDoHSK null
+                if (baiGiang.getCapDoHSK() == null) {
+                    Log.w(TAG, "CapDoHSK is null for BaiGiang: " + baiGiang.getTieuDe());
+                    baiGiang.setCapDoHSK(new CapDoHSK(1, "HSK 1")); // Sử dụng constructor mới
+                }
                 // Update title
                 tvTitle.setText("Từ vựng: " + baiGiang.getTieuDe());
             }
 
             @Override
             public void onError(String errorMessage) {
+                Log.e(TAG, "Load bai giang error: " + errorMessage);
                 Toast.makeText(ManageTuVungActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
@@ -131,6 +139,7 @@ public class ManageTuVungActivity extends AppCompatActivity implements TuVungAda
 
             @Override
             public void onError(String errorMessage) {
+                Log.e(TAG, "Load tu vung error: " + errorMessage);
                 Toast.makeText(ManageTuVungActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
                 swipeRefresh.setRefreshing(false);
             }
@@ -160,6 +169,7 @@ public class ManageTuVungActivity extends AppCompatActivity implements TuVungAda
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
+                Log.e(TAG, "Delete tu vung error: " + t.getMessage());
                 Toast.makeText(ManageTuVungActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

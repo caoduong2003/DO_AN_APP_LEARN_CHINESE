@@ -1,99 +1,120 @@
 package com.example.app_learn_chinese_2025.model.data;
 
 import com.google.gson.annotations.SerializedName;
+import java.io.Serializable;
 
-public class RegisterRequest {
-    // Sử dụng @SerializedName để đảm bảo đúng tên field khi gửi JSON
+public class RegisterRequest implements Serializable {
     @SerializedName("tenDangNhap")
-    private String TenDangNhap;
+    private String tenDangNhap;
 
     @SerializedName("email")
-    private String Email;
+    private String email;
 
     @SerializedName("matKhau")
-    private String MatKhau;
+    private String matKhau;
 
     @SerializedName("hoTen")
-    private String HoTen;
+    private String hoTen;
 
     @SerializedName("soDienThoai")
-    private String SoDienThoai;
+    private String soDienThoai;
 
     @SerializedName("vaiTro")
-    private int VaiTro;
+    private Integer vaiTro;
 
     @SerializedName("trinhDoHSK")
-    private int TrinhDoHSK;
+    private Integer trinhDoHSK;
 
+    // Constructor mặc định
     public RegisterRequest() {
-        this.VaiTro = 2; // Mặc định là học sinh
-        this.TrinhDoHSK = 0; // Mặc định là cấp độ 0
+        this.vaiTro = 2; // Mặc định là học sinh
+        this.trinhDoHSK = 0; // Mặc định là cấp độ 0
     }
 
+    // Constructor cho đăng nhập
+    public RegisterRequest(String tenDangNhap, String matKhau) {
+        this.tenDangNhap = tenDangNhap;
+        this.matKhau = matKhau;
+        this.vaiTro = 2;
+        this.trinhDoHSK = 0;
+    }
+
+    // Constructor cho đăng ký
     public RegisterRequest(String tenDangNhap, String email, String matKhau, String hoTen, String soDienThoai) {
-        this.TenDangNhap = tenDangNhap;
-        this.Email = email;
-        this.MatKhau = matKhau;
-        this.HoTen = hoTen;
-        this.SoDienThoai = soDienThoai;
-        this.VaiTro = 2; // Mặc định là học sinh
-        this.TrinhDoHSK = 0; // Mặc định là cấp độ 0
+        this.tenDangNhap = tenDangNhap;
+        this.email = email;
+        this.matKhau = matKhau;
+        this.hoTen = hoTen;
+        this.soDienThoai = soDienThoai;
+        this.vaiTro = 2; // Mặc định là học sinh
+        this.trinhDoHSK = 0; // Mặc định là cấp độ 0
     }
 
-    // Các getters và setters
+    // Constructor đầy đủ
+    public RegisterRequest(String tenDangNhap, String email, String matKhau, String hoTen, String soDienThoai, Integer vaiTro, Integer trinhDoHSK) {
+        this.tenDangNhap = tenDangNhap;
+        this.email = email;
+        this.matKhau = matKhau;
+        this.hoTen = hoTen;
+        this.soDienThoai = soDienThoai;
+        this.vaiTro = vaiTro;
+        this.trinhDoHSK = trinhDoHSK;
+    }
+
+    // Getters và setters
     public String getTenDangNhap() {
-        return TenDangNhap;
+        return tenDangNhap;
     }
 
     public void setTenDangNhap(String tenDangNhap) {
-        this.TenDangNhap = tenDangNhap;
+        this.tenDangNhap = tenDangNhap;
     }
 
     public String getEmail() {
-        return Email;
+        return email;
     }
 
     public void setEmail(String email) {
-        this.Email = email;
+        this.email = email;
     }
 
     public String getMatKhau() {
-        return MatKhau;
+        return matKhau;
     }
 
     public void setMatKhau(String matKhau) {
-        this.MatKhau = matKhau;
+        this.matKhau = matKhau;
     }
 
     public String getHoTen() {
-        return HoTen;
+        return hoTen;
     }
 
     public void setHoTen(String hoTen) {
-        this.HoTen = hoTen;
+        this.hoTen = hoTen;
     }
 
     public String getSoDienThoai() {
-        return SoDienThoai;
+        return soDienThoai;
     }
 
     public void setSoDienThoai(String soDienThoai) {
-        this.SoDienThoai = soDienThoai;
+        this.soDienThoai = soDienThoai;
     }
 
-    public int getVaiTro() {
-        return VaiTro;
+    public Integer getVaiTro() {
+        return vaiTro;
     }
 
-    public void setVaiTro(int vaiTro) {
-        this.VaiTro = vaiTro;
+    public void setVaiTro(Integer vaiTro) {
+        this.vaiTro = vaiTro;
     }
 
-    public int getTrinhDoHSK() {
-        return TrinhDoHSK;
+    public Integer getTrinhDoHSK() {
+        return trinhDoHSK;
     }
 
-    public void setTrinhDoHSK(int trinhDoHSK) {
-        this.TrinhDoHSK = trinhDoHSK;
+    public void setTrinhDoHSK(Integer trinhDoHSK) {
+        this.trinhDoHSK = trinhDoHSK;
     }
 }

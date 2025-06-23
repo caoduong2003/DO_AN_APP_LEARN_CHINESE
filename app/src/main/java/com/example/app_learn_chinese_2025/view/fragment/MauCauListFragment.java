@@ -63,7 +63,7 @@ public class MauCauListFragment extends Fragment {
         swipeRefresh = view.findViewById(R.id.swipeRefresh);
 
         sessionManager = new SessionManager(requireContext());
-        mauCauRepository = new MauCauRepository(sessionManager);
+        mauCauRepository = new MauCauRepository(requireContext(), sessionManager);
 
         mauCauList = new ArrayList<>();
     }

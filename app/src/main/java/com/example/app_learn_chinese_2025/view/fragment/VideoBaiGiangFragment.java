@@ -83,7 +83,7 @@ public class VideoBaiGiangFragment extends Fragment {
         tvVideoDescription = view.findViewById(R.id.tvVideoDescription);
 
         sessionManager = new SessionManager(requireContext());
-        baiGiangRepository = new BaiGiangRepository(sessionManager);
+        baiGiangRepository = new BaiGiangRepository(requireContext(), sessionManager);
     }
 
     private void setupListeners() {

@@ -46,178 +46,311 @@ public class TuVungRepository {
     }
 
     public void getTuVungByBaiGiang(long baiGiangId, OnTuVungListCallback callback) {
-        RetrofitClient.getInstance().getApiService().getTuVungByBaiGiang(baiGiangId)
+        RetrofitClient.getInstance(sessionManager).getApiService().getTuVungByBaiGiang(baiGiangId)
                 .enqueue(new Callback<List<TuVung>>() {
                     @Override
                     public void onResponse(Call<List<TuVung>> call, Response<List<TuVung>> response) {
+                        Log.d(TAG, "getTuVungByBaiGiang URL: " + call.request().url());
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onSuccess(response.body());
                         } else {
-                            callback.onError("Không thể tải danh sách từ vựng");
+                            String errorMessage = "Không thể tải danh sách từ vựng: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<List<TuVung>> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
+                    }
+                });
+    }
+
+    public void getTuVungById(long id, OnTuVungCallback callback) {
+        RetrofitClient.getInstance(sessionManager).getApiService().getTuVungById(id)
+                .enqueue(new Callback<TuVung>() {
+                    @Override
+                    public void onResponse(Call<TuVung> call, Response<TuVung> response) {
+                        Log.d(TAG, "getTuVungById URL: " + call.request().url());
+                        if (response.isSuccessful() && response.body() != null) {
+                            callback.onSuccess(response.body());
+                        } else {
+                            String errorMessage = "Không thể tải thông tin từ vựng: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<TuVung> call, Throwable t) {
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
 
     public void createTuVung(TuVung tuVung, OnTuVungCallback callback) {
-        RetrofitClient.getInstance().getApiService().createTuVung(getToken(), tuVung)
+        RetrofitClient.getInstance(sessionManager).getApiService().createTuVung(getToken(), tuVung)
                 .enqueue(new Callback<TuVung>() {
                     @Override
                     public void onResponse(Call<TuVung> call, Response<TuVung> response) {
+                        Log.d(TAG, "createTuVung URL: " + call.request().url());
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onSuccess(response.body());
                         } else {
-                            callback.onError("Không thể tạo từ vựng mới");
+                            String errorMessage = "Không thể tạo từ vựng mới: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<TuVung> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
 
     public void updateTuVung(long id, TuVung tuVung, OnTuVungCallback callback) {
-        RetrofitClient.getInstance().getApiService().updateTuVung(getToken(), id, tuVung)
+        RetrofitClient.getInstance(sessionManager).getApiService().updateTuVung(getToken(), id, tuVung)
                 .enqueue(new Callback<TuVung>() {
                     @Override
                     public void onResponse(Call<TuVung> call, Response<TuVung> response) {
+                        Log.d(TAG, "updateTuVung URL: " + call.request().url());
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onSuccess(response.body());
                         } else {
-                            callback.onError("Không thể cập nhật từ vựng");
+                            String errorMessage = "Không thể cập nhật từ vựng: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<TuVung> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
 
     public void deleteTuVung(long id, Callback<Void> callback) {
-        RetrofitClient.getInstance().getApiService().deleteTuVung(getToken(), id)
-                .enqueue(callback);
+        RetrofitClient.getInstance(sessionManager).getApiService().deleteTuVung(getToken(), id)
+                .enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        Log.d(TAG, "deleteTuVung URL: " + call.request().url());
+                        if (response.isSuccessful()) {
+                            callback.onResponse(call, response);
+                        } else {
+                            String errorMessage = "Không thể xóa từ vựng: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onResponse(call, Response.error(response.code(), response.errorBody()));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onFailure(call, t);
+                    }
+                });
     }
 
     public void searchTuVung(String keyword, String language, OnTuVungListCallback callback) {
-        RetrofitClient.getInstance().getApiService().searchTuVung(keyword, language)
+        RetrofitClient.getInstance(sessionManager).getApiService().searchTuVung(keyword, language)
                 .enqueue(new Callback<List<TuVung>>() {
                     @Override
                     public void onResponse(Call<List<TuVung>> call, Response<List<TuVung>> response) {
+                        Log.d(TAG, "searchTuVung URL: " + call.request().url());
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onSuccess(response.body());
                         } else {
-                            callback.onError("Không thể tìm kiếm từ vựng");
+                            String errorMessage = "Không thể tìm kiếm từ vựng: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<List<TuVung>> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
 
     public void generatePinyin(String chineseText, OnStringCallback callback) {
-        RetrofitClient.getInstance().getApiService().generatePinyin(getToken(), chineseText)
+        RetrofitClient.getInstance(sessionManager).getApiService().generatePinyin(getToken(), chineseText)
                 .enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
+                        Log.d(TAG, "generatePinyin URL: " + call.request().url());
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onSuccess(response.body());
                         } else {
-                            callback.onError("Không thể tạo phiên âm");
+                            String errorMessage = "Không thể tạo phiên âm: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<String> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
 
     public void generateAudio(String chineseText, OnStringCallback callback) {
-        RetrofitClient.getInstance().getApiService().generateAudio(getToken(), chineseText)
+        RetrofitClient.getInstance(sessionManager).getApiService().generateAudio(getToken(), chineseText)
                 .enqueue(new Callback<String>() {
                     @Override
                     public void onResponse(Call<String> call, Response<String> response) {
+                        Log.d(TAG, "generateAudio URL: " + call.request().url());
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onSuccess(response.body());
                         } else {
-                            callback.onError("Không thể tạo audio");
+                            String errorMessage = "Không thể tạo audio: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<String> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
 
     public void translateVietnameseToChinese(String text, OnTranslationCallback callback) {
-        RetrofitClient.getInstance().getApiService().translateVietnameseToChinese(text)
+        RetrofitClient.getInstance(sessionManager).getApiService().translateVietnameseToChinese(text)
                 .enqueue(new Callback<TranslationResponse>() {
                     @Override
                     public void onResponse(Call<TranslationResponse> call, Response<TranslationResponse> response) {
+                        Log.d(TAG, "translateVietnameseToChinese URL: " + call.request().url());
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onSuccess(response.body().getTranslatedText());
                         } else {
-                            callback.onError("Không thể dịch văn bản");
+                            String errorMessage = "Không thể dịch văn bản: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<TranslationResponse> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
 
     public void translateChineseToVietnamese(String text, OnTranslationCallback callback) {
-        RetrofitClient.getInstance().getApiService().translateChineseToVietnamese(text)
+        RetrofitClient.getInstance(sessionManager).getApiService().translateChineseToVietnamese(text)
                 .enqueue(new Callback<TranslationResponse>() {
                     @Override
                     public void onResponse(Call<TranslationResponse> call, Response<TranslationResponse> response) {
+                        Log.d(TAG, "translateChineseToVietnamese URL: " + call.request().url());
                         if (response.isSuccessful() && response.body() != null) {
                             callback.onSuccess(response.body().getTranslatedText());
                         } else {
-                            callback.onError("Không thể dịch văn bản");
+                            String errorMessage = "Không thể dịch văn bản: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error parsing error body: " + e.getMessage());
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<TranslationResponse> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
-                    }
-                });
-    }
-    // Add this method to TuVungRepository.java
-    public void getTuVungById(long id, OnTuVungCallback callback) {
-        // Send API request to get a specific TuVung by ID
-        RetrofitClient.getInstance().getApiService().getTuVungById(id)
-                .enqueue(new Callback<TuVung>() {
-                    @Override
-                    public void onResponse(Call<TuVung> call, Response<TuVung> response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            callback.onSuccess(response.body());
-                        } else {
-                            callback.onError("Không thể tải thông tin từ vựng");
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<TuVung> call, Throwable t) {
-                        callback.onError("Lỗi kết nối: " + t.getMessage());
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
                     }
                 });
     }
