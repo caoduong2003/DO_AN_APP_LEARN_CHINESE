@@ -8,91 +8,183 @@
     app:cardCornerRadius="8dp"
     app:cardElevation="4dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:orientation="vertical"
+        android:padding="8dp">
 
-        <ImageView
-            android:id="@+id/ivThumbnail"
-            android:layout_width="100dp"
-            android:layout_height="60dp"
-            android:scaleType="centerCrop"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tvTitle"
-            android:layout_width="0dp"
+        <!-- Thumbnail and Video Icon -->
+        <FrameLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:text="Tiêu đề bài giảng"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/btnEdit"
-            app:layout_constraintStart_toEndOf="@id/ivThumbnail"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:layout_marginBottom="8dp">
 
+            <ImageView
+                android:id="@+id/ivThumbnail"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:scaleType="centerCrop"
+                android:src="@drawable/placeholder_thumbnail"
+                android:contentDescription="@string/lesson_thumbnail" />
+
+            <!-- Video Icon -->
+            <ImageView
+                android:id="@+id/ivVideoIcon"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="top|end"
+                android:layout_margin="8dp"
+                android:src="@drawable/ic_video"
+                app:tint="@color/black"
+                android:contentDescription="@string/video_available"
+                android:visibility="gone" />
+
+        </FrameLayout>
+
+        <!-- Title and Topic -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:id="@+id/tvTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                android:text="placeholder_title" />
+
+            <TextView
+                android:id="@+id/tvTopic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/black"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:background="@drawable/bg_topic"
+                android:text="placeholder_topic" />
+
+        </LinearLayout>
+
+        <!-- Lesson Type -->
+        <TextView
+            android:id="@+id/tvLessonType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:textColor="@color/gray_dark"
+            android:text="placeholder_lesson_type"
+            android:visibility="gone" />
+
+        <!-- Description -->
         <TextView
             android:id="@+id/tvDescription"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="2"
-            android:text="Mô tả bài giảng"
-            android:textColor="@color/text_secondary"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="@id/tvTitle"
-            app:layout_constraintStart_toStartOf="@id/tvTitle"
-            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+            android:textColor="@color/gray_dark"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="placeholder_description" />
 
-        <TextView
-            android:id="@+id/tvViews"
-            android:layout_width="wrap_content"
+        <!-- Premium, Duration, HSK Level, and Views -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="0 lượt xem"
-            android:textColor="@color/text_secondary"
-            android:textSize="12sp"
-            app:layout_constraintStart_toStartOf="@id/tvDescription"
-            app:layout_constraintTop_toBottomOf="@id/tvDescription" />
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
 
-        <TextView
-            android:id="@+id/tvPremium"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/premium_badge"
-            android:padding="4dp"
-            android:text="Premium"
-            android:textColor="@android:color/white"
-            android:textSize="12sp"
-            android:visibility="gone"
-            app:layout_constraintStart_toEndOf="@id/tvViews"
-            app:layout_constraintTop_toTopOf="@id/tvViews" />
+            <TextView
+                android:id="@+id/tvPremium"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/gold_dark"
+                android:text="@string/premium"
+                android:visibility="gone" />
 
-        <ImageButton
-            android:id="@+id/btnEdit"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_edit"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@id/btnDelete"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/tvDuration"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="12sp"
+                android:textColor="@color/gray_dark"
+                android:text="placeholder_duration" />
 
-        <ImageButton
-            android:id="@+id/btnDelete"
-            android:layout_width="wrap_content"
+            <TextView
+                android:id="@+id/tvHSKLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/gray_dark"
+                android:text="placeholder_level"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvViews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:textColor="@color/gray_dark"
+                android:text="placeholder_views"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+        <!-- Action Buttons for Teacher Mode -->
+        <LinearLayout
+            android:id="@+id/layoutActionButtons"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_delete"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:visibility="gone">
+
+            <!-- Play Video Button -->
+            <Button
+                android:id="@+id/btnPlayVideo"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/play_video"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/black"
+                android:visibility="gone" />
+
+            <!-- Edit Button -->
+            <Button
+                android:id="@+id/btnEdit"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/edit_lesson"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/black"
+                android:visibility="gone" />
+
+            <!-- Delete Button -->
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/delete_lesson"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/black"
+                android:visibility="gone" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 </androidx.cardview.widget.CardView>

@@ -1,11 +1,12 @@
 package com.example.app_learn_chinese_2025.model.data;
 
+import com.example.app_learn_chinese_2025.util.Constants;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 
 public class BaiGiang {
-    @SerializedName("ID")
+    @SerializedName("id")
     private Long ID;
 
     @SerializedName("tieuDe")
@@ -25,6 +26,9 @@ public class BaiGiang {
 
     @SerializedName("published")
     private boolean published;
+
+    @SerializedName("trangThai")
+    private boolean trangThai;
 
     @SerializedName("luotXem")
     private int luotXem;
@@ -97,8 +101,9 @@ public class BaiGiang {
     }
 
     public boolean isPublished() {
-        return published;
+        return trangThai;
     }
+
 
     public void setPublished(boolean published) {
         this.published = published;
@@ -170,5 +175,32 @@ public class BaiGiang {
         // Assuming noiDung is a string representation of the content
         // This method should be implemented based on your actual data structure
         return "<html><body>" + moTa + "</body></html>"; // Placeholder implementation
+    }
+
+    public Long getId() {
+        return ID;
+    }
+
+    public void setId(Long id) {
+        this.ID = id;
+    }
+
+    public String getHinhAnh() {
+        return thumbnailURL;
+    }
+
+    public boolean hasVideo() {
+        return videoURL != null && !videoURL.isEmpty();
+    }
+
+    public String getFullVideoURL() {
+        if (hasVideo()) {
+            return Constants.BASE_URL + videoURL;
+        }
+        return null;
+    }
+
+    public String getVideoUrl() {
+      return videoURL;
     }
 }

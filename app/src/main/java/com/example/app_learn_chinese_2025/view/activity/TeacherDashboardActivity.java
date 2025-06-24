@@ -339,7 +339,8 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
     }
 
     @Override
-    public void onBaiGiangDetailReceived(BaiGiang baiGiang) {}
+    public void onBaiGiangDetailReceived(BaiGiang baiGiang) {
+    }
 
     @Override
     public void onBaiGiangCreated(BaiGiang baiGiang) {
@@ -394,6 +395,26 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
                 .setNegativeButton("Hủy", null)
                 .setIcon(R.drawable.ic_warning)
                 .show();
+    }
+
+    @Override
+    public void onPlayVideo(BaiGiang baiGiang) {
+
+        if (baiGiang.getVideoURL() == null || baiGiang.getVideoURL().isEmpty()) {
+            Toast.makeText(this, "Bài giảng này không có video", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(android.net.Uri.parse(baiGiang.getVideoURL()), "video/*");
+        intent.putExtra("TITLE", baiGiang.getTieuDe());
+        startActivity(intent);
+        Log.d(TAG, "Playing video for lesson: " + baiGiang.getTieuDe());
+
+    }
+
+    @Override
+    public void onPlayAudio(BaiGiang baiGiang) {
+
     }
 
     @Override

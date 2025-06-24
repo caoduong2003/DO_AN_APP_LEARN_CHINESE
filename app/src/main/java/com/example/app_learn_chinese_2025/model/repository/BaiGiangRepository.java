@@ -4,6 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import com.example.app_learn_chinese_2025.model.data.BaiGiang;
+import com.example.app_learn_chinese_2025.model.data.CapDoHSK;
+import com.example.app_learn_chinese_2025.model.data.ChuDe;
 import com.example.app_learn_chinese_2025.model.remote.RetrofitClient;
 import com.example.app_learn_chinese_2025.util.SessionManager;
 
@@ -30,6 +32,79 @@ public class BaiGiangRepository {
 
     public BaiGiangRepository(Context context, SessionManager sessionManager) {
         this.context = context;
+    }
+    public interface OnChuDeListCallback {
+        void onSuccess(List<ChuDe> chuDeList);
+        void onError(String errorMessage);
+    }
+    public interface OnCapDoHSKListCallback {
+        void onSuccess(List<CapDoHSK> capDoHSKList);
+        void onError(String errorMessage);
+    }
+
+    public void getAllChuDe(OnChuDeListCallback callback) {
+        RetrofitClient.getInstanceWithoutToken().getApiService().getAllChuDe()
+                .enqueue(new Callback<List<ChuDe>>() {
+                    @Override
+                    public void onResponse(Call<List<ChuDe>> call, Response<List<ChuDe>> response) {
+                        Log.d(TAG, "getAllChuDe URL: " + call.request().url());
+                        if (response.isSuccessful() && response.body() != null) {
+                            Log.d(TAG, "Successfully loaded " + response.body().size() + " ChuDe items");
+                            callback.onSuccess(response.body());
+                        } else {
+                            String errorMessage = "Không thể tải danh sách chủ đề: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (IOException e) {
+                                Log.e(TAG, "Error reading error body", e);
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<ChuDe>> call, Throwable t) {
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
+                    }
+                });
+    }
+
+    // ✅ THÊM METHOD getAllCapDoHSK() NÀY
+    public void getAllCapDoHSK(OnCapDoHSKListCallback callback) {
+        RetrofitClient.getInstanceWithoutToken().getApiService().getAllCapDoHSK()
+                .enqueue(new Callback<List<CapDoHSK>>() {
+                    @Override
+                    public void onResponse(Call<List<CapDoHSK>> call, Response<List<CapDoHSK>> response) {
+                        Log.d(TAG, "getAllCapDoHSK URL: " + call.request().url());
+                        if (response.isSuccessful() && response.body() != null) {
+                            Log.d(TAG, "Successfully loaded " + response.body().size() + " CapDoHSK items");
+                            callback.onSuccess(response.body());
+                        } else {
+                            String errorMessage = "Không thể tải danh sách cấp độ HSK: HTTP " + response.code();
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorMessage += " - " + response.errorBody().string();
+                                }
+                            } catch (IOException e) {
+                                Log.e(TAG, "Error reading error body", e);
+                            }
+                            Log.e(TAG, errorMessage);
+                            callback.onError(errorMessage);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<List<CapDoHSK>> call, Throwable t) {
+                        String errorMessage = "Lỗi kết nối: " + t.getMessage();
+                        Log.e(TAG, errorMessage, t);
+                        callback.onError(errorMessage);
+                    }
+                });
     }
 
     public void getAllBaiGiang(Long giangVienId, Integer loaiBaiGiangId, Integer capDoHSK_ID, Integer chuDeId, Boolean published, OnBaiGiangListCallback callback) {

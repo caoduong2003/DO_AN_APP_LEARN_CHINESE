@@ -365,6 +365,22 @@ public class BaiGiangListFragment extends Fragment implements BaiGiangAdapter.On
     }
 
     @Override
+    public void onPlayVideo(BaiGiang baiGiang) {
+        if (baiGiang.getVideoUrl() != null && !baiGiang.getVideoUrl().isEmpty()) {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setDataAndType(android.net.Uri.parse(baiGiang.getVideoUrl()), "video/*");
+            startActivity(intent);
+        } else {
+            Toast.makeText(requireContext(), "Bài giảng này không có video.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onPlayAudio(BaiGiang baiGiang) {
+
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         if (adapter != null && !baiGiangList.isEmpty()) {

@@ -23,6 +23,7 @@ public class AuthController {
 
     public interface AuthCallback {
         void onSuccess(String message);
+
         void onError(String errorMessage);
     }
 
@@ -50,20 +51,31 @@ public class AuthController {
                     User user = jwtResponse.getUser();
                     String token = jwtResponse.getToken();
 
-                    if (user == null) {
-                        Log.e(TAG, "User object is null");
-                        callback.onError("Lỗi: Không tìm thấy thông tin người dùng");
+
+                    // Kiểm tra vai trò hợp lệ
+                    if (user.getVaiTro() < 0 || user.getVaiTro() > 2) {
+                        Log.e(TAG, "Invalid user role: " + user.getVaiTro());
+                        callback.onError("Vai trò người dùng không hợp lệ");
                         return;
                     }
 
-                    if (user.getVaiTro() != 0) {
-                        Log.e(TAG, "User is not admin: " + user.getTenDangNhap());
-                        callback.onError("Chỉ admin có quyền đăng nhập vào chức năng quản lý");
-                    } else {
-                        sessionManager.createSession(user, token);
-                        Log.d(TAG, "Login success: " + user.getTenDangNhap());
-                        callback.onSuccess("Đăng nhập thành công");
+                    sessionManager.createSession(user, token);
+                    Log.d(TAG, "Login success: " + user.getTenDangNhap() + " with role: " + user.getVaiTro());
+
+// Thông báo thành công dựa theo role
+                    String roleText = "";
+                    switch (user.getVaiTro()) {
+                        case 0:
+                            roleText = "Quản trị viên";
+                            break;
+                        case 1:
+                            roleText = "Giáo viên";
+                            break;
+                        case 2:
+                            roleText = "Học viên";
+                            break;
                     }
+                    callback.onSuccess("Đăng nhập thành công với vai trò " + roleText);
                 } else {
                     try {
                         String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
