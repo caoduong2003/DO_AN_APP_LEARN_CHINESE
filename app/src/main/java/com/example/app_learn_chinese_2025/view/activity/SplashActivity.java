@@ -1,8 +1,11 @@
 package com.example.app_learn_chinese_2025.view.activity;
 
+import static androidx.constraintlayout.helper.widget.MotionEffect.TAG;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -17,6 +20,13 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        Log.d(TAG, "🚀 SplashActivity started");
+
+        // 🎯 KHỞI TẠO SMART CONSTANTS NGAY ĐẦU TIÊN
+        Constants.initialize(this);
+        Log.d(TAG, "📡 Smart Constants initialized - auto-detection started");
+
 
         authController = new AuthController(this);
 

@@ -194,7 +194,7 @@ public class MediaConnectivityHelper {
      */
     public static void logAllAPIEndpoints() {
         Log.d(TAG, "🎯 === ALL MEDIA API ENDPOINTS ===");
-        Log.d(TAG, "Base URL: " + Constants.BASE_URL);
+        Log.d(TAG, "Base URL: " + Constants.getBaseUrl()); // 🎯 FIXED: dùng getBaseUrl()
         Log.d(TAG, "Upload Image: " + Constants.getImageUploadUrl());
         Log.d(TAG, "Upload Video: " + Constants.getVideoUploadUrl());
         Log.d(TAG, "Debug Test: " + Constants.getDebugTestUrl());
