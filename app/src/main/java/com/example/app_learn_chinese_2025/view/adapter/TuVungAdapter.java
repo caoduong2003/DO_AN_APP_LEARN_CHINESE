@@ -77,7 +77,7 @@ public class TuVungAdapter extends RecyclerView.Adapter<TuVungAdapter.TuVungView
         // Xử lý nút phát âm thanh
         holder.btnPlayAudio.setOnClickListener(v -> {
             if (tuVung.getAudioURL() != null && !tuVung.getAudioURL().isEmpty()) {
-                playAudio(Constants.BASE_URL + tuVung.getAudioURL());
+                playAudio(Constants.getBaseUrl() + tuVung.getAudioURL());
             } else {
                 Toast.makeText(context, "Không có file âm thanh", Toast.LENGTH_SHORT).show();
             }

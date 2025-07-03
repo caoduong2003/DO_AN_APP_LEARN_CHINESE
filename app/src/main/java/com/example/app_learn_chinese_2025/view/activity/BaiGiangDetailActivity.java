@@ -223,7 +223,7 @@ public class BaiGiangDetailActivity extends AppCompatActivity implements BaiGian
             return fileUrl;
         }
         String fileName = extractFileName(fileUrl);
-        return fileName != null ? Constants.BASE_URL + "api/files/" + fileName : null;
+        return fileName != null ? Constants.getBaseUrl() + "api/files/" + fileName : null;
     }
 
     private String extractFileName(String filePath) {

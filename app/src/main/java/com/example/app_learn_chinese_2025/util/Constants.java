@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 🚀 Smart Constants - Tự động phát hiện server URL
- * Không cần can thiệp thủ công, hoàn toàn tự động!
+ * FIXED: Không có circular dependency
  */
 public class Constants {
     private static final String TAG = "SMART_CONSTANTS";
@@ -70,37 +70,70 @@ public class Constants {
     public static final String IMAGE_EXTENSION = ".png";
     public static final String VIDEO_EXTENSION = ".mp4";
 
+    // ✅ FIXED: Remove static field that causes circular dependency
+    // public static final String BASE_URL = getBaseUrl(); // ❌ REMOVED
+
     /**
-     * 🎯 MAIN METHOD - Lấy BASE_URL (tự động phát hiện)
-     * Đây là method chính mà tất cả code khác sẽ gọi
+     * 🚀 Enhanced initialize method với AutoIPManager
      */
-    public static String getBaseUrl() {
-        // Nếu đã detect thành công, trả về ngay
-        if (detectedServerUrl != null) {
-            return detectedServerUrl;
-        }
+    public static void initialize(Context context) {
+        Log.d(TAG, "🚀 Smart Constants initialize started");
 
-        // Nếu đang trong quá trình detect, trả về fallback
-        if (isDetecting) {
-            return getFallbackUrl();
-        }
+        // ✅ CRITICAL: Set context FIRST
+        appContext = context.getApplicationContext();
+        Log.d(TAG, "📱 Context initialized");
 
-        // Bắt đầu auto-detect (async)
+        // ✅ Start auto detection
         startAutoDetection();
 
-        // Trả về fallback trong lúc chờ
-        return getFallbackUrl();
+        // ✅ Start AutoIPManager - ONLY if context is set
+        try {
+            AutoIPManager.getInstance(context).autoDetectAndRegisterServerIP();
+            Log.d(TAG, "🤖 AutoIPManager started");
+        } catch (Exception e) {
+            Log.e(TAG, "❌ AutoIPManager failed: " + e.getMessage());
+            // Continue without AutoIPManager
+        }
+
+        Log.d(TAG, "✅ Smart Constants initialized successfully");
     }
 
     /**
-     * 🔄 Khởi tạo context (gọi từ Application class)
+     * 🔄 Get server URL với auto fallback
      */
-    public static void initialize(Context context) {
-        appContext = context.getApplicationContext();
-        Log.d(TAG, "🚀 Smart Constants initialized");
+    public static String getBaseUrl() {
+        // ✅ SAFETY: Check if initialized
+        if (appContext == null) {
+            Log.w(TAG, "⚠️ Constants not initialized, using default");
+            return DEFAULT_REAL_DEVICE_URL;
+        }
 
-        // Bắt đầu detect ngay
-        startAutoDetection();
+        // 1. Try detected URL first
+        if (detectedServerUrl != null && !detectedServerUrl.isEmpty()) {
+            return detectedServerUrl;
+        }
+
+        // 2. Try AutoIPManager - WITH NULL CHECK
+        try {
+            AutoIPManager autoManager = AutoIPManager.getInstance(appContext);
+            if (autoManager != null) {
+                String autoIP = autoManager.getCurrentServerURL();
+                if (autoIP != null) {
+                    Log.d(TAG, "📡 Using AutoIPManager URL: " + autoIP);
+                    return autoIP;
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "❌ AutoIPManager error: " + e.getMessage());
+            // Fall through to fallback
+        }
+
+        // 3. Fallback logic
+        if (isEmulator()) {
+            return EMULATOR_URL;
+        }
+
+        return DEFAULT_REAL_DEVICE_URL;
     }
 
     /**
@@ -242,7 +275,10 @@ public class Constants {
      * 📡 Lấy IP của device từ WiFi
      */
     private static String getDeviceWifiIp() {
-        if (appContext == null) return null;
+        if (appContext == null) {
+            Log.w(TAG, "⚠️ Cannot get WiFi IP - context not initialized");
+            return null;
+        }
 
         try {
             WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
@@ -266,10 +302,29 @@ public class Constants {
      * 🔄 Fallback URL logic
      */
     private static String getFallbackUrl() {
-        if (!isEmulator()) {
-            return DEFAULT_REAL_DEVICE_URL;
+        if (isEmulator()) {
+            return EMULATOR_URL;
         }
-        return EMULATOR_URL;
+        return DEFAULT_REAL_DEVICE_URL;
+    }
+
+    /**
+     * 🔄 Update discovered server từ AutoIPManager
+     */
+    public static void updateDiscoveredServer(String serverURL) {
+        detectedServerUrl = serverURL;
+        hasDetected.set(true);
+        Log.d(TAG, "📡 Server updated by AutoIPManager: " + serverURL);
+
+        // 🔄 Force recreate retrofit clients
+        try {
+            Class<?> retrofitClientClass = Class.forName("com.example.app_learn_chinese_2025.model.remote.RetrofitClient");
+            java.lang.reflect.Method forceRecreateMethod = retrofitClientClass.getDeclaredMethod("forceRecreate");
+            forceRecreateMethod.invoke(null);
+            Log.d(TAG, "🔄 RetrofitClient instances recreated");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to recreate RetrofitClient: " + e.getMessage());
+        }
     }
 
     /**
@@ -280,15 +335,21 @@ public class Constants {
             return null;
         }
 
+        // Nếu đã là URL đầy đủ, return ngay
         if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
             return imageUrl;
         }
 
+        // ✅ FIXED: Extract filename đúng cách
         String fileName = extractFileName(imageUrl);
-        if (!fileName.endsWith(IMAGE_EXTENSION)) {
-            fileName += IMAGE_EXTENSION;
-        }
 
+        // ✅ FIXED: Không tự động thêm .png extension
+        // Vì file có thể là .jpg, .jpeg, .png, etc.
+        // if (!fileName.endsWith(IMAGE_EXTENSION)) {
+        //     fileName += IMAGE_EXTENSION;
+        // }
+
+        // ✅ CORRECT URL: http://192.168.10.69:8080/api/media/image/book1.png
         return getBaseUrl() + API_VIEW_IMAGE + fileName;
     }
 
@@ -300,15 +361,21 @@ public class Constants {
             return null;
         }
 
+        // Nếu đã là URL đầy đủ, return ngay
         if (videoUrl.startsWith("http://") || videoUrl.startsWith("https://")) {
             return videoUrl;
         }
 
+        // ✅ FIXED: Extract filename đúng cách
         String fileName = extractFileName(videoUrl);
-        if (!fileName.endsWith(VIDEO_EXTENSION)) {
-            fileName += VIDEO_EXTENSION;
-        }
 
+        // ✅ FIXED: Không tự động thêm .mp4 extension
+        // Vì file có thể là .mp4, .avi, .mkv, etc.
+        // if (!fileName.endsWith(VIDEO_EXTENSION)) {
+        //     fileName += VIDEO_EXTENSION;
+        // }
+
+        // ✅ CORRECT URL: http://192.168.10.69:8080/api/media/video/1.Lesson_1.mp4
         return getBaseUrl() + API_STREAM_VIDEO + fileName;
     }
 
@@ -320,19 +387,32 @@ public class Constants {
             return "";
         }
 
-        if (filePath.startsWith("/uploads/videos/")) {
-            filePath = filePath.substring("/uploads/videos/".length());
-        } else if (filePath.startsWith("/uploads/images/")) {
-            filePath = filePath.substring("/uploads/images/".length());
-        } else if (filePath.startsWith("uploads/videos/")) {
-            filePath = filePath.substring("uploads/videos/".length());
-        } else if (filePath.startsWith("uploads/images/")) {
-            filePath = filePath.substring("uploads/images/".length());
-        } else if (filePath.contains("/")) {
-            filePath = filePath.substring(filePath.lastIndexOf("/") + 1);
+        // ✅ FIXED: Handle các format input khác nhau
+        String fileName = filePath;
+
+        // Remove various prefixes
+        if (fileName.startsWith("/uploads/videos/")) {
+            fileName = fileName.substring("/uploads/videos/".length());
+        } else if (fileName.startsWith("/uploads/images/")) {
+            fileName = fileName.substring("/uploads/images/".length());
+        } else if (fileName.startsWith("uploads/videos/")) {
+            fileName = fileName.substring("uploads/videos/".length());
+        } else if (fileName.startsWith("uploads/images/")) {
+            fileName = fileName.substring("uploads/images/".length());
+        } else if (fileName.startsWith("/api/media/video/")) {
+            fileName = fileName.substring("/api/media/video/".length());
+        } else if (fileName.startsWith("/api/media/image/")) {
+            fileName = fileName.substring("/api/media/image/".length());
+        } else if (fileName.startsWith("api/media/video/")) {
+            fileName = fileName.substring("api/media/video/".length());
+        } else if (fileName.startsWith("api/media/image/")) {
+            fileName = fileName.substring("api/media/image/".length());
+        } else if (fileName.contains("/")) {
+            // Lấy phần cuối sau dấu / cuối cùng
+            fileName = fileName.substring(fileName.lastIndexOf("/") + 1);
         }
 
-        return filePath;
+        return fileName;
     }
 
     // 🔧 Helper methods để build URLs
@@ -375,7 +455,8 @@ public class Constants {
                 ", Fallback: " + getFallbackUrl() +
                 ", Current: " + getBaseUrl() +
                 ", Emulator: " + isEmulator() +
-                ", WiFi IP: " + getDeviceWifiIp();
+                ", WiFi IP: " + getDeviceWifiIp() +
+                ", Context: " + (appContext != null ? "OK" : "NULL");
     }
 
     // Legacy support
@@ -389,6 +470,40 @@ public class Constants {
         return getCorrectImageUrl(imageUrl);
     }
 
-    // Compatibility với code cũ
-    public static final String BASE_URL = getBaseUrl(); // Deprecated, dùng getBaseUrl() thay thế
+    public static void debugMediaURLs() {
+        Log.d("MEDIA_DEBUG", "=== MEDIA URL DEBUG ===");
+
+        // Test cases
+        String[] testImages = {
+                "book1.png",
+                "/uploads/images/book1.png",
+                "uploads/images/book1.png",
+                "api/media/image/book1.png",
+                "/api/media/image/book1.png"
+        };
+
+        String[] testVideos = {
+                "1.Lesson_1.mp4",
+                "/uploads/videos/1.Lesson_1.mp4",
+                "uploads/videos/1.Lesson_1.mp4",
+                "api/media/video/1.Lesson_1.mp4",
+                "/api/media/video/1.Lesson_1.mp4"
+        };
+
+        Log.d("MEDIA_DEBUG", "Base URL: " + getBaseUrl());
+
+        Log.d("MEDIA_DEBUG", "--- IMAGE URLs ---");
+        for (String input : testImages) {
+            String result = getCorrectImageUrl(input);
+            Log.d("MEDIA_DEBUG", "Input: " + input + " -> " + result);
+        }
+
+        Log.d("MEDIA_DEBUG", "--- VIDEO URLs ---");
+        for (String input : testVideos) {
+            String result = getCorrectVideoUrl(input);
+            Log.d("MEDIA_DEBUG", "Input: " + input + " -> " + result);
+        }
+
+        Log.d("MEDIA_DEBUG", "==================");
+    }
 }

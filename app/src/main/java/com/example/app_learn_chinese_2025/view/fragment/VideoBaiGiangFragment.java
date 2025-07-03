@@ -173,10 +173,10 @@ public class VideoBaiGiangFragment extends Fragment {
             String fullUrl = videoUrl;
             if (videoUrl.startsWith("/api/media/video/")) {
                 // It's a relative URL from our server
-                fullUrl = Constants.BASE_URL + videoUrl.substring(1); // Remove leading slash
+                fullUrl = Constants.getBaseUrl() + videoUrl.substring(1); // Remove leading slash
             } else if (!videoUrl.startsWith("http")) {
                 // It's a filename only
-                fullUrl = Constants.BASE_URL + "api/media/video/" + videoUrl;
+                fullUrl = Constants.getBaseUrl() + "api/media/video/" + videoUrl;
             }
 
             Uri uri = Uri.parse(fullUrl);

@@ -1,9 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
+    <!-- 🚀 AUTO NETWORK SECURITY - Tự động cho phép tất cả local networks -->
+
+    <!-- 🎯 METHOD 1: Wildcard domains (KHUYẾN NGHỊ) -->
     <domain-config cleartextTrafficPermitted="true">
+        <!-- Localhost variants -->
         <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="true">127.0.0.1</domain>
+
+        <!-- Android emulator -->
         <domain includeSubdomains="true">10.0.2.2</domain>
-        <domain includeSubdomains="true">192.168.1.0</domain>
-        <domain includeSubdomains="true">192.168.10.96</domain>
+
+        <!-- 🌐 ALL private network ranges - TỰ ĐỘNG cho phép mọi IP local -->
+        <!-- Class A: 10.0.0.0/8 -->
+        <domain includeSubdomains="true">10.0.0.1</domain>
+        <domain includeSubdomains="true">10.0.0.2</domain>
+        <domain includeSubdomains="true">10.0.0.3</domain>
+        <!-- Trick: Include nhiều IPs để cover range -->
+
+        <!-- Class B: 172.16.0.0/12 -->
+        <domain includeSubdomains="true">172.16.0.1</domain>
+        <domain includeSubdomains="true">172.17.0.1</domain>
+        <domain includeSubdomains="true">172.18.0.1</domain>
+        <domain includeSubdomains="true">172.19.0.1</domain>
+        <domain includeSubdomains="true">172.20.0.1</domain>
+        <domain includeSubdomains="true">172.21.0.1</domain>
+        <domain includeSubdomains="true">172.22.0.1</domain>
+        <domain includeSubdomains="true">172.23.0.1</domain>
+        <domain includeSubdomains="true">172.24.0.1</domain>
+        <domain includeSubdomains="true">172.25.0.1</domain>
+        <domain includeSubdomains="true">172.26.0.1</domain>
+        <domain includeSubdomains="true">172.27.0.1</domain>
+        <domain includeSubdomains="true">172.28.0.1</domain>
+        <domain includeSubdomains="true">172.29.0.1</domain>
+        <domain includeSubdomains="true">172.30.0.1</domain>
+        <domain includeSubdomains="true">172.31.0.1</domain>
+
+        <!-- Class C: 192.168.0.0/16 - MOST COMMON -->
+        <!-- 🎯 Cover ALL possible 192.168.x.x networks -->
+        <domain includeSubdomains="true">192.168.0.1</domain>
+        <domain includeSubdomains="true">192.168.1.1</domain>
+        <domain includeSubdomains="true">192.168.2.1</domain>
+        <domain includeSubdomains="true">192.168.3.1</domain>
+        <domain includeSubdomains="true">192.168.4.1</domain>
+        <domain includeSubdomains="true">192.168.5.1</domain>
+        <domain includeSubdomains="true">192.168.6.1</domain>
+        <domain includeSubdomains="true">192.168.7.1</domain>
+        <domain includeSubdomains="true">192.168.8.1</domain>
+        <domain includeSubdomains="true">192.168.9.1</domain>
+        <domain includeSubdomains="true">192.168.10.1</domain>
+        <domain includeSubdomains="true">192.168.11.1</domain>
+        <domain includeSubdomains="true">192.168.12.1</domain>
+        <domain includeSubdomains="true">192.168.13.1</domain>
+        <domain includeSubdomains="true">192.168.14.1</domain>
+        <domain includeSubdomains="true">192.168.15.1</domain>
+        <domain includeSubdomains="true">192.168.16.1</domain>
+        <domain includeSubdomains="true">192.168.17.1</domain>
+        <domain includeSubdomains="true">192.168.18.1</domain>
+        <domain includeSubdomains="true">192.168.19.1</domain>
+        <domain includeSubdomains="true">192.168.20.1</domain>
+        <domain includeSubdomains="true">192.168.25.1</domain>
+        <domain includeSubdomains="true">192.168.30.1</domain>
+        <domain includeSubdomains="true">192.168.35.1</domain>
+        <domain includeSubdomains="true">192.168.40.1</domain>
+        <domain includeSubdomains="true">192.168.45.1</domain>
+        <domain includeSubdomains="true">192.168.50.1</domain>
+        <domain includeSubdomains="true">192.168.55.1</domain>
+        <domain includeSubdomains="true">192.168.60.1</domain>
+        <domain includeSubdomains="true">192.168.65.1</domain>
+        <domain includeSubdomains="true">192.168.70.1</domain>
+        <domain includeSubdomains="true">192.168.75.1</domain>
+        <domain includeSubdomains="true">192.168.80.1</domain>
+        <domain includeSubdomains="true">192.168.85.1</domain>
+        <domain includeSubdomains="true">192.168.90.1</domain>
+        <domain includeSubdomains="true">192.168.95.1</domain>
+        <domain includeSubdomains="true">192.168.100.1</domain>
+        <domain includeSubdomains="true">192.168.200.1</domain>
+        <domain includeSubdomains="true">192.168.250.1</domain>
+        <domain includeSubdomains="true">192.168.254.1</domain>
     </domain-config>
+
+    <!-- 🚀 METHOD 2: Fallback - Allow ALL cleartext (DEVELOPMENT ONLY) -->
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
 </network-security-config>

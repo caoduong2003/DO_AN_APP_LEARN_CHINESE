@@ -24,7 +24,7 @@ public class BaiGiangAdapter extends RecyclerView.Adapter<BaiGiangAdapter.BaiGia
     private static final String TAG = "BaiGiangAdapter";
 
     private final Context context;
-    private final List<BaiGiang> baiGiangList;
+    private List<BaiGiang> baiGiangList;
     private final boolean isTeacherMode;
     private OnBaiGiangItemClickListener itemClickListener; // For students
     private OnBaiGiangActionListener actionListener; // For teachers
@@ -148,7 +148,7 @@ public class BaiGiangAdapter extends RecyclerView.Adapter<BaiGiangAdapter.BaiGia
 
         // ✅ LOAD THUMBNAIL IMAGE with Picasso
         if (holder.ivThumbnail != null && baiGiang.getHinhAnh() != null && !baiGiang.getHinhAnh().isEmpty()) {
-            String imageUrl = Constants.BASE_URL + baiGiang.getHinhAnh();
+            String imageUrl = Constants.getBaseUrl() + baiGiang.getHinhAnh();
             Log.d(TAG, "🖼️ Loading image: " + imageUrl);
 
             Picasso.get()
@@ -251,26 +251,109 @@ public class BaiGiangAdapter extends RecyclerView.Adapter<BaiGiangAdapter.BaiGia
         return count;
     }
 
-    public void updateData(List<BaiGiang> newBaiGiangList) {
-        Log.d(TAG, "🔄 updateData called");
-        Log.d(TAG, "📊 Current list size: " + this.baiGiangList.size());
-        Log.d(TAG, "📊 New list size: " + (newBaiGiangList != null ? newBaiGiangList.size() : 0));
+//    public void updateData(List<BaiGiang> newBaiGiangList) {
+//        Log.d(TAG, "🔄 updateData called");
+//        Log.d(TAG, "📊 Current list size: " + this.baiGiangList.size());
+//        Log.d(TAG, "📊 New list size: " + (newBaiGiangList != null ? newBaiGiangList.size() : 0));
+//
+//        this.baiGiangList.clear();
+//        if (newBaiGiangList != null) {
+//            this.baiGiangList.addAll(newBaiGiangList);
+//            Log.d(TAG, "✅ Added " + newBaiGiangList.size() + " items to adapter");
+//
+//            // Debug log first few items
+//            for (int i = 0; i < Math.min(3, newBaiGiangList.size()); i++) {
+//                BaiGiang bg = newBaiGiangList.get(i);
+//                Log.d(TAG, "📝 Item " + i + ": " + bg.getTieuDe());
+//            }
+//        }
+//
+//        Log.d(TAG, "🔄 Calling notifyDataSetChanged()");
+//        notifyDataSetChanged();
+//        Log.d(TAG, "✅ updateData completed - final size: " + this.baiGiangList.size());
+//    }
+public void updateData(List<BaiGiang> newBaiGiangList) {
+    Log.d(TAG, "=== 🔄 updateData FIXED VERSION ===");
+    Log.d(TAG, "📊 Current list size: " + this.baiGiangList.size());
+    Log.d(TAG, "📊 New list size: " + (newBaiGiangList != null ? newBaiGiangList.size() : "NULL"));
 
+    // ✅ CRITICAL FIX: Null check trước
+    if (newBaiGiangList == null) {
+        Log.w(TAG, "⚠️ New list is NULL - clearing adapter");
         this.baiGiangList.clear();
-        if (newBaiGiangList != null) {
-            this.baiGiangList.addAll(newBaiGiangList);
-            Log.d(TAG, "✅ Added " + newBaiGiangList.size() + " items to adapter");
+        notifyDataSetChanged();
+        Log.d(TAG, "✅ updateData completed - final size: " + this.baiGiangList.size());
+        return;
+    }
 
-            // Debug log first few items
-            for (int i = 0; i < Math.min(3, newBaiGiangList.size()); i++) {
-                BaiGiang bg = newBaiGiangList.get(i);
-                Log.d(TAG, "📝 Item " + i + ": " + bg.getTieuDe());
+    // ✅ CRITICAL FIX: Debug reference check
+    if (this.baiGiangList == newBaiGiangList) {
+        Log.w(TAG, "⚠️ REFERENCE CONFLICT: Same list reference detected!");
+        // Tạo copy mới để tránh reference conflict
+        List<BaiGiang> tempList = new ArrayList<>(newBaiGiangList);
+        this.baiGiangList.clear();
+        this.baiGiangList.addAll(tempList);
+    } else {
+        // ✅ SAFE: Different references
+        Log.d(TAG, "✅ Safe: Different list references");
+        this.baiGiangList.clear();
+        this.baiGiangList.addAll(newBaiGiangList);
+    }
+
+    Log.d(TAG, "📊 After clear/addAll - List size: " + this.baiGiangList.size());
+
+    // ✅ Debug: Log first few items để verify
+    if (!this.baiGiangList.isEmpty()) {
+        Log.d(TAG, "✅ Items added successfully:");
+        for (int i = 0; i < Math.min(3, this.baiGiangList.size()); i++) {
+            BaiGiang bg = this.baiGiangList.get(i);
+            Log.d(TAG, "📝 Item " + i + ": " + (bg != null ? bg.getTieuDe() : "NULL"));
+        }
+    } else {
+        Log.e(TAG, "❌ No items in list after addAll!");
+
+        // ✅ FALLBACK: Try direct assignment
+        Log.d(TAG, "🔄 Trying direct assignment fallback...");
+        try {
+            this.baiGiangList = new ArrayList<>(newBaiGiangList);
+            Log.d(TAG, "✅ Fallback successful - size: " + this.baiGiangList.size());
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Fallback failed: " + e.getMessage());
+            this.baiGiangList = new ArrayList<>();
+        }
+    }
+
+    Log.d(TAG, "🔄 Calling notifyDataSetChanged()");
+    notifyDataSetChanged();
+    Log.d(TAG, "✅ updateData completed - final size: " + this.baiGiangList.size());
+    Log.d(TAG, "=== END updateData FIXED ===");
+}
+
+    // ✅ ALTERNATIVE: Completely new updateData method
+    public void updateDataSafe(List<BaiGiang> newBaiGiangList) {
+        Log.d(TAG, "🔄 updateDataSafe called - ALTERNATIVE METHOD");
+
+        // Create completely new list
+        List<BaiGiang> safeList = new ArrayList<>();
+
+        if (newBaiGiangList != null) {
+            // Add items one by one to ensure copy
+            for (BaiGiang item : newBaiGiangList) {
+                if (item != null) {
+                    safeList.add(item);
+                }
             }
         }
 
-        Log.d(TAG, "🔄 Calling notifyDataSetChanged()");
+        Log.d(TAG, "📊 Safe list created with " + safeList.size() + " items");
+
+        // Replace reference completely
+        this.baiGiangList = safeList;
+
+        Log.d(TAG, "📊 Adapter list updated to " + this.baiGiangList.size() + " items");
+
         notifyDataSetChanged();
-        Log.d(TAG, "✅ updateData completed - final size: " + this.baiGiangList.size());
+        Log.d(TAG, "✅ updateDataSafe completed");
     }
 
     static class BaiGiangViewHolder extends RecyclerView.ViewHolder {

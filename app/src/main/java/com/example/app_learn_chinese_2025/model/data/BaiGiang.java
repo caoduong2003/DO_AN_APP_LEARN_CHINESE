@@ -195,7 +195,7 @@ public class BaiGiang {
 
     public String getFullVideoURL() {
         if (hasVideo()) {
-            return Constants.BASE_URL + videoURL;
+            return Constants.getBaseUrl() + videoURL;
         }
         return null;
     }

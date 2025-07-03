@@ -57,7 +57,7 @@ public class MauCauAdapter extends RecyclerView.Adapter<MauCauAdapter.MauCauView
         // Set audio button click listener
         holder.btnPlayAudio.setOnClickListener(v -> {
             if (mauCau.getAudioURL() != null && !mauCau.getAudioURL().isEmpty()) {
-                playAudio(Constants.BASE_URL + mauCau.getAudioURL());
+                playAudio(Constants.getBaseUrl() + mauCau.getAudioURL());
             } else {
                 Toast.makeText(context, "Không có file âm thanh", Toast.LENGTH_SHORT).show();
             }
