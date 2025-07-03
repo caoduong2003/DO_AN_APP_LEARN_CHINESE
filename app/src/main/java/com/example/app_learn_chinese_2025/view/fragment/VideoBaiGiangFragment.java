@@ -1,23 +1,14 @@
 package com.example.app_learn_chinese_2025.view.fragment;
 
-import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.ImageButton;
-import android.widget.MediaController;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.VideoView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,28 +19,36 @@ import com.example.app_learn_chinese_2025.model.data.BaiGiang;
 import com.example.app_learn_chinese_2025.model.repository.BaiGiangRepository;
 import com.example.app_learn_chinese_2025.util.Constants;
 import com.example.app_learn_chinese_2025.util.SessionManager;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.PlaybackException;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.source.DefaultMediaSourceFactory;
+import com.google.android.exoplayer2.ui.StyledPlayerView;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSource;
 
 public class VideoBaiGiangFragment extends Fragment {
-    private VideoView videoView;
-    private WebView webView;
-    private ProgressBar progressBar;
-    private ImageButton btnPlay, btnPlayPause, btnFullscreen;
-    private SeekBar seekBar;
-    private TextView tvDuration, tvError, tvVideoTitle, tvVideoDescription;
+    private static final String TAG = "VideoBaiGiangFragment";
 
+    // UI Components
+    private StyledPlayerView playerView;
+    private ProgressBar progressBar;
+    private ImageButton btnPlay;
+    private TextView tvError, tvVideoTitle, tvVideoDescription;
+
+    // ExoPlayer
+    private ExoPlayer player;
+
+    // Data
     private SessionManager sessionManager;
     private BaiGiangRepository baiGiangRepository;
-
     private long baiGiangId;
     private BaiGiang currentBaiGiang;
-    private boolean isPlaying = false;
-    private Handler handler = new Handler();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Get baiGiangId from arguments
         if (getArguments() != null) {
             baiGiangId = getArguments().getLong("BAI_GIANG_ID", -1);
         }
@@ -61,23 +60,22 @@ public class VideoBaiGiangFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_video_bai_giang, container, false);
 
         initViews(view);
-        setupListeners();
-
-        // Load data
+        initializePlayer();
         loadBaiGiang();
 
         return view;
     }
 
     private void initViews(View view) {
-        videoView = view.findViewById(R.id.videoView);
-        webView = view.findViewById(R.id.webView);
+        // Try to find StyledPlayerView first, fallback to regular PlayerView
+        playerView = view.findViewById(R.id.playerView);
+        if (playerView == null) {
+            // Create StyledPlayerView programmatically if not in layout
+            playerView = new StyledPlayerView(requireContext());
+        }
+
         progressBar = view.findViewById(R.id.progressBar);
         btnPlay = view.findViewById(R.id.btnPlay);
-        btnPlayPause = view.findViewById(R.id.btnPlayPause);
-        btnFullscreen = view.findViewById(R.id.btnFullscreen);
-        seekBar = view.findViewById(R.id.seekBar);
-        tvDuration = view.findViewById(R.id.tvDuration);
         tvError = view.findViewById(R.id.tvError);
         tvVideoTitle = view.findViewById(R.id.tvVideoTitle);
         tvVideoDescription = view.findViewById(R.id.tvVideoDescription);
@@ -86,33 +84,69 @@ public class VideoBaiGiangFragment extends Fragment {
         baiGiangRepository = new BaiGiangRepository(requireContext(), sessionManager);
     }
 
-    private void setupListeners() {
-        btnPlay.setOnClickListener(v -> playVideo());
-        btnPlayPause.setOnClickListener(v -> togglePlayPause());
-        btnFullscreen.setOnClickListener(v -> toggleFullscreen());
+    private void initializePlayer() {
+        if (player == null) {
+            // ✅ CRITICAL: Configure DefaultHttpDataSource to handle 206 responses
+            DefaultHttpDataSource.Factory httpDataSourceFactory = new DefaultHttpDataSource.Factory()
+                    .setAllowCrossProtocolRedirects(true)
+                    .setConnectTimeoutMs(30000)
+                    .setReadTimeoutMs(30000)
+                    .setUserAgent("TiengTrungApp/1.0");  // Important for some servers
 
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser && videoView.isPlaying()) {
-                    videoView.seekTo(progress);
+            DefaultDataSource.Factory dataSourceFactory = new DefaultDataSource.Factory(
+                    requireContext(), httpDataSourceFactory);
+
+            DefaultMediaSourceFactory mediaSourceFactory = new DefaultMediaSourceFactory(dataSourceFactory);
+
+            player = new ExoPlayer.Builder(requireContext())
+                    .setMediaSourceFactory(mediaSourceFactory)
+                    .build();
+
+            playerView.setPlayer(player);
+            playerView.setUseController(true);
+            playerView.setControllerAutoShow(true);
+
+            // Setup player listeners
+            player.addListener(new Player.Listener() {
+                @Override
+                public void onPlayerError(PlaybackException error) {
+                    Log.e(TAG, "❌ ExoPlayer error: " + error.getErrorCodeName() + " - " + error.getMessage(), error);
+                    showError("Không thể phát video: " + error.getErrorCodeName());
                 }
-            }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
+                @Override
+                public void onPlaybackStateChanged(int playbackState) {
+                    switch (playbackState) {
+                        case Player.STATE_BUFFERING:
+                            Log.d(TAG, "🔄 Video đang tải...");
+                            progressBar.setVisibility(View.VISIBLE);
+                            break;
+                        case Player.STATE_READY:
+                            Log.d(TAG, "✅ Video sẵn sàng phát");
+                            progressBar.setVisibility(View.GONE);
+                            playerView.setVisibility(View.VISIBLE);
+                            hideError();
+                            btnPlay.setVisibility(View.GONE);
+                            break;
+                        case Player.STATE_ENDED:
+                            Log.d(TAG, "⏹ Video đã phát xong");
+                            btnPlay.setVisibility(View.VISIBLE);
+                            break;
+                        case Player.STATE_IDLE:
+                            Log.d(TAG, "⏸ Player ở trạng thái idle");
+                            break;
+                    }
+                }
 
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {}
-        });
+                @Override
+                public void onIsPlayingChanged(boolean isPlaying) {
+                    Log.d(TAG, "▶️ Playing state changed: " + isPlaying);
+                }
+            });
+        }
     }
 
     private void loadBaiGiang() {
-        if (baiGiangId <= 0) {
-            showError("Không tìm thấy thông tin bài giảng");
-            return;
-        }
-
         showLoading(true);
 
         baiGiangRepository.getBaiGiangById(baiGiangId, new BaiGiangRepository.OnBaiGiangCallback() {
@@ -126,7 +160,7 @@ public class VideoBaiGiangFragment extends Fragment {
 
             @Override
             public void onError(String errorMessage) {
-                showError(errorMessage);
+                showError("Lỗi tải bài giảng: " + errorMessage);
                 showLoading(false);
             }
         });
@@ -134,8 +168,12 @@ public class VideoBaiGiangFragment extends Fragment {
 
     private void updateUI() {
         if (currentBaiGiang != null) {
-            tvVideoTitle.setText(currentBaiGiang.getTieuDe());
-            tvVideoDescription.setText(currentBaiGiang.getMoTa());
+            if (tvVideoTitle != null) {
+                tvVideoTitle.setText(currentBaiGiang.getTieuDe());
+            }
+            if (tvVideoDescription != null) {
+                tvVideoDescription.setText(currentBaiGiang.getMoTa());
+            }
         }
     }
 
@@ -148,225 +186,100 @@ public class VideoBaiGiangFragment extends Fragment {
         }
 
         String videoUrl = currentBaiGiang.getVideoURL();
+        String fullUrl = Constants.getCorrectVideoUrl(videoUrl);
 
-        // Check if it's a direct video file or streaming URL
-        if (isDirectVideoUrl(videoUrl)) {
-            setupVideoView(videoUrl);
-        } else {
-            setupWebView(videoUrl);
-        }
-    }
+        Log.d(TAG, "🎬 Setting up video with URL: " + fullUrl);
 
-    private boolean isDirectVideoUrl(String url) {
-        // Check if URL points to a direct video file
-        return url.endsWith(".mp4") || url.endsWith(".avi") ||
-                url.endsWith(".mkv") || url.endsWith(".mov") ||
-                url.contains("your-video-server.com"); // Replace with your server domain
-    }
+        // ✅ DEBUG: Test the URL first
+        Constants.testVideoUrl(fullUrl, requireContext());
 
-    private void setupVideoView(String videoUrl) {
         try {
-            webView.setVisibility(View.GONE);
-            videoView.setVisibility(View.VISIBLE);
+            // ✅ CRITICAL: Create MediaItem and prepare player
+            MediaItem mediaItem = MediaItem.fromUri(Uri.parse(fullUrl));
+            player.setMediaItem(mediaItem);
+            player.prepare();
 
-            // Build full URL
-            String fullUrl = videoUrl;
-            if (videoUrl.startsWith("/api/media/video/")) {
-                // It's a relative URL from our server
-                fullUrl = Constants.getBaseUrl() + videoUrl.substring(1); // Remove leading slash
-            } else if (!videoUrl.startsWith("http")) {
-                // It's a filename only
-                fullUrl = Constants.getBaseUrl() + "api/media/video/" + videoUrl;
-            }
-
-            Uri uri = Uri.parse(fullUrl);
-            videoView.setVideoURI(uri);
-
-            // Setup media controller
-            MediaController mediaController = new MediaController(requireContext());
-            mediaController.setAnchorView(videoView);
-            videoView.setMediaController(mediaController);
-
-            videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    btnPlay.setVisibility(View.GONE);
-                    setupVideoControls();
-                }
-            });
-
-            videoView.setOnErrorListener(new MediaPlayer.OnErrorListener() {
-                @Override
-                public boolean onError(MediaPlayer mp, int what, int extra) {
-                    showError("Không thể phát video");
-                    return true;
-                }
-            });
-
-            videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    isPlaying = false;
-                    btnPlayPause.setImageResource(android.R.drawable.ic_media_play);
-                    btnPlay.setVisibility(View.VISIBLE);
-                }
+            // Setup play button
+            btnPlay.setOnClickListener(v -> {
+                Log.d(TAG, "▶️ Play button clicked");
+                player.setPlayWhenReady(true);
+                btnPlay.setVisibility(View.GONE);
             });
 
         } catch (Exception e) {
+            Log.e(TAG, "❌ Error setting up video: " + e.getMessage(), e);
             showError("Lỗi khi tải video: " + e.getMessage());
         }
-    }
-
-    private void setupWebView(String videoUrl) {
-        try {
-            videoView.setVisibility(View.GONE);
-            webView.setVisibility(View.VISIBLE);
-            btnPlay.setVisibility(View.GONE);
-
-            WebSettings webSettings = webView.getSettings();
-            webSettings.setJavaScriptEnabled(true);
-            webSettings.setDomStorageEnabled(true);
-            webSettings.setLoadWithOverviewMode(true);
-            webSettings.setUseWideViewPort(true);
-            webSettings.setBuiltInZoomControls(false);
-            webSettings.setDisplayZoomControls(false);
-            webSettings.setSupportZoom(false);
-            webSettings.setDefaultTextEncodingName("utf-8");
-
-            // Enable hardware acceleration for video
-            webSettings.setPluginState(WebSettings.PluginState.ON);
-            webSettings.setMediaPlaybackRequiresUserGesture(false);
-
-            webView.setWebViewClient(new WebViewClient() {
-                @Override
-                public void onPageFinished(WebView view, String url) {
-                    super.onPageFinished(view, url);
-                    // Hide loading when page finishes
-                }
-            });
-
-            webView.setWebChromeClient(new WebChromeClient() {
-                @Override
-                public void onProgressChanged(WebView view, int newProgress) {
-                    super.onProgressChanged(view, newProgress);
-                    // Update loading progress if needed
-                }
-            });
-
-            // Create HTML content for video
-            String htmlContent = createVideoHtml(videoUrl);
-            webView.loadDataWithBaseURL(null, htmlContent, "text/html", "UTF-8", null);
-
-        } catch (Exception e) {
-            showError("Lỗi khi tải video: " + e.getMessage());
-        }
-    }
-
-    private String createVideoHtml(String videoUrl) {
-        return "<html><head>" +
-                "<meta name='viewport' content='width=device-width, initial-scale=1.0'>" +
-                "<style>" +
-                "body { margin: 0; padding: 0; background: black; }" +
-                "video { width: 100%; height: 100%; object-fit: contain; }" +
-                "</style>" +
-                "</head><body>" +
-                "<video controls autoplay>" +
-                "<source src='" + videoUrl + "' type='video/mp4'>" +
-                "Your browser does not support the video tag." +
-                "</video>" +
-                "</body></html>";
-    }
-
-    private void setupVideoControls() {
-        if (videoView.getDuration() > 0) {
-            seekBar.setMax(videoView.getDuration());
-            updateSeekBar();
-        }
-    }
-
-    private void updateSeekBar() {
-        if (videoView.isPlaying()) {
-            seekBar.setProgress(videoView.getCurrentPosition());
-            updateDurationText();
-            handler.postDelayed(this::updateSeekBar, 1000);
-        }
-    }
-
-    private void updateDurationText() {
-        int currentPos = videoView.getCurrentPosition();
-        int duration = videoView.getDuration();
-
-        String current = formatTime(currentPos);
-        String total = formatTime(duration);
-
-        tvDuration.setText(current + " / " + total);
-    }
-
-    private String formatTime(int milliseconds) {
-        int seconds = milliseconds / 1000;
-        int minutes = seconds / 60;
-        seconds = seconds % 60;
-
-        return String.format("%02d:%02d", minutes, seconds);
-    }
-
-    private void playVideo() {
-        if (videoView.getVisibility() == View.VISIBLE) {
-            videoView.start();
-            isPlaying = true;
-            btnPlayPause.setImageResource(android.R.drawable.ic_media_pause);
-            btnPlay.setVisibility(View.GONE);
-            updateSeekBar();
-        }
-    }
-
-    private void togglePlayPause() {
-        if (videoView.getVisibility() == View.VISIBLE) {
-            if (videoView.isPlaying()) {
-                videoView.pause();
-                isPlaying = false;
-                btnPlayPause.setImageResource(android.R.drawable.ic_media_play);
-            } else {
-                videoView.start();
-                isPlaying = true;
-                btnPlayPause.setImageResource(android.R.drawable.ic_media_pause);
-                updateSeekBar();
-            }
-        }
-    }
-
-    private void toggleFullscreen() {
-        // Implement fullscreen toggle if needed
-        Toast.makeText(requireContext(), "Chức năng toàn màn hình đang phát triển", Toast.LENGTH_SHORT).show();
     }
 
     private void showLoading(boolean show) {
-        progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        if (progressBar != null) {
+            progressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void showError(String message) {
-        tvError.setText(message);
-        tvError.setVisibility(View.VISIBLE);
-        btnPlay.setVisibility(View.GONE);
+        Log.e(TAG, "❌ Error: " + message);
+        if (tvError != null) {
+            tvError.setText(message);
+            tvError.setVisibility(View.VISIBLE);
+        }
+        if (playerView != null) {
+            playerView.setVisibility(View.GONE);
+        }
+        if (btnPlay != null) {
+            btnPlay.setVisibility(View.GONE);
+        }
+    }
+
+    private void hideError() {
+        if (tvError != null) {
+            tvError.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (player != null) {
+            // Don't auto-play on start
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (player != null && player.getPlayWhenReady()) {
+            player.play();
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        if (videoView.isPlaying()) {
-            videoView.pause();
+        if (player != null) {
+            player.pause();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (player != null) {
+            player.pause();
         }
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (videoView != null) {
-            videoView.stopPlayback();
+        releasePlayer();
+    }
+
+    private void releasePlayer() {
+        if (player != null) {
+            player.release();
+            player = null;
         }
-        if (webView != null) {
-            webView.destroy();
-        }
-        handler.removeCallbacksAndMessages(null);
     }
 }

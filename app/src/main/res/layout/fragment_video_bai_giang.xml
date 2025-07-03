@@ -6,156 +6,84 @@
     android:orientation="vertical"
     android:background="@android:color/black">
 
+    <!-- Video Info (Optional) -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@android:color/white"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvVideoTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Video Title"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvVideoDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Video Description"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+
     <!-- Video Container -->
-    <RelativeLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@android:color/black">
 
-        <!-- VideoView for direct video files -->
-        <VideoView
-            android:id="@+id/videoView"
+        <!-- ✅ CRITICAL: Use StyledPlayerView for ExoPlayer -->
+        <com.google.android.exoplayer2.ui.StyledPlayerView
+            android:id="@+id/playerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            app:use_controller="true"
+            app:auto_show="true"
+            app:show_buffering="when_playing"
             android:visibility="gone" />
 
-        <!-- WebView for streaming videos -->
-        <WebView
-            android:id="@+id/webView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone" />
-
-        <!-- Loading indicator -->
+        <!-- Loading -->
         <ProgressBar
             android:id="@+id/progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:indeterminateTint="@android:color/white"
-            android:visibility="gone" />
+            android:layout_gravity="center"
+            android:indeterminateTint="@android:color/white" />
 
-        <!-- Play button overlay -->
+        <!-- Play Button Overlay -->
         <ImageButton
             android:id="@+id/btnPlay"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:layout_centerInParent="true"
+            android:layout_gravity="center"
             android:background="@drawable/circle_play_background"
             android:src="@android:drawable/ic_media_play"
-            android:tint="@android:color/white"
             android:scaleType="centerInside"
-            android:contentDescription="Phát video" />
+            android:contentDescription="Play Video"
+            app:tint="@android:color/white" />
 
-        <!-- Video controls overlay -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/gradient_overlay"
-            android:orientation="vertical"
-            android:padding="16dp"
-            android:visibility="visible">
-
-            <!-- Progress bar -->
-            <SeekBar
-                android:id="@+id/seekBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:progressTint="@color/primary_color"
-                android:thumbTint="@color/primary_color" />
-
-            <!-- Control buttons row -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <!-- Play/Pause button -->
-                <ImageButton
-                    android:id="@+id/btnPlayPause"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@android:drawable/ic_media_play"
-                    android:contentDescription="Phát/Dừng"
-                    app:tint="@android:color/white" />
-
-                <!-- Duration text -->
-                <TextView
-                    android:id="@+id/tvDuration"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:layout_marginStart="12dp"
-                    android:text="00:00 / 00:00"
-                    android:textColor="@android:color/white"
-                    android:textSize="14sp" />
-
-                <!-- Fullscreen button -->
-                <ImageButton
-                    android:id="@+id/btnFullscreen"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_fullscreen"
-                    android:contentDescription="Toàn màn hình"
-                    app:tint="@android:color/white" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <!-- Error message -->
+        <!-- Error Message -->
         <TextView
             android:id="@+id/tvError"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_margin="16dp"
-            android:background="@drawable/error_background"
-            android:gravity="center"
-            android:padding="16dp"
-            android:text="Không thể tải video"
+            android:layout_gravity="center"
+            android:text="Error Message"
             android:textColor="@android:color/white"
-            android:textSize="16sp"
+            android:textAlignment="center"
+            android:padding="16dp"
+            android:background="#80000000"
             android:visibility="gone" />
 
-    </RelativeLayout>
-
-    <!-- Video information -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/white"
-        android:orientation="vertical"
-        android:padding="16dp">
-
-        <!-- Video title -->
-        <TextView
-            android:id="@+id/tvVideoTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:text="Tiêu đề bài giảng"
-            android:textColor="@android:color/black"
-            android:textSize="18sp"
-            android:textStyle="bold" />
-
-        <!-- Video description -->
-        <TextView
-            android:id="@+id/tvVideoDescription"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mô tả bài giảng..."
-            android:textColor="@color/text_secondary"
-            android:textSize="14sp"
-            android:lineSpacingExtra="2dp" />
-
-    </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout>

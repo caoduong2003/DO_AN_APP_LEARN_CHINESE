@@ -219,11 +219,32 @@ public class BaiGiangDetailActivity extends AppCompatActivity implements BaiGian
         if (TextUtils.isEmpty(fileUrl)) {
             return null;
         }
+
+        // If already a full URL, return as is
         if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
             return fileUrl;
         }
+
         String fileName = extractFileName(fileUrl);
-        return fileName != null ? Constants.getBaseUrl() + "api/files/" + fileName : null;
+
+        // ✅ FIXED: Use Constants.getCorrectVideoUrl() instead of hardcoded path
+        return fileName != null ? Constants.getCorrectVideoUrl(fileName) : null;
+    }
+
+    // ✅ ALTERNATIVE FIX: Use the correct API endpoint directly
+    private String buildCorrectFileUrlAlternative(String fileUrl) {
+        if (TextUtils.isEmpty(fileUrl)) {
+            return null;
+        }
+
+        if (fileUrl.startsWith("http://") || fileUrl.startsWith("https://")) {
+            return fileUrl;
+        }
+
+        String fileName = extractFileName(fileUrl);
+
+        // ✅ FIXED: Use correct video API endpoint
+        return fileName != null ? Constants.getBaseUrl() + "api/media/video/" + fileName : null;
     }
 
     private String extractFileName(String filePath) {

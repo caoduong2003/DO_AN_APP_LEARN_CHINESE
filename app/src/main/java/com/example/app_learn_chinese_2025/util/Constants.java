@@ -356,26 +356,43 @@ public class Constants {
     /**
      * 🎯 Build video URL
      */
+//    public static String getCorrectVideoUrl(String videoUrl) {
+//        if (videoUrl == null || videoUrl.isEmpty()) {
+//            return null;
+//        }
+//
+//        // Nếu đã là URL đầy đủ, return ngay
+//        if (videoUrl.startsWith("http://") || videoUrl.startsWith("https://")) {
+//            return videoUrl;
+//        }
+//
+//        // ✅ FIXED: Extract filename đúng cách
+//        String fileName = extractFileName(videoUrl);
+//
+//        // ✅ FIXED: Không tự động thêm .mp4 extension
+//        // Vì file có thể là .mp4, .avi, .mkv, etc.
+//        // if (!fileName.endsWith(VIDEO_EXTENSION)) {
+//        //     fileName += VIDEO_EXTENSION;
+//        // }
+//
+//        // ✅ CORRECT URL: http://192.168.10.69:8080/api/media/video/1.Lesson_1.mp4
+//        return getBaseUrl() + API_STREAM_VIDEO + fileName;
+//    }
+
     public static String getCorrectVideoUrl(String videoUrl) {
         if (videoUrl == null || videoUrl.isEmpty()) {
-            return null;
+            return "";
         }
 
-        // Nếu đã là URL đầy đủ, return ngay
+        // If already a full URL, return as is
         if (videoUrl.startsWith("http://") || videoUrl.startsWith("https://")) {
             return videoUrl;
         }
 
-        // ✅ FIXED: Extract filename đúng cách
+        // Extract filename from various input formats
         String fileName = extractFileName(videoUrl);
 
-        // ✅ FIXED: Không tự động thêm .mp4 extension
-        // Vì file có thể là .mp4, .avi, .mkv, etc.
-        // if (!fileName.endsWith(VIDEO_EXTENSION)) {
-        //     fileName += VIDEO_EXTENSION;
-        // }
-
-        // ✅ CORRECT URL: http://192.168.10.69:8080/api/media/video/1.Lesson_1.mp4
+        // ✅ CORRECT URL: http://10.0.2.2:8080/api/media/video/1.Lesson_1.mp4
         return getBaseUrl() + API_STREAM_VIDEO + fileName;
     }
 
@@ -505,5 +522,55 @@ public class Constants {
         }
 
         Log.d("MEDIA_DEBUG", "==================");
+    }
+
+    public static void debugVideoURL(String input) {
+        String result = getCorrectVideoUrl(input);
+        Log.d("VIDEO_URL_DEBUG", "Input: '" + input + "' -> Output: '" + result + "'");
+
+        // Also log the constants being used
+        Log.d("VIDEO_URL_DEBUG", "Base URL: " + getBaseUrl());
+        Log.d("VIDEO_URL_DEBUG", "Stream Video Path: " + API_STREAM_VIDEO);
+    }
+
+    public static void testVideoUrl(String videoUrl, Context context) {
+        new Thread(() -> {
+            try {
+                java.net.URL url = new java.net.URL(videoUrl);
+                java.net.HttpURLConnection connection = (java.net.HttpURLConnection) url.openConnection();
+
+                // Test with range request (like real video players do)
+                connection.setRequestProperty("Range", "bytes=0-1024");
+                connection.setRequestMethod("GET");
+                connection.setConnectTimeout(10000);
+                connection.setReadTimeout(10000);
+
+                int responseCode = connection.getResponseCode();
+                String contentType = connection.getContentType();
+                String contentRange = connection.getHeaderField("Content-Range");
+                String acceptRanges = connection.getHeaderField("Accept-Ranges");
+
+                Log.d("VIDEO_TEST", "🎯 === VIDEO URL TEST RESULTS ===");
+                Log.d("VIDEO_TEST", "URL: " + videoUrl);
+                Log.d("VIDEO_TEST", "Response Code: " + responseCode);
+                Log.d("VIDEO_TEST", "Content-Type: " + contentType);
+                Log.d("VIDEO_TEST", "Content-Range: " + contentRange);
+                Log.d("VIDEO_TEST", "Accept-Ranges: " + acceptRanges);
+                Log.d("VIDEO_TEST", "Content-Length: " + connection.getContentLength());
+
+                if (responseCode == 206) {
+                    Log.d("VIDEO_TEST", "✅ Server supports range requests (206) - Good for streaming!");
+                } else if (responseCode == 200) {
+                    Log.d("VIDEO_TEST", "⚠️ Server returns full content (200) - May work but not optimal");
+                } else {
+                    Log.e("VIDEO_TEST", "❌ Unexpected response code: " + responseCode);
+                }
+
+                connection.disconnect();
+
+            } catch (Exception e) {
+                Log.e("VIDEO_TEST", "❌ Video URL test failed: " + e.getMessage(), e);
+            }
+        }).start();
     }
 }
