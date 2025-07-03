@@ -51,6 +51,18 @@ public class BaiGiang {
     @SerializedName("loaiBaiGiang")
     private LoaiBaiGiang loaiBaiGiang;
 
+    @SerializedName("noiDung")
+    private String noiDung;
+
+    @SerializedName("thoiLuong")
+    private int thoiLuong;
+
+    @SerializedName("hinhAnh")
+    private String hinhAnh;
+
+    @SerializedName("audioURL")
+    private String audioURL;
+
     // Getters and Setters
     public Long getID() {
         return ID;
@@ -165,16 +177,13 @@ public class BaiGiang {
         this.loaiBaiGiang = loaiBaiGiang;
     }
 
-    public char[] getThoiLuong() {
-        // Assuming thoiLuong is in minutes, convert to a string representation
-        // This method should be implemented based on your actual data structure
-        return String.valueOf(luotXem).toCharArray(); // Placeholder implementation
-    }
 
     public String getNoiDung() {
-        // Assuming noiDung is a string representation of the content
-        // This method should be implemented based on your actual data structure
-        return "<html><body>" + moTa + "</body></html>"; // Placeholder implementation
+        return noiDung;
+    }
+
+    public int getThoiLuong() {
+        return thoiLuong;
     }
 
     public Long getId() {

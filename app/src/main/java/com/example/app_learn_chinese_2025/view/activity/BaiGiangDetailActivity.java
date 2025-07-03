@@ -41,7 +41,8 @@ public class BaiGiangDetailActivity extends AppCompatActivity implements BaiGian
     private ProgressBar progressBar;
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
-
+    private TextView tvLessonContent;
+    private TextView tvHSKLevel, tvLessonType, tvDuration, tvViews;
     // Data
     private BaiGiang currentBaiGiang;
     private User currentUser;
@@ -80,6 +81,11 @@ public class BaiGiangDetailActivity extends AppCompatActivity implements BaiGian
         progressBar = findViewById(R.id.progressBar);
         tabLayout = findViewById(R.id.tabLayout);
         viewPager = findViewById(R.id.viewPager);
+        tvHSKLevel = findViewById(R.id.tvHSKLevel);
+        tvLessonType = findViewById(R.id.tvLessonType);
+        tvDuration = findViewById(R.id.tvDuration);
+        tvViews = findViewById(R.id.tvViews);
+        tvLessonContent = findViewById(R.id.tvLessonContent);
 
         if (tvNoVideo != null) {
             tvNoVideo.setVisibility(View.GONE);
@@ -126,14 +132,89 @@ public class BaiGiangDetailActivity extends AppCompatActivity implements BaiGian
         }
 
         try {
+            // ✅ DEBUG: Log content for verification
+            debugBaiGiangContent(baiGiang);
+
+            // Display basic info
             tvTitle.setText(baiGiang.getTieuDe() != null ? baiGiang.getTieuDe() : "Không có tiêu đề");
             tvDescription.setText(baiGiang.getMoTa() != null ? baiGiang.getMoTa() : "Không có mô tả");
+
+            // Display lesson metadata
+            if (baiGiang.getCapDoHSK() != null) {
+                tvHSKLevel.setText(baiGiang.getCapDoHSK().getTenCapDo());
+                tvHSKLevel.setVisibility(View.VISIBLE);
+            } else {
+                tvHSKLevel.setVisibility(View.GONE);
+            }
+
+            if (baiGiang.getLoaiBaiGiang() != null) {
+                tvLessonType.setText(baiGiang.getLoaiBaiGiang().getTenLoai());
+                tvLessonType.setVisibility(View.VISIBLE);
+            } else {
+                tvLessonType.setVisibility(View.GONE);
+            }
+
+            tvDuration.setText(baiGiang.getThoiLuong() + " phút");
+            tvViews.setText(baiGiang.getLuotXem() + " lượt xem");
+
+            // ✅ MAIN FIX: Display detailed content (NoiDung)
+            displayLessonContent(baiGiang.getNoiDung());
+
+            // Setup video
             setupVideo(baiGiang.getVideoURL());
             startTime = System.currentTimeMillis();
+
         } catch (Exception e) {
             Log.e(TAG, "Error displaying BaiGiang: " + e.getMessage(), e);
             showError("Lỗi hiển thị bài giảng: " + e.getMessage());
         }
+    }
+
+    // ✅ NEW: Method to display and format lesson content
+    private void displayLessonContent(String noiDung) {
+        if (noiDung == null || noiDung.trim().isEmpty()) {
+            tvLessonContent.setText("Nội dung bài giảng đang được cập nhật...");
+            return;
+        }
+
+        // ✅ Format content for better display
+        String formattedContent = formatLessonContent(noiDung);
+        tvLessonContent.setText(formattedContent);
+        Log.d(TAG, "✅ Displayed lesson content length: " + formattedContent.length() + " characters");
+    }
+
+    // ✅ NEW: Helper method to format lesson content
+    private String formatLessonContent(String rawContent) {
+        if (rawContent == null) return "";
+
+        // ✅ ENHANCED formatting for Chinese lesson content
+        String formatted = rawContent.trim()
+                .replaceAll("\\r\\n", "\n")      // Normalize line breaks
+                .replaceAll("\\r", "\n")         // Handle remaining \r
+                .replaceAll("\\n{3,}", "\n\n")   // Limit consecutive line breaks to max 2
+                .replaceAll("^\\s+", "")         // Remove leading whitespace
+                .replaceAll("\\s+$", "");        // Remove trailing whitespace
+
+        // ✅ OPTIONAL: Enhanced formatting for Chinese content
+        formatted = formatted
+                .replaceAll("(\\d+\\.)\\s*", "\n$1 ")  // Add space after numbers (1. 2. 3.)
+                .replaceAll("([：:])\\s*", "$1\n")      // Add line break after colons
+                .replaceAll("(-\\s*)([^\\n])", "  • $2") // Convert dashes to bullet points
+                .replaceAll("\\n\\s*\\n", "\n\n")       // Clean up double line breaks
+                .trim();
+
+        return formatted;
+    }
+
+    // ✅ DEBUG: Add method to log content for debugging
+    private void debugBaiGiangContent(BaiGiang baiGiang) {
+        Log.d(TAG, "=== BAIGANG CONTENT DEBUG ===");
+        Log.d(TAG, "Title: " + baiGiang.getTieuDe());
+        Log.d(TAG, "MoTa (short): " + baiGiang.getMoTa());
+        Log.d(TAG, "NoiDung (detailed) length: " + (baiGiang.getNoiDung() != null ? baiGiang.getNoiDung().length() : 0));
+        Log.d(TAG, "NoiDung preview: " + (baiGiang.getNoiDung() != null ?
+                baiGiang.getNoiDung().substring(0, Math.min(100, baiGiang.getNoiDung().length())) + "..." : "null"));
+        Log.d(TAG, "===============================");
     }
 
     private void setupVideo(String videoUrl) {
@@ -333,7 +414,7 @@ public class BaiGiangDetailActivity extends AppCompatActivity implements BaiGian
         showLoading(false);
         currentBaiGiang = baiGiang;
         displayBaiGiang(baiGiang);
-        setupViewPager();
+//        setupViewPager();
     }
 
     @Override
@@ -355,4 +436,6 @@ public class BaiGiangDetailActivity extends AppCompatActivity implements BaiGian
     public void onError(String message) {
         showError(message);
     }
+
+
 }

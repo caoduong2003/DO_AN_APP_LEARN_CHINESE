@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -8,100 +7,217 @@
     android:background="@android:color/white"
     tools:context=".view.activity.BaiGiangDetailActivity">
 
-    <!-- ProgressBar for loading -->
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <!-- Title of the lesson -->
-    <TextView
-        android:id="@+id/tvTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/black"
-        android:contentDescription="Tiêu đề bài giảng"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Tiêu đề bài giảng" />
+        <!-- ProgressBar for loading -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Video player -->
-    <com.google.android.exoplayer2.ui.PlayerView
-        android:id="@+id/playerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        android:contentDescription="Trình phát video bài giảng"
-        app:layout_constraintDimensionRatio="16:9"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
+        <!-- Title of the lesson -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:contentDescription="Tiêu đề bài giảng"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Chào hỏi cơ bản" />
 
-    <!-- No video message -->
-    <TextView
-        android:id="@+id/tvNoVideo"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:gravity="center"
-        android:text="Không có video"
-        android:textColor="@color/error_red"
-        android:textSize="16sp"
-        android:visibility="gone"
-        android:contentDescription="Thông báo không có video"
-        app:layout_constraintBottom_toBottomOf="@id/playerView"
-        app:layout_constraintEnd_toEndOf="@id/playerView"
-        app:layout_constraintStart_toStartOf="@id/playerView"
-        app:layout_constraintTop_toTopOf="@id/playerView" />
+        <!-- Video player -->
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/playerView"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:contentDescription="Trình phát video bài giảng"
+            app:layout_constraintDimensionRatio="16:9"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-    <!-- Description of the lesson -->
-    <TextView
-        android:id="@+id/tvDescription"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="16dp"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
-        android:contentDescription="Mô tả bài giảng"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/playerView"
-        tools:text="Mô tả bài giảng: Đây là nội dung chi tiết của bài học." />
+        <!-- No video message -->
+        <TextView
+            android:id="@+id/tvNoVideo"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:gravity="center"
+            android:text="Không có video"
+            android:textColor="#F44336"
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:contentDescription="Thông báo không có video"
+            app:layout_constraintBottom_toBottomOf="@id/playerView"
+            app:layout_constraintEnd_toEndOf="@id/playerView"
+            app:layout_constraintStart_toStartOf="@id/playerView"
+            app:layout_constraintTop_toTopOf="@id/playerView" />
 
-    <!-- TabLayout for additional content -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:contentDescription="Các tab nội dung bài giảng"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvDescription"
-        app:tabMode="fixed"
-        app:tabGravity="fill" />
+        <!-- Description of the lesson -->
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:textSize="16sp"
+            android:textColor="@android:color/black"
+            android:contentDescription="Mô tả bài giảng"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/playerView"
+            tools:text="Bài học về cách chào hỏi cơ bản" />
 
-    <!-- ViewPager2 for tab content -->
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/viewPager"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:contentDescription="Nội dung các tab bài giảng"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tabLayout" />
+        <!-- ✅ NEW: Lesson Info Section -->
+        <LinearLayout
+            android:id="@+id/layoutLessonInfo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="16dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvDescription">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- HSK Level -->
+            <TextView
+                android:id="@+id/tvHSKLevel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_hsk_level"
+                android:padding="6dp"
+                android:text="HSK 1"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <!-- Lesson Type -->
+            <TextView
+                android:id="@+id/tvLessonType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_lesson_type"
+                android:padding="6dp"
+                android:text="Giao tiếp"
+                android:textColor="@android:color/black"
+                android:textSize="12sp" />
+
+            <!-- Duration -->
+            <TextView
+                android:id="@+id/tvDuration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:drawableStart="@android:drawable/ic_menu_recent_history"
+                android:drawablePadding="4dp"
+                android:text="30 phút"
+                android:textSize="12sp"
+                android:textColor="#757575" />
+
+            <!-- Views -->
+            <TextView
+                android:id="@+id/tvViews"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:drawableStart="@android:drawable/ic_menu_view"
+                android:drawablePadding="4dp"
+                android:text="35 lượt xem"
+                android:textSize="12sp"
+                android:textColor="#757575" />
+
+        </LinearLayout>
+
+        <!-- ✅ NEW: Content Section Header -->
+        <TextView
+            android:id="@+id/tvContentHeader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="16dp"
+            android:text="📖 Nội dung bài giảng"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/layoutLessonInfo" />
+
+        <!-- ✅ NEW: Content Divider -->
+        <View
+            android:id="@+id/dividerContent"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:background="#E0E0E0"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvContentHeader" />
+
+        <!-- ✅ CRITICAL: The missing tvLessonContent view -->
+        <TextView
+            android:id="@+id/tvLessonContent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="32dp"
+            android:lineSpacingExtra="4dp"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"
+            android:background="@drawable/bg_content_area"
+            android:padding="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/dividerContent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            tools:text="1. Giới thiệu:\n- Học cách chào hỏi cơ bản trong tiếng Trung\n\n2. Từ vựng chính:\n- 你好 (nǐ hǎo): Xin chào\n- 再见 (zài jiàn): Tạm biệt" />
+
+        <!-- Hide TabLayout and ViewPager2 for now -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tvLessonContent" />
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tabLayout" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>
