@@ -11,6 +11,11 @@ import com.example.app_learn_chinese_2025.model.data.TuVung;
 import com.example.app_learn_chinese_2025.model.data.MauCau;
 import com.example.app_learn_chinese_2025.model.data.User;
 
+import com.example.app_learn_chinese_2025.model.data.BaiTap;
+import com.example.app_learn_chinese_2025.model.data.KetQuaBaiTap;
+import com.example.app_learn_chinese_2025.model.request.LamBaiTapRequest;
+import com.example.app_learn_chinese_2025.model.response.ApiResponse;
+
 import java.util.List;
 import java.util.Map;
 
@@ -190,6 +195,51 @@ public interface ApiService {
     @Multipart
     @POST("api/media/upload/image")
     Call<Map<String, Object>> uploadImage(@Header("Authorization") String token, @Part MultipartBody.Part image);
+
+    /**
+     * Test API bài tập
+     * GET /api/bai-tap/ping
+     */
+    @GET("api/bai-tap/ping")
+    Call<ApiResponse<String>> pingBaiTap();
+
+    /**
+     * Lấy danh sách bài tập
+     * GET /api/bai-tap?capDoHSKId=1&chuDeId=2
+     */
+    @GET("api/bai-tap")
+    Call<ApiResponse<List<BaiTap>>> getBaiTapList(
+            @Query("capDoHSKId") Integer capDoHSKId,
+            @Query("chuDeId") Integer chuDeId
+    );
+
+    /**
+     * Lấy chi tiết bài tập
+     * GET /api/bai-tap/{id}
+     */
+    @GET("api/bai-tap/{id}")
+    Call<ApiResponse<BaiTap>> getBaiTapDetail(@Path("id") Long id);
+
+    /**
+     * Nộp bài tập
+     * POST /api/bai-tap/lam-bai
+     */
+    @POST("api/bai-tap/lam-bai")
+    Call<ApiResponse<KetQuaBaiTap>> submitBaiTap(@Body LamBaiTapRequest request);
+
+    /**
+     * Lấy kết quả bài tập của học viên
+     * GET /api/bai-tap/ket-qua
+     */
+    @GET("api/bai-tap/ket-qua")
+    Call<ApiResponse<List<KetQuaBaiTap>>> getKetQuaBaiTap();
+
+    /**
+     * Lấy thống kê bài tập
+     * GET /api/bai-tap/thong-ke
+     */
+    @GET("api/bai-tap/thong-ke")
+    Call<ApiResponse<Object>> getThongKeBaiTap();
 
     // DTO Classes
     public static class CreateUserRequest {
