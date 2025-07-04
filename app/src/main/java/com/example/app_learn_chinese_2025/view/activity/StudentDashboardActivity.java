@@ -25,6 +25,7 @@ import com.example.app_learn_chinese_2025.view.fragment.StudentProfileFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.example.app_learn_chinese_2025.view.fragment.StudentExerciseFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +48,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
     // Fragments
     private StudentBaiGiangListFragment baiGiangListFragment;
-    private StudentProgressFragment progressFragment;
+    private StudentExerciseFragment exerciseFragment;
     private StudentProfileFragment profileFragment;
 
     @Override
@@ -116,12 +117,12 @@ public class StudentDashboardActivity extends AppCompatActivity {
     private void setupViewPager() {
         // Tạo các fragments cho học viên
         baiGiangListFragment = new StudentBaiGiangListFragment();
-        progressFragment = new StudentProgressFragment();
+        exerciseFragment = new StudentExerciseFragment();
         profileFragment = new StudentProfileFragment();
 
         // Thêm vào list
         fragmentList.add(baiGiangListFragment);
-        fragmentList.add(progressFragment);
+        fragmentList.add(exerciseFragment);
         fragmentList.add(profileFragment);
 
         // Setup adapter
@@ -129,7 +130,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
         viewPager.setAdapter(viewPagerAdapter);
 
         // Connect TabLayout với ViewPager2
-        String[] tabTitles = {"Bài giảng", "Tiến trình", "Hồ sơ"};
+        String[] tabTitles = {"Bài giảng", "Bài tập", "Hồ sơ"};
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             tab.setText(tabTitles[position]);
 
@@ -139,7 +140,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
                     tab.setIcon(R.drawable.ic_school);
                     break;
                 case 1:
-                    tab.setIcon(R.drawable.ic_trending_up);
+                    tab.setIcon(R.drawable.ic_quiz);
                     break;
                 case 2:
                     tab.setIcon(R.drawable.ic_person);
@@ -161,7 +162,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
                 if (id == R.id.nav_lessons) {
                     viewPager.setCurrentItem(0);
                     return true;
-                } else if (id == R.id.nav_progress) {
+                } else if (id == R.id.nav_exercises) {
                     viewPager.setCurrentItem(1);
                     return true;
                 } else if (id == R.id.nav_profile) {
@@ -181,7 +182,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
                             bottomNavigation.setSelectedItemId(R.id.nav_lessons);
                             break;
                         case 1:
-                            bottomNavigation.setSelectedItemId(R.id.nav_progress);
+                            bottomNavigation.setSelectedItemId(R.id.nav_exercises);
                             break;
                         case 2:
                             bottomNavigation.setSelectedItemId(R.id.nav_profile);

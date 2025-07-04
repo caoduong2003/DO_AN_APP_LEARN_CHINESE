@@ -7,9 +7,9 @@
         android:title="Bài giảng" />
 
     <item
-        android:id="@+id/nav_progress"
-        android:icon="@drawable/ic_trending_up"
-        android:title="Tiến trình" />
+        android:id="@+id/nav_exercises"
+        android:icon="@drawable/ic_quiz"
+        android:title="Bài tập" />
 
     <item
         android:id="@+id/nav_profile"
