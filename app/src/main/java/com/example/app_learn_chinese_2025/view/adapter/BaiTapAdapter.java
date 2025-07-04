@@ -88,33 +88,36 @@ public class BaiTapAdapter extends RecyclerView.Adapter<BaiTapAdapter.BaiTapView
 
         public void bind(BaiTap baiTap) {
             // Tiêu đề bài tập
-            tvTieuDe.setText(baiTap.getTieuDe());
+            tvTieuDe.setText(baiTap.getTieuDe() != null ? baiTap.getTieuDe() : "Bài tập");
 
             // Mô tả
             if (baiTap.getMoTa() != null && !baiTap.getMoTa().isEmpty()) {
                 tvMoTa.setText(baiTap.getMoTa());
                 tvMoTa.setVisibility(View.VISIBLE);
             } else {
-                tvMoTa.setVisibility(View.GONE);
+                tvMoTa.setText("Không có mô tả");
+                tvMoTa.setVisibility(View.VISIBLE);
             }
 
             // Cấp độ HSK
-            if (baiTap.getCapDoHSKTen() != null) {
+            if (baiTap.getCapDoHSKTen() != null && !baiTap.getCapDoHSKTen().isEmpty()) {
                 tvCapDoHSK.setText(baiTap.getCapDoHSKTen());
                 tvCapDoHSK.setVisibility(View.VISIBLE);
             } else {
-                tvCapDoHSK.setVisibility(View.GONE);
+                tvCapDoHSK.setText("HSK");
+                tvCapDoHSK.setVisibility(View.VISIBLE);
             }
 
             // Chủ đề
-            if (baiTap.getChuDeTen() != null) {
+            if (baiTap.getChuDeTen() != null && !baiTap.getChuDeTen().isEmpty()) {
                 tvChuDe.setText(baiTap.getChuDeTen());
                 tvChuDe.setVisibility(View.VISIBLE);
             } else {
-                tvChuDe.setVisibility(View.GONE);
+                tvChuDe.setText("Chủ đề");
+                tvChuDe.setVisibility(View.VISIBLE);
             }
 
-            // Thông tin bài tập
+            // Thông tin bài tập - sử dụng utility methods đã tạo
             tvSoCauHoi.setText(baiTap.getFormattedQuestions());
             tvThoiGianLam.setText(baiTap.getFormattedTime());
             tvDiemToiDa.setText(baiTap.getFormattedScore());
@@ -129,36 +132,38 @@ public class BaiTapAdapter extends RecyclerView.Adapter<BaiTapAdapter.BaiTapView
                     tvDiemCaoNhat.setVisibility(View.VISIBLE);
 
                     // Đặt màu theo điểm số
-                    float percentage = (baiTap.getDiemCaoNhat() / baiTap.getDiemToiDa()) * 100;
-                    setScoreColor(tvDiemCaoNhat, percentage);
+                    if (baiTap.getDiemToiDa() != null && baiTap.getDiemToiDa() > 0) {
+                        float percentage = (baiTap.getDiemCaoNhat() / baiTap.getDiemToiDa()) * 100;
+                        setScoreColor(tvDiemCaoNhat, percentage);
+                    }
                 } else {
                     tvDiemCaoNhat.setVisibility(View.GONE);
                 }
 
                 tvStatus.setText("Làm lại");
-                tvStatus.setBackgroundColor(context.getResources().getColor(android.R.color.holo_orange_dark));
+                tvStatus.setBackgroundColor(context.getResources().getColor(R.color.warning_color));
             } else {
                 tvSoLanLam.setVisibility(View.GONE);
                 tvDiemCaoNhat.setVisibility(View.GONE);
                 tvStatus.setText("Chưa làm");
-                tvStatus.setBackgroundColor(context.getResources().getColor(android.R.color.holo_blue_dark));
+                tvStatus.setBackgroundColor(context.getResources().getColor(R.color.info));
             }
         }
 
         private void setScoreColor(TextView textView, float percentage) {
-            int color;
+            int colorRes;
             if (percentage >= 90) {
-                color = context.getResources().getColor(android.R.color.holo_green_dark);
+                colorRes = R.color.success;
             } else if (percentage >= 80) {
-                color = context.getResources().getColor(android.R.color.holo_blue_dark);
+                colorRes = R.color.info;
             } else if (percentage >= 70) {
-                color = context.getResources().getColor(android.R.color.holo_orange_dark);
+                colorRes = R.color.warning;
             } else if (percentage >= 60) {
-                color = context.getResources().getColor(android.R.color.holo_orange_light);
+                colorRes = R.color.warning_color;
             } else {
-                color = context.getResources().getColor(android.R.color.holo_red_dark);
+                colorRes = R.color.error;
             }
-            textView.setTextColor(color);
+            textView.setTextColor(context.getResources().getColor(colorRes));
         }
     }
 }

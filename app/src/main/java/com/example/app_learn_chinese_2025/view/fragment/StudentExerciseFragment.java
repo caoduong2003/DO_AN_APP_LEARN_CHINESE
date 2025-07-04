@@ -21,13 +21,11 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.app_learn_chinese_2025.R;
 import com.example.app_learn_chinese_2025.controller.BaiTapController;
-import com.example.app_learn_chinese_2025.controller.CapDoHSKController;
-import com.example.app_learn_chinese_2025.controller.ChuDeController;
 import com.example.app_learn_chinese_2025.model.data.BaiTap;
 import com.example.app_learn_chinese_2025.model.data.CapDoHSK;
 import com.example.app_learn_chinese_2025.model.data.ChuDe;
 import com.example.app_learn_chinese_2025.model.data.KetQuaBaiTap;
-import com.example.app_learn_chinese_2025.util.NetworkUtils;
+import com.example.app_learn_chinese_2025.model.repository.BaiGiangRepository;
 import com.example.app_learn_chinese_2025.util.SessionManager;
 import com.example.app_learn_chinese_2025.view.activity.QuizActivity;
 import com.example.app_learn_chinese_2025.view.adapter.BaiTapAdapter;
@@ -36,9 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StudentExerciseFragment extends Fragment implements
-        BaiTapController.BaiTapControllerListener,
-        CapDoHSKController.CapDoHSKControllerListener,
-        ChuDeController.ChuDeControllerListener {
+        BaiTapController.BaiTapControllerListener {
 
     private static final String TAG = "STUDENT_EXERCISE_FRAGMENT";
 
@@ -50,8 +46,7 @@ public class StudentExerciseFragment extends Fragment implements
 
     // Data & Controllers
     private BaiTapController baiTapController;
-    private CapDoHSKController capDoHSKController;
-    private ChuDeController chuDeController;
+    private BaiGiangRepository baiGiangRepository; // Use existing repository
     private SessionManager sessionManager;
 
     // Data lists
@@ -70,16 +65,13 @@ public class StudentExerciseFragment extends Fragment implements
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Initialize controllers
+        // Initialize controllers using existing pattern
         sessionManager = new SessionManager(requireContext());
         baiTapController = new BaiTapController(sessionManager);
-        capDoHSKController = new CapDoHSKController(sessionManager);
-        chuDeController = new ChuDeController(sessionManager);
+        baiGiangRepository = new BaiGiangRepository(); // Use existing repository
 
         // Set listeners
         baiTapController.setListener(this);
-        capDoHSKController.setListener(this);
-        chuDeController.setListener(this);
 
         // Initialize data lists
         baiTapList = new ArrayList<>();
@@ -178,31 +170,56 @@ public class StudentExerciseFragment extends Fragment implements
     }
 
     private void loadInitialData() {
-        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            showError("Vui lòng kiểm tra kết nối mạng");
-            return;
-        }
-
         Log.d(TAG, "Loading initial data...");
 
         // Test API first
         baiTapController.pingBaiTap();
 
-        // Load filter data
-        capDoHSKController.getCapDoHSKList();
-        chuDeController.getChuDeList();
+        // Load filter data using existing BaiGiangRepository
+        loadCapDoHSKData();
+        loadChuDeData();
 
         // Load bai tap list
         loadBaiTapList();
     }
 
-    private void loadBaiTapList() {
-        if (!NetworkUtils.isNetworkAvailable(requireContext())) {
-            showError("Vui lòng kiểm tra kết nối mạng");
-            swipeRefresh.setRefreshing(false);
-            return;
-        }
+    private void loadCapDoHSKData() {
+        baiGiangRepository.getAllCapDoHSK(new BaiGiangRepository.OnCapDoHSKListCallback() {
+            @Override
+            public void onSuccess(List<CapDoHSK> capDoHSKs) {
+                Log.d(TAG, "CapDoHSK list loaded: " + capDoHSKs.size() + " items");
+                capDoHSKList.clear();
+                capDoHSKList.addAll(capDoHSKs);
+                setupCapDoHSKSpinner();
+            }
 
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(TAG, "Error loading CapDoHSK: " + errorMessage);
+                showError("Không thể tải danh sách cấp độ HSK");
+            }
+        });
+    }
+
+    private void loadChuDeData() {
+        baiGiangRepository.getAllChuDe(new BaiGiangRepository.OnChuDeListCallback() {
+            @Override
+            public void onSuccess(List<ChuDe> chuDes) {
+                Log.d(TAG, "ChuDe list loaded: " + chuDes.size() + " items");
+                chuDeList.clear();
+                chuDeList.addAll(chuDes);
+                setupChuDeSpinner();
+            }
+
+            @Override
+            public void onError(String errorMessage) {
+                Log.e(TAG, "Error loading ChuDe: " + errorMessage);
+                showError("Không thể tải danh sách chủ đề");
+            }
+        });
+    }
+
+    private void loadBaiTapList() {
         swipeRefresh.setRefreshing(true);
         showEmptyState(false);
 
@@ -316,7 +333,9 @@ public class StudentExerciseFragment extends Fragment implements
     @Override
     public void onPingSuccess(String message) {
         Log.d(TAG, "API Ping successful: " + message);
-        Toast.makeText(requireContext(), "Kết nối API thành công", Toast.LENGTH_SHORT).show();
+        if (getContext() != null) {
+            Toast.makeText(requireContext(), "Kết nối API thành công", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -326,38 +345,6 @@ public class StudentExerciseFragment extends Fragment implements
         showError(error);
     }
 
-    // CapDoHSKController.CapDoHSKControllerListener implementation
-    @Override
-    public void onCapDoHSKListLoaded(List<CapDoHSK> capDoHSKList) {
-        Log.d(TAG, "CapDoHSK list loaded: " + capDoHSKList.size() + " items");
-
-        this.capDoHSKList.clear();
-        this.capDoHSKList.addAll(capDoHSKList);
-        setupCapDoHSKSpinner();
-    }
-
-    @Override
-    public void onCapDoHSKError(String error) {
-        Log.e(TAG, "Error loading CapDoHSK: " + error);
-        showError("Không thể tải danh sách cấp độ HSK");
-    }
-
-    // ChuDeController.ChuDeControllerListener implementation
-    @Override
-    public void onChuDeListLoaded(List<ChuDe> chuDeList) {
-        Log.d(TAG, "ChuDe list loaded: " + chuDeList.size() + " items");
-
-        this.chuDeList.clear();
-        this.chuDeList.addAll(chuDeList);
-        setupChuDeSpinner();
-    }
-
-    @Override
-    public void onChuDeError(String error) {
-        Log.e(TAG, "Error loading ChuDe: " + error);
-        showError("Không thể tải danh sách chủ đề");
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -365,12 +352,6 @@ public class StudentExerciseFragment extends Fragment implements
         // Clean up listeners
         if (baiTapController != null) {
             baiTapController.setListener(null);
-        }
-        if (capDoHSKController != null) {
-            capDoHSKController.setListener(null);
-        }
-        if (chuDeController != null) {
-            chuDeController.setListener(null);
         }
 
         Log.d(TAG, "Fragment destroyed");

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res/auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/cardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
                     android:text="Bài tập từ vựng cơ bản HSK 1"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/primary_color"
+                    android:textColor="@color/primary"
                     android:layout_marginBottom="4dp" />
 
                 <!-- Description -->
@@ -98,7 +98,7 @@
 
         </LinearLayout>
 
-        <!-- Info Row -->
+        <!-- Info Row với emoji icons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -202,7 +202,7 @@
                 android:layout_weight="1"
                 android:text="Điểm cao nhất: 8.5"
                 android:textSize="12sp"
-                android:textColor="@color/primary_color"
+                android:textColor="@color/primary"
                 android:textStyle="bold"
                 android:gravity="end"
                 android:visibility="gone" />
