@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:background="@color/white">
+
+    <!-- Logo/Icon -->
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:src="@drawable/ic_chinese"
+        android:layout_marginBottom="24dp"
+        android:contentDescription="App Logo" />
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Chào mừng đến với\nỨng dụng Học Tiếng Trung"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#2C3E50"
+        android:textAlignment="center"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Subtitle -->
+    <TextView
+        android:id="@+id/tvSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Trải nghiệm học tiếng Trung hiệu quả với phương pháp hiện đại"
+        android:textSize="16sp"
+        android:textColor="#7F8C8D"
+        android:textAlignment="center"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Description Card -->
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="#F8F9FA"
+        android:layout_marginBottom="32dp">
+
+        <TextView
+            android:id="@+id/tvDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Bạn có thể trải nghiệm miễn phí:\n\n• 3 bài giảng mỗi ngày\n• 5 từ vựng mỗi bài giảng\n• 10 lần dịch thuật mỗi ngày\n• Truy cập tất cả chủ đề và cấp độ\n\nĐăng ký để có trải nghiệm đầy đủ!"
+            android:textSize="14sp"
+            android:textColor="#34495E"
+            android:padding="20dp"
+            android:lineSpacingExtra="4dp" />
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Start Learning Button -->
+    <Button
+        android:id="@+id/btnStartLearning"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Bắt đầu học thử"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:background="@drawable/btn_primary"
+        android:layout_marginBottom="16dp"
+        style="@style/Widget.AppCompat.Button.Borderless" />
+
+    <!-- Login & Register Buttons -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/btnLogin"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Đăng nhập"
+            android:textSize="16sp"
+            android:textColor="#3498DB"
+            android:background="@drawable/btn_outline"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.AppCompat.Button.Borderless" />
+
+        <Button
+            android:id="@+id/btnRegister"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:text="Đăng ký"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:background="@drawable/btn_secondary"
+            android:layout_marginStart="8dp"
+            style="@style/Widget.AppCompat.Button.Borderless" />
+
+    </LinearLayout>
+
+    <!-- Footer -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Học tiếng Trung dễ dàng và hiệu quả"
+        android:textSize="12sp"
+        android:textColor="#BDC3C7"
+        android:textAlignment="center"
+        android:layout_marginTop="24dp" />
+
+</LinearLayout>

@@ -44,6 +44,33 @@ public interface ApiService {
     @GET("api/auth/profile")
     Call<User> getUserProfile(@Header("Authorization") String token);
 
+    // 🚀 NEW: Guest APIs - Không cần authentication
+    @GET("api/guest/stats")
+    Call<Map<String, Object>> getGuestStats();
+
+    @GET("api/guest/baigiang")
+    Call<List<BaiGiang>> getGuestBaiGiang(
+            @Query("limit") int limit,
+            @Query("capDoHSK_ID") Integer capDoHSK_ID,
+            @Query("chuDeId") Integer chuDeId);
+
+    @GET("api/guest/baigiang/{id}")
+    Call<BaiGiang> getGuestBaiGiangDetail(@Path("id") long id);
+
+    @GET("api/guest/tuvung/{baiGiangId}")
+    Call<List<TuVung>> getGuestTuVung(
+            @Path("baiGiangId") long baiGiangId,
+            @Query("limit") int limit);
+
+    @GET("api/guest/chude")
+    Call<List<ChuDe>> getGuestChuDe();
+
+    @GET("api/guest/capdohsk")
+    Call<List<CapDoHSK>> getGuestCapDoHSK();
+
+    @GET("api/guest/loaibaigiang")
+    Call<List<LoaiBaiGiang>> getGuestLoaiBaiGiang();
+
     // CapDoHSK APIs
     @GET("api/capdohsk")
     Call<List<CapDoHSK>> getAllCapDoHSK();

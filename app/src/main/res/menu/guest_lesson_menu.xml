@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_upgrade"
+        android:title="Nâng cấp"
+        android:icon="@drawable/ic_premium_star"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_share"
+        android:title="Chia sẻ"
+        android:icon="@android:drawable/ic_menu_share"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_refresh"
+        android:title="Làm mới"
+        android:icon="@android:drawable/ic_menu_rotate"
+        app:showAsAction="never" />
+
+</menu>

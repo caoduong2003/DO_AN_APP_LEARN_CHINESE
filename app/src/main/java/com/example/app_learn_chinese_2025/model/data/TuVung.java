@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class TuVung implements Serializable {
     private long id;
+    private Long baiGiangId; // 🚀 NEW: Thêm baiGiangId để mapping với backend
     private BaiGiang baiGiang;
     private String tiengTrung;
     private String phienAm;
@@ -48,8 +49,27 @@ public class TuVung implements Serializable {
         return id;
     }
 
+    // 🚀 NEW: Alias method for compatibility
+    public long getID() {
+        return getId();
+    }
+
     public void setId(long id) {
         this.id = id;
+    }
+
+    // 🚀 NEW: Alias method for compatibility
+    public void setID(long id) {
+        setId(id);
+    }
+
+    // 🚀 NEW: BaiGiangId getter/setter
+    public Long getBaiGiangId() {
+        return baiGiangId;
+    }
+
+    public void setBaiGiangId(Long baiGiangId) {
+        this.baiGiangId = baiGiangId;
     }
 
     public BaiGiang getBaiGiang() {
@@ -132,6 +152,50 @@ public class TuVung implements Serializable {
         this.capDoHSK = capDoHSK;
     }
 
+    // 🚀 NEW: Compatibility methods for Guest Mode
+
+    /**
+     * Alias cho getTiengTrung() - tương thích với Guest Mode
+     */
+    public String getTuTiengTrung() {
+        return getTiengTrung();
+    }
+
+    /**
+     * Alias cho setTiengTrung() - tương thích với Guest Mode
+     */
+    public void setTuTiengTrung(String tuTiengTrung) {
+        setTiengTrung(tuTiengTrung);
+    }
+
+    /**
+     * Alias cho getPhienAm() - tương thích với Guest Mode
+     */
+    public String getPinyin() {
+        return getPhienAm();
+    }
+
+    /**
+     * Alias cho setPhienAm() - tương thích với Guest Mode
+     */
+    public void setPinyin(String pinyin) {
+        setPhienAm(pinyin);
+    }
+
+    /**
+     * Alias cho getTiengViet() - tương thích với Guest Mode
+     */
+    public String getTuTiengViet() {
+        return getTiengViet();
+    }
+
+    /**
+     * Alias cho setTiengViet() - tương thích với Guest Mode
+     */
+    public void setTuTiengViet(String tuTiengViet) {
+        setTiengViet(tuTiengViet);
+    }
+
     // Utility methods
 
     /**
@@ -186,10 +250,92 @@ public class TuVung implements Serializable {
         return "Chưa phân cấp";
     }
 
+    // 🚀 NEW: Guest Mode specific methods
+
+    /**
+     * Kiểm tra xem từ vựng có phải là premium không (dành cho guest mode)
+     * @param currentIndex vị trí hiện tại trong danh sách
+     * @return true nếu là premium (index >= 5)
+     */
+    public boolean isPremium(int currentIndex) {
+        return currentIndex >= 5;
+    }
+
+    /**
+     * Lấy text hiển thị cho phần phiên âm
+     * @return phiên âm hoặc "Chưa có phiên âm"
+     */
+    public String getPhienAmDisplay() {
+        return (phienAm != null && !phienAm.trim().isEmpty()) ? phienAm : "Chưa có phiên âm";
+    }
+
+    /**
+     * Lấy text hiển thị cho phần nghĩa tiếng Việt
+     * @return nghĩa tiếng Việt hoặc "Chưa có nghĩa"
+     */
+    public String getTiengVietDisplay() {
+        return (tiengViet != null && !tiengViet.trim().isEmpty()) ? tiengViet : "Chưa có nghĩa";
+    }
+
+    /**
+     * Lấy text hiển thị cho phần tiếng Trung
+     * @return tiếng Trung hoặc "Chưa có từ"
+     */
+    public String getTiengTrungDisplay() {
+        return (tiengTrung != null && !tiengTrung.trim().isEmpty()) ? tiengTrung : "Chưa có từ";
+    }
+
+    /**
+     * Tạo text dịch thuật đầy đủ
+     * @return text dịch thuật formatted
+     */
+    public String getFullTranslation() {
+        StringBuilder sb = new StringBuilder();
+
+        if (tiengTrung != null && !tiengTrung.trim().isEmpty()) {
+            sb.append(tiengTrung);
+        }
+
+        if (phienAm != null && !phienAm.trim().isEmpty()) {
+            sb.append(" (").append(phienAm).append(")");
+        }
+
+        if (tiengViet != null && !tiengViet.trim().isEmpty()) {
+            sb.append("\nNghĩa: ").append(tiengViet);
+        }
+
+        if (loaiTu != null && !loaiTu.trim().isEmpty()) {
+            sb.append("\nLoại từ: ").append(loaiTu);
+        }
+
+        if (viDu != null && !viDu.trim().isEmpty()) {
+            sb.append("\nVí dụ: ").append(viDu);
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * Kiểm tra xem từ vựng có thể được phát âm không
+     * @return true nếu có thể phát âm
+     */
+    public boolean canPlayAudio() {
+        return hasAudio() || (tiengTrung != null && !tiengTrung.trim().isEmpty());
+    }
+
+    /**
+     * Kiểm tra xem từ vựng có thể được dịch không
+     * @return true nếu có thể dịch
+     */
+    public boolean canTranslate() {
+        return tiengTrung != null && !tiengTrung.trim().isEmpty();
+    }
+
     @Override
     public String toString() {
         return "TuVung{" +
                 "id=" + id +
+                ", baiGiangId=" + baiGiangId +
                 ", tiengTrung='" + tiengTrung + '\'' +
                 ", phienAm='" + phienAm + '\'' +
                 ", tiengViet='" + tiengViet + '\'' +

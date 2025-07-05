@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_upgrade"
+        android:title="Nâng cấp"
+        android:icon="@drawable/ic_upgrade"
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/action_login"
+        android:title="Đăng nhập"
+        android:icon="@drawable/ic_login"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_register"
+        android:title="Đăng ký"
+        android:icon="@drawable/ic_register"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_help"
+        android:title="Trợ giúp"
+        android:icon="@drawable/ic_help"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_about"
+        android:title="Giới thiệu"
+        android:icon="@drawable/ic_info"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_refresh"
+        android:title="Làm mới"
+        android:icon="@android:drawable/ic_menu_rotate"
+        app:showAsAction="never" />
+
+</menu>

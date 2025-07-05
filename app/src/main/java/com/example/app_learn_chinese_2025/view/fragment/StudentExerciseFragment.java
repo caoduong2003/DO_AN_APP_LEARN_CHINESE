@@ -68,7 +68,7 @@ public class StudentExerciseFragment extends Fragment implements
         // Initialize controllers using existing pattern
         sessionManager = new SessionManager(requireContext());
         baiTapController = new BaiTapController(sessionManager);
-        baiGiangRepository = new BaiGiangRepository(); // Use existing repository
+        baiGiangRepository = new BaiGiangRepository(requireContext(),sessionManager); // Use existing repository
 
         // Set listeners
         baiTapController.setListener(this);

@@ -13,9 +13,11 @@ import com.example.app_learn_chinese_2025.R;
 import com.example.app_learn_chinese_2025.controller.AuthController;
 import com.example.app_learn_chinese_2025.util.AutoIPManager;
 import com.example.app_learn_chinese_2025.util.Constants;
+import com.example.app_learn_chinese_2025.util.SessionManager;
 
 public class SplashActivity extends AppCompatActivity {
     private AuthController authController;
+    private SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,25 +31,35 @@ public class SplashActivity extends AppCompatActivity {
         AutoIPManager.getInstance(this).autoDetectAndRegisterServerIP();
         Log.d(TAG, "📡 Smart Constants initialized - auto-detection started");
 
-
         authController = new AuthController(this);
+        sessionManager = new SessionManager(this);
 
         // Delay 2 seconds to show splash screen
         new Handler().postDelayed(this::checkLoginStatus, 2000);
     }
 
     private void checkLoginStatus() {
-        if (authController.isLoggedIn()) {
+        Log.d(TAG, "🔍 Checking login status");
+
+        if (sessionManager.isLoggedIn()) {
+            Log.d(TAG, "✅ User is logged in");
             // Redirect to appropriate activity based on user role
-            redirectBasedOnRole(authController.getUserRole());
+            redirectBasedOnRole(sessionManager.getUserRole());
+        } else if (sessionManager.isGuestMode()) {
+            Log.d(TAG, "👤 User is in guest mode");
+            // Navigate to guest dashboard
+            startActivity(new Intent(SplashActivity.this, GuestDashboardActivity.class));
+            finish();
         } else {
-            // Navigate to login screen
-            startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+            Log.d(TAG, "❌ No active session - showing welcome screen");
+            // Navigate to guest welcome screen
+            startActivity(new Intent(SplashActivity.this, GuestWelcomeActivity.class));
             finish();
         }
     }
 
     private void redirectBasedOnRole(int role) {
+        Log.d(TAG, "🎯 Redirecting based on role: " + role);
         Intent intent;
 
         switch (role) {
@@ -61,7 +73,8 @@ public class SplashActivity extends AppCompatActivity {
                 intent = new Intent(SplashActivity.this, StudentDashboardActivity.class);
                 break;
             default:
-                intent = new Intent(SplashActivity.this, LoginActivity.class);
+                Log.w(TAG, "❌ Unknown role: " + role + " - redirecting to welcome");
+                intent = new Intent(SplashActivity.this, GuestWelcomeActivity.class);
                 break;
         }
 
