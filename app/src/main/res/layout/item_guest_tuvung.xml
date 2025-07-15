@@ -26,6 +26,7 @@
             android:textColor="@color/white"
             android:background="@drawable/circle_primary"
             android:gravity="center"
+            android:fontFamily="sans-serif"
             android:layout_marginEnd="12dp" />
 
         <!-- Content -->
@@ -50,7 +51,8 @@
                     android:text="你好"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="#2C3E50" />
+                    android:textColor="#2C3E50"
+                    android:fontFamily="sans-serif" />
 
                 <TextView
                     android:id="@+id/tvLimitIndicator"
@@ -61,6 +63,7 @@
                     android:textColor="#E74C3C"
                     android:background="@drawable/bg_premium_tag"
                     android:padding="4dp"
+                    android:fontFamily="sans-serif"
                     android:visibility="gone" />
 
             </LinearLayout>
@@ -74,9 +77,10 @@
                 android:textSize="14sp"
                 android:textColor="#3498DB"
                 android:textStyle="italic"
+                android:fontFamily="sans-serif"
                 android:layout_marginTop="2dp" />
 
-            <!-- Vietnamese -->
+            <!-- Vietnamese - QUAN TRỌNG: Thêm font support -->
             <TextView
                 android:id="@+id/tvVietnamese"
                 android:layout_width="match_parent"
@@ -84,6 +88,7 @@
                 android:text="xin chào"
                 android:textSize="14sp"
                 android:textColor="#7F8C8D"
+                android:fontFamily="sans-serif"
                 android:layout_marginTop="2dp" />
 
         </LinearLayout>
@@ -102,6 +107,7 @@
                 android:background="@drawable/btn_circle"
                 android:text="🔊"
                 android:textSize="12sp"
+                android:fontFamily="sans-serif"
                 android:layout_marginEnd="4dp"
                 style="@style/Widget.AppCompat.Button.Borderless" />
 
@@ -112,6 +118,7 @@
                 android:background="@drawable/btn_circle"
                 android:text="🔤"
                 android:textSize="12sp"
+                android:fontFamily="sans-serif"
                 style="@style/Widget.AppCompat.Button.Borderless" />
 
         </LinearLayout>

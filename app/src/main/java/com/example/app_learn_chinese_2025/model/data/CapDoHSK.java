@@ -68,4 +68,21 @@ public class CapDoHSK implements Serializable {
     public void setMoTa(String moTa) {
         this.MoTa = moTa;
     }
+    @Override
+    public String toString() {
+        return TenCapDo; // Hiển thị tên cấp độ trong Spinner
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        CapDoHSK capDoHSK = (CapDoHSK) obj;
+        return ID == capDoHSK.ID;
+    }
+
+    @Override
+    public int hashCode() {
+        return ID;
+    }
 }

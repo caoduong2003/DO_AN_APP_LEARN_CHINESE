@@ -61,4 +61,21 @@ public class ChuDe implements Serializable {
     public void setHinhAnh(String hinhAnh) {
         this.HinhAnh = hinhAnh;
     }
+    @Override
+    public String toString() {
+        return TenChuDe; // Hiển thị tên chủ đề trong Spinner
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ChuDe chuDe = (ChuDe) obj;
+        return ID == chuDe.ID;
+    }
+
+    @Override
+    public int hashCode() {
+        return ID;
+    }
 }

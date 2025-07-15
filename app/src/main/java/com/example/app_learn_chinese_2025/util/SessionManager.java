@@ -276,4 +276,15 @@ public class SessionManager {
             return "NONE";
         }
     }
+
+    public void clearSession() {
+        String sessionType = getSessionType();
+        Log.d(TAG, "Clearing " + sessionType + " session");
+
+        // Clear tất cả dữ liệu session
+        editor.clear();
+        editor.apply();
+
+        Log.d(TAG, "✅ Session cleared successfully");
+    }
 }

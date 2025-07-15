@@ -1,105 +1,141 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!-- ========== BASIC COLORS ========== -->
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="hsk_background">#4CAF50</color>
-    <color name="premium_background">#9C27B0</color>
-    <color name="accent">#FF9800</color>
     <color name="gray">#B0B0B0</color>
-    <color name="gold">#FFD700</color>
+    <color name="gray_light">#F5F5F5</color>
     <color name="gray_dark">#666666</color>
-    <color name="gold_dark">#CC9900</color>
 
-    <!-- Thêm các màu alpha cho tab -->
-    <color name="white_alpha_80">#CCFFFFFF</color>
-    <color name="white_alpha_60">#99FFFFFF</color>
-    <color name="white_alpha_40">#66FFFFFF</color>
+    <!-- ========== PRIMARY THEME COLORS ========== -->
+    <color name="primary">#3F51B5</color>
+    <color name="primary_dark">#303F9F</color>
+    <color name="primary_light">#7986CB</color>
+    <color name="accent">#FF9800</color>
+    <color name="secondary">#F44336</color>
 
-    <!-- Primary Colors -->
+    <!-- Material Design Colors (for compatibility) -->
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
-    <!-- Background Colors -->
+    <!-- ========== BACKGROUND COLORS ========== -->
+    <color name="background">#FFFFFF</color>
     <color name="background_light">#FAFAFA</color>
     <color name="background_white">#FFFFFF</color>
+    <color name="background_primary">#FFFFFF</color>
+    <color name="background_secondary">#F5F5F5</color>
+    <color name="surface">#FFFFFF</color>
 
-    <!-- Text Colors -->
+    <!-- ========== TEXT COLORS ========== -->
     <color name="text_primary">#212121</color>
     <color name="text_secondary">#757575</color>
     <color name="text_hint">#BDBDBD</color>
+    <color name="text_disabled">#BDBDBD</color>
+    <color name="text_on_primary">#FFFFFF</color>
+    <color name="text_on_secondary">#000000</color>
 
-    <!-- Status Colors -->
+    <!-- ========== STATUS COLORS ========== -->
+    <color name="success">#4CAF50</color>
     <color name="success_green">#4CAF50</color>
+    <color name="success_color">#4CAF50</color>
+
+    <color name="warning">#FF9800</color>
     <color name="warning_orange">#FF9800</color>
+    <color name="warning_color">#FF9800</color>
+
+    <color name="error">#F44336</color>
     <color name="error_red">#F44336</color>
+    <color name="error_color">#F44336</color>
+
+    <color name="info">#2196F3</color>
+
+    <!-- ========== TEACHER LESSON MANAGEMENT COLORS ========== -->
+    <color name="action_edit">#2196F3</color>
+    <color name="action_delete">#F44336</color>
+    <color name="action_status">#4CAF50</color>
+    <color name="action_premium">#FF9800</color>
+    <color name="action_duplicate">#9C27B0</color>
+
+    <!-- ========== HSK & PREMIUM COLORS ========== -->
+    <color name="hsk_background">#4CAF50</color>
+    <color name="hsk_color">#2196F3</color>
+
+    <color name="premium">#FF6B35</color>
+    <color name="premium_light">#FFE0D6</color>
+    <color name="premium_background">#9C27B0</color>
+    <color name="premium_gold">#FFD700</color>
+    <color name="premium_dark">#CC9900</color>
+
+    <color name="gold">#FFD700</color>
+    <color name="gold_dark">#CC9900</color>
+
+    <!-- ========== UI ELEMENT COLORS ========== -->
+    <color name="divider">#E0E0E0</color>
+    <color name="border_color">#888888</color>
+    <color name="chip_background">#E0E0E0</color>
 
     <!-- Card Colors -->
     <color name="card_background">#FFFFFF</color>
     <color name="card_shadow">#1F000000</color>
 
-    <!-- Progress Colors -->
+    <!-- ========== ALPHA/TRANSPARENCY COLORS ========== -->
+    <color name="white_alpha_80">#CCFFFFFF</color>
+    <color name="white_alpha_60">#99FFFFFF</color>
+    <color name="white_alpha_40">#66FFFFFF</color>
+    <color name="transparent">#00000000</color>
+    <color name="semi_transparent_white">#80FFFFFF</color>
+    <color name="semi_transparent_black">#80000000</color>
+
+    <!-- ========== RIPPLE EFFECTS ========== -->
+    <color name="ripple_primary">#203F51B5</color>
+    <color name="ripple_secondary">#20F44336</color>
+    <color name="ripple_dark">#20000000</color>
+    <color name="ripple_light">#20FFFFFF</color>
+
+    <!-- ========== PROGRESS COLORS ========== -->
     <color name="progress_completed">#4CAF50</color>
     <color name="progress_in_progress">#2196F3</color>
     <color name="progress_not_started">#E0E0E0</color>
 
-    <!-- Quick Study Colors -->
+    <!-- ========== QUIZ/EXERCISE COLORS ========== -->
     <color name="correct_answer">#C8E6C9</color>
     <color name="wrong_answer">#FFCDD2</color>
     <color name="option_normal">#FFFFFF</color>
     <color name="option_border">#E0E0E0</color>
 
-    <!-- Video player colors -->
+    <!-- ========== CATEGORY/TAG COLORS ========== -->
+    <color name="topic_color">#4CAF50</color>
+    <color name="type_color">#FF9800</color>
+
+    <!-- ========== BUTTON COLORS ========== -->
+    <color name="button_secondary_text">#666666</color>
+
+    <!-- ========== VIDEO PLAYER COLORS ========== -->
     <color name="video_overlay">#80000000</color>
     <color name="video_control_background">#B3000000</color>
 
-    <!-- Primary colors -->
-    <color name="primary_color">#2196F3</color>
-    <color name="primary_dark">#1976D2</color>
-    <color name="accent_color">#FF4081</color>
-
-    <!-- Background colors -->
-    <color name="background_primary">#FFFFFF</color>
-    <color name="background_secondary">#F5F5F5</color>
-
-    <!-- Status colors -->
-    <color name="success_color">#4CAF50</color>
-    <color name="error_color">#F44336</color>
-    <color name="warning_color">#FF9800</color>
-
-    <!-- Existing colors -->
+    <!-- ========== MATERIAL DESIGN COMPATIBILITY ========== -->
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
     <color name="purple_700">#FF3700B3</color>
     <color name="teal_200">#FF03DAC5</color>
     <color name="teal_700">#FF018786</color>
 
+    <!-- ========== GRADIENT COLORS ========== -->
+    <!-- For gradient backgrounds -->
+    <color name="gradient_start_blue">#E3F2FD</color>
+    <color name="gradient_end_blue">#BBDEFB</color>
+    <color name="gradient_start_green">#4CAF50</color>
+    <color name="gradient_end_green">#388E3C</color>
+    <color name="gradient_start_orange">#FF9800</color>
+    <color name="gradient_end_orange">#F57C00</color>
+    <color name="gradient_start_gold">#FFD700</color>
+    <color name="gradient_end_gold">#FFA000</color>
 
-    <!-- New colors for BaiGiang item -->
-    <color name="gray_light">#F5F5F5</color>
+    <!-- ========== SHADOW/OVERLAY COLORS ========== -->
+    <color name="shadow">#20000000</color>
+    <color name="overlay">#80000000</color>
 
-    <!-- Tag colors -->
-    <color name="hsk_color">#2196F3</color>
-    <color name="topic_color">#4CAF50</color>
-    <color name="type_color">#FF9800</color>
-
-    <!-- Button colors -->
-    <color name="button_secondary_text">#666666</color>
-
-    <!-- Status colors -->
-    <color name="success">#4CAF50</color>
-    <color name="warning">#FF9800</color>
-    <color name="error">#F44336</color>
-    <color name="info">#2196F3</color>
-
-    <!-- Premium colors -->
-    <color name="premium">#FF6B35</color>
-    <color name="premium_light">#FFE0D6</color>
-
-    <color name="background">#FFFFFF</color>
-    <color name="primary">#3F51B5</color>
-    <color name="secondary">#F44336</color>
-    <color name="chip_background">#E0E0E0</color>
-
-    <color name="border_color">#FF888888</color>
 </resources>

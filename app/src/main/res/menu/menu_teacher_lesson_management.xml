@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <!-- Search Action -->
+    <item
+        android:id="@+id/action_search"
+        android:icon="@drawable/ic_search"
+        android:title="Tìm kiếm"
+        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        app:showAsAction="always|collapseActionView" />
+
+    <!-- Refresh Action -->
+    <item
+        android:id="@+id/action_refresh"
+        android:icon="@drawable/ic_refresh"
+        android:title="Làm mới"
+        app:showAsAction="ifRoom" />
+
+    <!-- Statistics Action -->
+    <item
+        android:id="@+id/action_statistics"
+        android:icon="@drawable/ic_statistics"
+        android:title="Thống kê"
+        app:showAsAction="ifRoom" />
+
+    <!-- Filter Action -->
+    <item
+        android:id="@+id/action_filter"
+        android:icon="@drawable/ic_filter"
+        android:title="Lọc"
+        app:showAsAction="never" />
+
+    <!-- Sort Action -->
+    <item
+        android:id="@+id/action_sort"
+        android:icon="@drawable/ic_sort"
+        android:title="Sắp xếp"
+        app:showAsAction="never" />
+
+    <!-- Export Action -->
+    <item
+        android:id="@+id/action_export"
+        android:icon="@drawable/ic_export"
+        android:title="Xuất dữ liệu"
+        app:showAsAction="never" />
+
+</menu>

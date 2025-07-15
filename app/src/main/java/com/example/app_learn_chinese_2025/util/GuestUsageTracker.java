@@ -8,15 +8,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * 🚀 Tracking và quản lý giới hạn usage cho Guest Mode
- */
+
 public class GuestUsageTracker {
     private static final String TAG = "GuestUsageTracker";
     private static final String PREF_NAME = "guest_usage_tracker";
 
     // Usage limits
-    private static final int MAX_LESSONS_PER_DAY = 3;
+    private static final int MAX_LESSONS_PER_DAY = 5;
     private static final int MAX_VOCABULARY_PER_LESSON = 5;
     private static final int MAX_TRANSLATIONS_PER_DAY = 10;
 
@@ -39,7 +37,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 🎯 Kiểm tra có thể truy cập bài giảng không
+     *  Kiểm tra có thể truy cập bài giảng không
      */
     public boolean canAccessLesson() {
         int count = getTodayLessonCount();
@@ -49,7 +47,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 🎯 Ghi nhận truy cập bài giảng
+     *  Ghi nhận truy cập bài giảng
      */
     public void recordLessonAccess() {
         int count = getTodayLessonCount();
@@ -58,7 +56,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 🎯 Kiểm tra có thể xem từ vựng không
+     *  Kiểm tra có thể xem từ vựng không
      */
     public boolean canAccessVocabulary(long baiGiangId) {
         int count = getTodayVocabularyCount(baiGiangId);
@@ -69,7 +67,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 🎯 Ghi nhận truy cập từ vựng
+     * Ghi nhận truy cập từ vựng
      */
     public void recordVocabularyAccess(long baiGiangId) {
         int count = getTodayVocabularyCount(baiGiangId);
@@ -78,7 +76,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 🎯 Kiểm tra có thể dịch thuật không
+     *  Kiểm tra có thể dịch thuật không
      */
     public boolean canTranslate() {
         int count = getTodayTranslationCount();
@@ -88,7 +86,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 🎯 Ghi nhận sử dụng dịch thuật
+     *  Ghi nhận sử dụng dịch thuật
      */
     public void recordTranslationUsage() {
         int count = getTodayTranslationCount();
@@ -97,7 +95,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 📊 Lấy thống kê usage hôm nay
+     *  Lấy thống kê usage hôm nay
      */
     public UsageStats getTodayStats() {
         return new UsageStats(
@@ -111,7 +109,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 📊 Lấy remaining usage
+     * Lấy remaining usage
      */
     public RemainingUsage getRemainingUsage() {
         return new RemainingUsage(
@@ -122,7 +120,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 🔄 Reset nếu sang ngày mới
+     * Reset nếu sang ngày mới
      */
     private void resetIfNewDay() {
         String today = getTodayKey();
@@ -139,35 +137,35 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 📅 Lấy key cho ngày hôm nay
+     * Lấy key cho ngày hôm nay
      */
     private String getTodayKey() {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
     }
 
     /**
-     * 📊 Lấy số bài giảng đã xem hôm nay
+     * Lấy số bài giảng đã xem hôm nay
      */
     private int getTodayLessonCount() {
         return prefs.getInt(KEY_LESSON_COUNT + getTodayKey(), 0);
     }
 
     /**
-     * 📊 Lấy số từ vựng đã xem hôm nay cho bài giảng
+     * Lấy số từ vựng đã xem hôm nay cho bài giảng
      */
     private int getTodayVocabularyCount(long baiGiangId) {
         return prefs.getInt(KEY_VOCABULARY_COUNT + getTodayKey() + "_" + baiGiangId, 0);
     }
 
     /**
-     * 📊 Lấy số lần dịch thuật hôm nay
+     * Lấy số lần dịch thuật hôm nay
      */
     private int getTodayTranslationCount() {
         return prefs.getInt(KEY_TRANSLATION_COUNT + getTodayKey(), 0);
     }
 
     /**
-     * 📊 Ghi nhận session mới
+     * Ghi nhận session mới
      */
     private void recordSession() {
         if (prefs.getLong(KEY_FIRST_USAGE, 0) == 0) {
@@ -181,14 +179,14 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 📊 Lấy tổng số sessions
+     * Lấy tổng số sessions
      */
     private int getTotalSessions() {
         return prefs.getInt(KEY_TOTAL_SESSIONS, 0);
     }
 
     /**
-     * 📊 Lấy ngày sử dụng đầu tiên
+     *  Lấy ngày sử dụng đầu tiên
      */
     private String getFirstUsageDate() {
         long firstUsage = prefs.getLong(KEY_FIRST_USAGE, 0);
@@ -199,7 +197,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 🗑️ Clear tất cả usage data
+     * 🗑 Clear tất cả usage data
      */
     public void clearUsageData() {
         Log.d(TAG, "🗑️ Clearing all usage data");
@@ -207,7 +205,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 📊 Usage Statistics Class
+     * Usage Statistics Class
      */
     public static class UsageStats {
         public final int lessonsToday;
@@ -242,7 +240,7 @@ public class GuestUsageTracker {
     }
 
     /**
-     * 📊 Remaining Usage Class
+     *  Remaining Usage Class
      */
     public static class RemainingUsage {
         public final int remainingLessons;

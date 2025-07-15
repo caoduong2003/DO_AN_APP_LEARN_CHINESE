@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,8 +27,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.example.app_learn_chinese_2025.R;
 import com.example.app_learn_chinese_2025.controller.AuthController;
 import com.example.app_learn_chinese_2025.controller.BaiGiangController;
+import com.example.app_learn_chinese_2025.controller.TeacherBaiGiangController;
 import com.example.app_learn_chinese_2025.model.data.BaiGiang;
 import com.example.app_learn_chinese_2025.model.data.User;
+import com.example.app_learn_chinese_2025.model.remote.ApiService;
 import com.example.app_learn_chinese_2025.util.Constants;
 import com.example.app_learn_chinese_2025.util.SessionManager;
 import com.example.app_learn_chinese_2025.view.adapter.BaiGiangAdapter;
@@ -38,16 +41,20 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TeacherDashboardActivity extends AppCompatActivity implements BaiGiangController.OnBaiGiangListener, BaiGiangAdapter.OnBaiGiangActionListener {
+public class TeacherDashboardActivity extends AppCompatActivity
+        implements BaiGiangController.OnBaiGiangListener,
+        BaiGiangAdapter.OnBaiGiangActionListener,
+        TeacherBaiGiangController.OnTeacherBaiGiangListener {
+
     private static final int REQUEST_ADD_BAI_GIANG = 1001;
     private static final int REQUEST_EDIT_BAI_GIANG = 1002;
     private static final String TAG = "TeacherDashboardActivity";
 
     // UI Components
     private Toolbar toolbar;
-    private TextView tvWelcome, tvEmptyState, tvTotalLessons, tvTotalViews;
-    private Button btnLogout;
-    private FloatingActionButton fabAddBaiGiang;
+    private TextView tvWelcome, tvEmptyState, tvTotalLessons, tvTotalViews, tvPublicLessons, tvPremiumLessons;
+    private Button btnLogout, btnManageLessons;
+    private CardView cardManageLessons, cardStatistics, cardQuickCreate;
     private RecyclerView rvBaiGiang;
     private SwipeRefreshLayout swipeRefresh;
     private ChipGroup chipGroupFilters;
@@ -57,6 +64,7 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
     private SessionManager sessionManager;
     private AuthController authController;
     private BaiGiangController baiGiangController;
+    private TeacherBaiGiangController teacherBaiGiangController; // NEW: Teacher-specific controller
     private BaiGiangAdapter adapter;
     private List<BaiGiang> baiGiangList;
     private List<BaiGiang> filteredList;
@@ -70,6 +78,7 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         sessionManager = new SessionManager(this);
+
         // Kiểm tra vai trò giảng viên
         if (sessionManager.getUserRole() != Constants.ROLE_TEACHER) {
             Toast.makeText(this, "Chỉ giảng viên có quyền truy cập", Toast.LENGTH_SHORT).show();
@@ -86,6 +95,7 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
         setupFilters();
         loadUserInfo();
         loadBaiGiangs();
+        loadQuickStats(); // NEW: Load statistics for dashboard
     }
 
     private void initViews() {
@@ -94,21 +104,33 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
         tvEmptyState = findViewById(R.id.tvEmptyState);
         tvTotalLessons = findViewById(R.id.tvTotalLessons);
         tvTotalViews = findViewById(R.id.tvTotalViews);
+        tvPublicLessons = findViewById(R.id.tvPublicLessons);
+        tvPremiumLessons = findViewById(R.id.tvPremiumLessons);
         btnLogout = findViewById(R.id.btnLogout);
-        fabAddBaiGiang = findViewById(R.id.fabAddBaiGiang);
+        btnManageLessons = findViewById(R.id.btnManageLessons);
+
+        // Card views for dashboard sections
+        cardManageLessons = findViewById(R.id.cardManageLessons);
+        cardStatistics = findViewById(R.id.cardStatistics);
+        cardQuickCreate = findViewById(R.id.cardQuickCreate);
+
+
         rvBaiGiang = findViewById(R.id.rvBaiGiang);
         swipeRefresh = findViewById(R.id.swipeRefresh);
         chipGroupFilters = findViewById(R.id.chipGroupFilters);
 
+        // Initialize controllers
         authController = new AuthController(this);
         baiGiangController = new BaiGiangController(this, this);
+        teacherBaiGiangController = new TeacherBaiGiangController(this, this); // NEW
+
         baiGiangList = new ArrayList<>();
         filteredList = new ArrayList<>();
     }
 
     private void setupToolbar() {
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Quản lý bài giảng");
+        getSupportActionBar().setTitle("Dashboard Giáo viên");
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
     }
 
@@ -145,6 +167,11 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
             return true;
         } else if (id == R.id.action_refresh) {
             loadBaiGiangs();
+            loadQuickStats(); // Also refresh stats
+            return true;
+        } else if (id == R.id.action_manage_lessons) {
+            // NEW: Direct navigation to lesson management
+            navigateToLessonManagement();
             return true;
         } else if (id == R.id.action_settings) {
             Toast.makeText(this, "Tính năng cài đặt đang phát triển", Toast.LENGTH_SHORT).show();
@@ -155,11 +182,73 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
 
     private void setupListeners() {
         btnLogout.setOnClickListener(v -> showLogoutDialog());
-        fabAddBaiGiang.setOnClickListener(v -> {
-            Intent intent = new Intent(TeacherDashboardActivity.this, EditBaiGiangActivity.class);
-            startActivityForResult(intent, REQUEST_ADD_BAI_GIANG);
+
+        // NEW: Lesson management navigation
+        if (btnManageLessons != null) {
+            btnManageLessons.setOnClickListener(v -> navigateToLessonManagement());
+        }
+
+        if (cardManageLessons != null) {
+            cardManageLessons.setOnClickListener(v -> navigateToLessonManagement());
+        }
+
+
+        // Quick create card
+        if (cardQuickCreate != null) {
+            cardQuickCreate.setOnClickListener(v -> {
+                // Navigate to new lesson creation form
+                Intent intent = new Intent(TeacherDashboardActivity.this, TeacherCreateEditLessonActivity.class);
+                startActivity(intent);
+            });
+        }
+
+        // Statistics card
+        if (cardStatistics != null) {
+            cardStatistics.setOnClickListener(v -> {
+                // Show detailed statistics or navigate to stats page
+                loadQuickStats();
+                Toast.makeText(this, "Đang tải thống kê...", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        swipeRefresh.setOnRefreshListener(() -> {
+            loadBaiGiangs();
+            loadQuickStats();
         });
-        swipeRefresh.setOnRefreshListener(this::loadBaiGiangs);
+    }
+
+    // NEW: Navigation to Teacher Lesson Management
+    private void navigateToLessonManagement() {
+        Intent intent = new Intent(TeacherDashboardActivity.this, TeacherLessonManagementActivity.class);
+        startActivity(intent);
+    }
+
+    // NEW: Load quick statistics for dashboard
+    private void loadQuickStats() {
+        if (teacherBaiGiangController != null) {
+            teacherBaiGiangController.getStatistics();
+        }
+    }
+
+    // NEW: Update dashboard stats display
+    private void updateDashboardStats(ApiService.TeacherBaiGiangResponse.StatsResponse stats) {
+        if (stats != null) {
+            if (tvTotalLessons != null) {
+                tvTotalLessons.setText(String.valueOf(stats.getTongSoBaiGiang()));
+            }
+            if (tvPublicLessons != null) {
+                tvPublicLessons.setText(String.valueOf(stats.getBaiGiangCongKhai()));
+            }
+            if (tvPremiumLessons != null) {
+                tvPremiumLessons.setText(String.valueOf(stats.getBaiGiangGoi()));
+            }
+            if (tvTotalViews != null) {
+                tvTotalViews.setText(String.valueOf(stats.getTongLuotXem()));
+            }
+
+            Log.d(TAG, "Updated dashboard stats: " + stats.getTongSoBaiGiang() + " lessons, " +
+                    stats.getTongLuotXem() + " views");
+        }
     }
 
     private void setupRecyclerView() {
@@ -170,14 +259,18 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
 
     private void setupFilters() {
         Chip chipAll = findViewById(R.id.chipAll);
-        chipAll.setOnClickListener(v -> applyFilter(-1));
+        if (chipAll != null) chipAll.setOnClickListener(v -> applyFilter(-1));
+
         Chip chipWithVideo = findViewById(R.id.chipWithVideo);
-        chipWithVideo.setOnClickListener(v -> applyFilter(0));
+        if (chipWithVideo != null) chipWithVideo.setOnClickListener(v -> applyFilter(0));
+
         Chip chipNoVideo = findViewById(R.id.chipNoVideo);
-        chipNoVideo.setOnClickListener(v -> applyFilter(1));
+        if (chipNoVideo != null) chipNoVideo.setOnClickListener(v -> applyFilter(1));
+
         Chip chipPremium = findViewById(R.id.chipPremium);
-        chipPremium.setOnClickListener(v -> applyFilter(2));
-        chipAll.setChecked(true);
+        if (chipPremium != null) chipPremium.setOnClickListener(v -> applyFilter(2));
+
+        if (chipAll != null) chipAll.setChecked(true);
     }
 
     private void loadUserInfo() {
@@ -280,8 +373,8 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
         for (BaiGiang baiGiang : baiGiangList) {
             totalViews += baiGiang.getLuotXem();
         }
-        tvTotalLessons.setText(String.valueOf(totalLessons));
-        tvTotalViews.setText(String.valueOf(totalViews));
+        if (tvTotalLessons != null) tvTotalLessons.setText(String.valueOf(totalLessons));
+        if (tvTotalViews != null) tvTotalViews.setText(String.valueOf(totalViews));
         Log.d(TAG, "Statistics - Lessons: " + totalLessons + ", Views: " + totalViews);
     }
 
@@ -302,8 +395,10 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
     }
 
     private void showEmptyState(boolean show, String message) {
-        tvEmptyState.setVisibility(show ? View.VISIBLE : View.GONE);
-        tvEmptyState.setText(message);
+        if (tvEmptyState != null) {
+            tvEmptyState.setVisibility(show ? View.VISIBLE : View.GONE);
+            tvEmptyState.setText(message);
+        }
         rvBaiGiang.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
@@ -325,7 +420,7 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
         finish();
     }
 
-    // BaiGiangController.OnBaiGiangListener implementations
+    // ===== BaiGiangController.OnBaiGiangListener implementations =====
     @Override
     public void onBaiGiangListReceived(List<BaiGiang> baiGiangList) {
         this.baiGiangList = baiGiangList;
@@ -340,24 +435,68 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
 
     @Override
     public void onBaiGiangDetailReceived(BaiGiang baiGiang) {
+        // Not used in dashboard
     }
 
     @Override
     public void onBaiGiangCreated(BaiGiang baiGiang) {
         loadBaiGiangs();
+        loadQuickStats();
         Toast.makeText(this, "Tạo bài giảng thành công", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onBaiGiangUpdated(BaiGiang baiGiang) {
         loadBaiGiangs();
+        loadQuickStats();
         Toast.makeText(this, "Cập nhật bài giảng thành công", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onBaiGiangListReceived(ApiService.TeacherBaiGiangResponse.PageResponse response) {
+
+    }
+
+    @Override
+    public void onBaiGiangDetailReceived(ApiService.TeacherBaiGiangResponse.DetailResponse baiGiang) {
+
+    }
+
+    @Override
+    public void onBaiGiangCreated(ApiService.TeacherBaiGiangResponse.SimpleResponse baiGiang) {
+
+    }
+
+    @Override
+    public void onBaiGiangUpdated(ApiService.TeacherBaiGiangResponse.SimpleResponse baiGiang) {
+
     }
 
     @Override
     public void onBaiGiangDeleted() {
         loadBaiGiangs();
+        loadQuickStats();
         Toast.makeText(this, "Xóa bài giảng thành công", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onStatusToggled(ApiService.TeacherBaiGiangResponse.SimpleResponse baiGiang) {
+
+    }
+
+    @Override
+    public void onBaiGiangDuplicated(ApiService.TeacherBaiGiangResponse.SimpleResponse baiGiang) {
+
+    }
+
+    @Override
+    public void onStatisticsReceived(ApiService.TeacherBaiGiangResponse.StatsResponse stats) {
+
+    }
+
+    @Override
+    public void onSearchResultReceived(List<ApiService.TeacherBaiGiangResponse.SimpleResponse> results) {
+
     }
 
     @Override
@@ -368,47 +507,23 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
         Log.e(TAG, "Error: " + message);
     }
 
-    // BaiGiangAdapter.OnBaiGiangActionListener implementations
     @Override
     public void onItemClick(BaiGiang baiGiang) {
-        Intent intent = new Intent(this, BaiGiangDetailActivity.class);
-        intent.putExtra("BAI_GIANG_ID", baiGiang.getID());
-        startActivity(intent);
+
     }
 
     @Override
     public void onEditBaiGiang(BaiGiang baiGiang) {
-        Intent intent = new Intent(this, EditBaiGiangActivity.class);
-        intent.putExtra("BAI_GIANG_ID", baiGiang.getID());
-        startActivityForResult(intent, REQUEST_EDIT_BAI_GIANG);
+
     }
 
     @Override
     public void onDeleteBaiGiang(BaiGiang baiGiang) {
-        new AlertDialog.Builder(this)
-                .setTitle("Xác nhận xóa")
-                .setMessage("Bạn có chắc chắn muốn xóa bài giảng \"" + baiGiang.getTieuDe() + "\"?\n\nThao tác này không thể hoàn tác.")
-                .setPositiveButton("Xóa", (dialog, which) -> {
-                    swipeRefresh.setRefreshing(true);
-                    baiGiangController.deleteBaiGiang(baiGiang.getID());
-                })
-                .setNegativeButton("Hủy", null)
-                .setIcon(R.drawable.ic_warning)
-                .show();
+
     }
 
     @Override
     public void onPlayVideo(BaiGiang baiGiang) {
-
-        if (baiGiang.getVideoURL() == null || baiGiang.getVideoURL().isEmpty()) {
-            Toast.makeText(this, "Bài giảng này không có video", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(android.net.Uri.parse(baiGiang.getVideoURL()), "video/*");
-        intent.putExtra("TITLE", baiGiang.getTieuDe());
-        startActivity(intent);
-        Log.d(TAG, "Playing video for lesson: " + baiGiang.getTieuDe());
 
     }
 
@@ -416,14 +531,5 @@ public class TeacherDashboardActivity extends AppCompatActivity implements BaiGi
     public void onPlayAudio(BaiGiang baiGiang) {
 
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_ADD_BAI_GIANG || requestCode == REQUEST_EDIT_BAI_GIANG) {
-                loadBaiGiangs();
-            }
-        }
-    }
 }
+

@@ -77,7 +77,32 @@ public class GuestWelcomeActivity extends AppCompatActivity {
             startRegisterActivity();
         });
 
+        // 🚀 NEW: Thêm long click cho options
+        btnStartLearning.setOnLongClickListener(v -> {
+            showGuestOptionsDialog();
+            return true;
+        });
+
         Log.d(TAG, "✅ Listeners setup complete");
+    }
+
+    /**
+     * 🎯 Hiển thị dialog lựa chọn cho guest
+     */
+    private void showGuestOptionsDialog() {
+        new androidx.appcompat.app.AlertDialog.Builder(this)
+                .setTitle("Lựa chọn")
+                .setMessage("Bạn muốn:")
+                .setPositiveButton("Đăng nhập", (dialog, which) -> {
+                    startLoginActivity();
+                })
+                .setNegativeButton("Đăng ký", (dialog, which) -> {
+                    startRegisterActivity();
+                })
+                .setNeutralButton("Dùng thử", (dialog, which) -> {
+                    startGuestMode();
+                })
+                .show();
     }
 
     /**
@@ -103,8 +128,11 @@ public class GuestWelcomeActivity extends AppCompatActivity {
         Log.d(TAG, "Starting login activity");
 
         Intent intent = new Intent(this, LoginActivity.class);
+        // Thêm flag để clear guest welcome khi login thành công
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-        // Không finish() để user có thể back về welcome
+        // Finish current activity để user không thể back về welcome
+        finish();
     }
 
     /**
@@ -114,8 +142,11 @@ public class GuestWelcomeActivity extends AppCompatActivity {
         Log.d(TAG, "Starting register activity");
 
         Intent intent = new Intent(this, RegisterActivity.class);
+        // Thêm flag để clear guest welcome khi register thành công
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
-        // Không finish() để user có thể back về welcome
+        // Finish current activity để user không thể back về welcome
+        finish();
     }
 
     @Override
@@ -159,14 +190,11 @@ public class GuestWelcomeActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
-        builder.setMessage("Bạn có muốn thoát ứng dụng?")
-                .setPositiveButton("Thoát", (dialog, id) -> {
-                    super.onBackPressed();
-                })
-                .setNegativeButton("Hủy", (dialog, id) -> {
-                    dialog.dismiss();
-                });
-        builder.create().show();
+        super.onBackPressed();
+        // Move app to background instead of going back
+
+
+        Log.d(TAG, "Back button pressed - moving app to background");
+        moveTaskToBack(true);
     }
 }

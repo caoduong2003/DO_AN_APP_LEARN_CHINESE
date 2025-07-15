@@ -10,7 +10,6 @@ import com.example.app_learn_chinese_2025.model.data.LoaiBaiGiang;
 import com.example.app_learn_chinese_2025.model.data.TuVung;
 import com.example.app_learn_chinese_2025.model.data.MauCau;
 import com.example.app_learn_chinese_2025.model.data.User;
-
 import com.example.app_learn_chinese_2025.model.data.BaiTap;
 import com.example.app_learn_chinese_2025.model.data.KetQuaBaiTap;
 import com.example.app_learn_chinese_2025.model.request.LamBaiTapRequest;
@@ -27,6 +26,7 @@ import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
+import retrofit2.http.PATCH;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
@@ -34,7 +34,8 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ApiService {
-    // Auth APIs
+
+    // ===== AUTH APIs =====
     @POST("api/auth/dangnhap")
     Call<JwtResponse> login(@Body RegisterRequest loginRequest);
 
@@ -44,7 +45,7 @@ public interface ApiService {
     @GET("api/auth/profile")
     Call<User> getUserProfile(@Header("Authorization") String token);
 
-    // 🚀 NEW: Guest APIs - Không cần authentication
+    // ===== GUEST APIs - Không cần authentication =====
     @GET("api/guest/stats")
     Call<Map<String, Object>> getGuestStats();
 
@@ -71,6 +72,8 @@ public interface ApiService {
     @GET("api/guest/loaibaigiang")
     Call<List<LoaiBaiGiang>> getGuestLoaiBaiGiang();
 
+    // ===== GENERAL APIs =====
+
     // CapDoHSK APIs
     @GET("api/capdohsk")
     Call<List<CapDoHSK>> getAllCapDoHSK();
@@ -83,7 +86,12 @@ public interface ApiService {
     @GET("api/loaibaigiang")
     Call<List<LoaiBaiGiang>> getAllLoaiBaiGiang();
 
-    // BaiGiang APIs
+    // ===== STUDENT/GENERAL BAIGIANG APIs - Sử dụng model BaiGiang cũ =====
+
+    /**
+     * API cho Student và các chức năng general
+     * Sử dụng model BaiGiang cũ - KHÔNG THAY ĐỔI
+     */
     @GET("api/baigiang")
     Call<List<BaiGiang>> getAllBaiGiang(
             @Query("giangVienId") Long giangVienId,
@@ -95,22 +103,149 @@ public interface ApiService {
     @GET("api/baigiang/{id}")
     Call<BaiGiang> getBaiGiangById(@Path("id") long id);
 
-    @POST("api/baigiang")
-    Call<BaiGiang> createBaiGiang(@Header("Authorization") String token, @Body BaiGiang baiGiang);
-
-    @PUT("api/baigiang/{id}")
-    Call<BaiGiang> updateBaiGiang(@Header("Authorization") String token, @Path("id") long id, @Body BaiGiang baiGiang);
-
-    @DELETE("api/baigiang/{id}")
-    Call<Void> deleteBaiGiang(@Header("Authorization") String token, @Path("id") long id);
-
-    @DELETE("api/baigiang/admin/{id}")
-    Call<Void> deleteBaiGiangByAdmin(@Header("Authorization") String token, @Path("id") long id);
-
     @GET("api/baigiang/search")
     Call<List<BaiGiang>> searchBaiGiang(@Query("keyword") String keyword);
 
-    // TuVung APIs
+    // ===== DEPRECATED CRUD APIs - Chỉ dành cho Admin hoặc legacy =====
+
+    /**
+     * API cũ đã deprecated - chỉ dành cho Admin operations
+     * Teacher nên sử dụng /api/teacher-baigiang thay thế
+     */
+    @Deprecated
+    @POST("api/baigiang")
+    Call<BaiGiang> createBaiGiang(@Header("Authorization") String token, @Body BaiGiang baiGiang);
+
+    @Deprecated
+    @PUT("api/baigiang/{id}")
+    Call<BaiGiang> updateBaiGiang(@Header("Authorization") String token, @Path("id") long id, @Body BaiGiang baiGiang);
+
+    @Deprecated
+    @DELETE("api/baigiang/{id}")
+    Call<Void> deleteBaiGiang(@Header("Authorization") String token, @Path("id") long id);
+
+    // Admin-only operations
+    @DELETE("api/baigiang/admin/{id}")
+    Call<Void> deleteBaiGiangByAdmin(@Header("Authorization") String token, @Path("id") long id);
+
+    // ===== TEACHER BAIGIANG APIs - API mới chuyên dụng cho Teacher =====
+
+    /**
+     * API chuyên dụng cho Teacher CRUD operations
+     * Sử dụng TeacherBaiGiangRequest/Response models
+     */
+
+    /**
+     * Lấy danh sách bài giảng của giáo viên với phân trang
+     * GET /api/teacher-baigiang
+     */
+    @GET("api/teacher-baigiang")
+    Call<TeacherBaiGiangResponse.PageResponse> getTeacherBaiGiangs(
+            @Header("Authorization") String token,
+            @Query("page") int page,
+            @Query("size") int size,
+            @Query("sortBy") String sortBy,
+            @Query("sortDir") String sortDir,
+            @Query("search") String search,
+            @Query("capDoHSKId") Integer capDoHSKId,
+            @Query("chuDeId") Integer chuDeId,
+            @Query("loaiBaiGiangId") Integer loaiBaiGiangId,
+            @Query("trangThai") Boolean trangThai
+    );
+
+    /**
+     * Lấy chi tiết bài giảng của giáo viên
+     * GET /api/teacher-baigiang/{id}
+     */
+    @GET("api/teacher-baigiang/{id}")
+    Call<TeacherBaiGiangResponse.DetailResponse> getTeacherBaiGiangDetail(
+            @Header("Authorization") String token,
+            @Path("id") Long id
+    );
+
+    /**
+     * Tạo bài giảng mới
+     * POST /api/teacher-baigiang
+     */
+    @POST("api/teacher-baigiang")
+    Call<TeacherBaiGiangResponse.SimpleResponse> createTeacherBaiGiang(
+            @Header("Authorization") String token,
+            @Body TeacherBaiGiangRequest.CreateRequest request
+    );
+
+    /**
+     * Cập nhật bài giảng
+     * PUT /api/teacher-baigiang/{id}
+     */
+    @PUT("api/teacher-baigiang/{id}")
+    Call<TeacherBaiGiangResponse.SimpleResponse> updateTeacherBaiGiang(
+            @Header("Authorization") String token,
+            @Path("id") Long id,
+            @Body TeacherBaiGiangRequest.UpdateRequest request
+    );
+
+    /**
+     * Xóa bài giảng (soft delete)
+     * DELETE /api/teacher-baigiang/{id}
+     */
+    @DELETE("api/teacher-baigiang/{id}")
+    Call<Map<String, String>> deleteTeacherBaiGiang(
+            @Header("Authorization") String token,
+            @Path("id") Long id
+    );
+
+    /**
+     * Thay đổi trạng thái công khai/ẩn bài giảng
+     * PATCH /api/teacher-baigiang/{id}/toggle-status
+     */
+    @PATCH("api/teacher-baigiang/{id}/toggle-status")
+    Call<TeacherBaiGiangResponse.SimpleResponse> toggleTeacherBaiGiangStatus(
+            @Header("Authorization") String token,
+            @Path("id") Long id
+    );
+
+    /**
+     * Thay đổi trạng thái premium
+     * PATCH /api/teacher-baigiang/{id}/toggle-premium
+     */
+    @PATCH("api/teacher-baigiang/{id}/toggle-premium")
+    Call<TeacherBaiGiangResponse.SimpleResponse> toggleTeacherBaiGiangPremium(
+            @Header("Authorization") String token,
+            @Path("id") Long id
+    );
+
+    /**
+     * Nhân bản bài giảng
+     * POST /api/teacher-baigiang/{id}/duplicate
+     */
+    @POST("api/teacher-baigiang/{id}/duplicate")
+    Call<TeacherBaiGiangResponse.SimpleResponse> duplicateTeacherBaiGiang(
+            @Header("Authorization") String token,
+            @Path("id") Long id,
+            @Body Map<String, String> options
+    );
+
+    /**
+     * Lấy thống kê bài giảng của giáo viên
+     * GET /api/teacher-baigiang/statistics
+     */
+    @GET("api/teacher-baigiang/statistics")
+    Call<TeacherBaiGiangResponse.StatsResponse> getTeacherBaiGiangStatistics(
+            @Header("Authorization") String token
+    );
+
+    /**
+     * Tìm kiếm bài giảng của giáo viên
+     * GET /api/teacher-baigiang/search
+     */
+    @GET("api/teacher-baigiang/search")
+    Call<List<TeacherBaiGiangResponse.SimpleResponse>> searchTeacherBaiGiangs(
+            @Header("Authorization") String token,
+            @Query("keyword") String keyword,
+            @Query("limit") int limit
+    );
+
+    // ===== TUVUNG APIs =====
     @GET("api/tuvung/baigiang/{baiGiangId}")
     Call<List<TuVung>> getTuVungByBaiGiang(@Path("baiGiangId") long baiGiangId);
 
@@ -135,14 +270,14 @@ public interface ApiService {
     @POST("api/tuvung/audio")
     Call<String> generateAudio(@Header("Authorization") String token, @Body String chineseText);
 
-    // Translation APIs
+    // ===== TRANSLATION APIs =====
     @POST("api/translation/vi-to-zh")
     Call<TranslationResponse> translateVietnameseToChinese(@Body String text);
 
     @POST("api/translation/zh-to-vi")
     Call<TranslationResponse> translateChineseToVietnamese(@Body String text);
 
-    // MauCau APIs
+    // ===== MAUCAU APIs =====
     @GET("api/maucau/baigiang/{baiGiangId}")
     Call<List<MauCau>> getMauCauByBaiGiang(@Path("baiGiangId") long baiGiangId);
 
@@ -158,7 +293,7 @@ public interface ApiService {
     @DELETE("api/maucau/{id}")
     Call<Void> deleteMauCau(@Header("Authorization") String token, @Path("id") long id);
 
-    // User Management APIs (Admin only)
+    // ===== USER MANAGEMENT APIs (Admin only) =====
     @GET("api/admin/users")
     Call<PageResponse<UserResponse>> getAllUsers(
             @Header("Authorization") String token,
@@ -202,7 +337,7 @@ public interface ApiService {
             @Query("keyword") String keyword,
             @Query("vaiTro") Integer vaiTro);
 
-    // File upload APIs
+    // ===== FILE UPLOAD APIs =====
     @Multipart
     @POST("api/files/upload")
     Call<ResponseBody> uploadFile(@Header("Authorization") String token, @Part MultipartBody.Part file);
@@ -223,6 +358,7 @@ public interface ApiService {
     @POST("api/media/upload/image")
     Call<Map<String, Object>> uploadImage(@Header("Authorization") String token, @Part MultipartBody.Part image);
 
+    // ===== BAITAP APIs =====
     /**
      * Test API bài tập
      * GET /api/bai-tap/ping
@@ -268,8 +404,10 @@ public interface ApiService {
     @GET("api/bai-tap/thong-ke")
     Call<ApiResponse<Object>> getThongKeBaiTap();
 
-    // DTO Classes
-    public static class CreateUserRequest {
+    // ===== DATA CLASSES =====
+
+    // ===== USER MANAGEMENT DATA CLASSES =====
+    class CreateUserRequest {
         private String tenDangNhap;
         private String email;
         private String matKhau;
@@ -301,7 +439,7 @@ public interface ApiService {
         public void setTrangThai(Boolean trangThai) { this.trangThai = trangThai; }
     }
 
-    public static class UpdateUserRequest {
+    class UpdateUserRequest {
         private String email;
         private String hoTen;
         private String soDienThoai;
@@ -327,7 +465,7 @@ public interface ApiService {
         public void setTrangThai(Boolean trangThai) { this.trangThai = trangThai; }
     }
 
-    public static class UserResponse {
+    class UserResponse {
         private Long id;
         private String tenDangNhap;
         private String email;
@@ -383,7 +521,7 @@ public interface ApiService {
         public void setTienDoHocTap(Integer tienDoHocTap) { this.tienDoHocTap = tienDoHocTap; }
     }
 
-    public static class UserStatistics {
+    class UserStatistics {
         private Long tongSoNguoiDung;
         private Long soAdmin;
         private Long soGiangVien;
@@ -418,7 +556,7 @@ public interface ApiService {
         public void setSoNguoiDungDangNhap7Ngay(Long soNguoiDungDangNhap7Ngay) { this.soNguoiDungDangNhap7Ngay = soNguoiDungDangNhap7Ngay; }
     }
 
-    public static class PageResponse<T> {
+    class PageResponse<T> {
         private List<T> content;
         private int totalPages;
         private long totalElements;
@@ -442,5 +580,319 @@ public interface ApiService {
         public void setFirst(boolean first) { this.first = first; }
         public boolean isLast() { return last; }
         public void setLast(boolean last) { this.last = last; }
+    }
+
+    // ===== TEACHER BAI GIANG DATA CLASSES =====
+
+    class TeacherBaiGiangRequest {
+
+        public static class CreateRequest {
+            private String tieuDe;
+            private String moTa;
+            private String noiDung;
+            private Integer thoiLuong;
+            private String hinhAnh;
+            private String videoURL;
+            private String audioURL;
+            private Boolean trangThai;
+            private Boolean laBaiGiangGoi;
+            private Integer capDoHSKId;
+            private Integer chuDeId;
+            private Integer loaiBaiGiangId;
+
+            // Constructors
+            public CreateRequest() {}
+
+            public CreateRequest(String tieuDe, String moTa, String noiDung) {
+                this.tieuDe = tieuDe;
+                this.moTa = moTa;
+                this.noiDung = noiDung;
+                this.trangThai = true;
+                this.laBaiGiangGoi = false;
+            }
+
+            // Getters and Setters
+            public String getTieuDe() { return tieuDe; }
+            public void setTieuDe(String tieuDe) { this.tieuDe = tieuDe; }
+
+            public String getMoTa() { return moTa; }
+            public void setMoTa(String moTa) { this.moTa = moTa; }
+
+            public String getNoiDung() { return noiDung; }
+            public void setNoiDung(String noiDung) { this.noiDung = noiDung; }
+
+            public Integer getThoiLuong() { return thoiLuong; }
+            public void setThoiLuong(Integer thoiLuong) { this.thoiLuong = thoiLuong; }
+
+            public String getHinhAnh() { return hinhAnh; }
+            public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
+
+            public String getVideoURL() { return videoURL; }
+            public void setVideoURL(String videoURL) { this.videoURL = videoURL; }
+
+            public String getAudioURL() { return audioURL; }
+            public void setAudioURL(String audioURL) { this.audioURL = audioURL; }
+
+            public Boolean getTrangThai() { return trangThai; }
+            public void setTrangThai(Boolean trangThai) { this.trangThai = trangThai; }
+
+            public Boolean getLaBaiGiangGoi() { return laBaiGiangGoi; }
+            public void setLaBaiGiangGoi(Boolean laBaiGiangGoi) { this.laBaiGiangGoi = laBaiGiangGoi; }
+
+            public Integer getCapDoHSKId() { return capDoHSKId; }
+            public void setCapDoHSKId(Integer capDoHSKId) { this.capDoHSKId = capDoHSKId; }
+
+            public Integer getChuDeId() { return chuDeId; }
+            public void setChuDeId(Integer chuDeId) { this.chuDeId = chuDeId; }
+
+            public Integer getLoaiBaiGiangId() { return loaiBaiGiangId; }
+            public void setLoaiBaiGiangId(Integer loaiBaiGiangId) { this.loaiBaiGiangId = loaiBaiGiangId; }
+        }
+
+        public static class UpdateRequest {
+            private String tieuDe;
+            private String moTa;
+            private String noiDung;
+            private Integer thoiLuong;
+            private String hinhAnh;
+            private String videoURL;
+            private String audioURL;
+            private Boolean trangThai;
+            private Boolean laBaiGiangGoi;
+            private Integer capDoHSKId;
+            private Integer chuDeId;
+            private Integer loaiBaiGiangId;
+
+            // Getters and Setters (same as CreateRequest)
+            public String getTieuDe() { return tieuDe; }
+            public void setTieuDe(String tieuDe) { this.tieuDe = tieuDe; }
+
+            public String getMoTa() { return moTa; }
+            public void setMoTa(String moTa) { this.moTa = moTa; }
+
+            public String getNoiDung() { return noiDung; }
+            public void setNoiDung(String noiDung) { this.noiDung = noiDung; }
+
+            public Integer getThoiLuong() { return thoiLuong; }
+            public void setThoiLuong(Integer thoiLuong) { this.thoiLuong = thoiLuong; }
+
+            public String getHinhAnh() { return hinhAnh; }
+            public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
+
+            public String getVideoURL() { return videoURL; }
+            public void setVideoURL(String videoURL) { this.videoURL = videoURL; }
+
+            public String getAudioURL() { return audioURL; }
+            public void setAudioURL(String audioURL) { this.audioURL = audioURL; }
+
+            public Boolean getTrangThai() { return trangThai; }
+            public void setTrangThai(Boolean trangThai) { this.trangThai = trangThai; }
+
+            public Boolean getLaBaiGiangGoi() { return laBaiGiangGoi; }
+            public void setLaBaiGiangGoi(Boolean laBaiGiangGoi) { this.laBaiGiangGoi = laBaiGiangGoi; }
+
+            public Integer getCapDoHSKId() { return capDoHSKId; }
+            public void setCapDoHSKId(Integer capDoHSKId) { this.capDoHSKId = capDoHSKId; }
+
+            public Integer getChuDeId() { return chuDeId; }
+            public void setChuDeId(Integer chuDeId) { this.chuDeId = chuDeId; }
+
+            public Integer getLoaiBaiGiangId() { return loaiBaiGiangId; }
+            public void setLoaiBaiGiangId(Integer loaiBaiGiangId) { this.loaiBaiGiangId = loaiBaiGiangId; }
+        }
+    }
+
+    class TeacherBaiGiangResponse {
+
+        public static class PageResponse {
+            private List<SimpleResponse> content;
+            private int page;
+            private int size;
+            private int totalPages;
+            private long totalElements;
+            private boolean last;
+            private boolean first;
+
+            // Getters and Setters
+            public List<SimpleResponse> getContent() { return content; }
+            public void setContent(List<SimpleResponse> content) { this.content = content; }
+
+            public int getPage() { return page; }
+            public void setPage(int page) { this.page = page; }
+
+            public int getSize() { return size; }
+            public void setSize(int size) { this.size = size; }
+
+            public int getTotalPages() { return totalPages; }
+            public void setTotalPages(int totalPages) { this.totalPages = totalPages; }
+
+            public long getTotalElements() { return totalElements; }
+            public void setTotalElements(long totalElements) { this.totalElements = totalElements; }
+
+            public boolean isLast() { return last; }
+            public void setLast(boolean last) { this.last = last; }
+
+            public boolean isFirst() { return first; }
+            public void setFirst(boolean first) { this.first = first; }
+        }
+
+        public static class SimpleResponse {
+            private Long id;
+            private String maBaiGiang;
+            private String tieuDe;
+            private String moTa;
+            private String ngayTao;
+            private String ngayCapNhat;
+            private Integer luotXem;
+            private Integer thoiLuong;
+            private String hinhAnh;
+            private String videoURL;
+            private String audioURL;
+            private Boolean trangThai;
+            private Boolean laBaiGiangGoi;
+
+            // Nested objects
+            private LoaiBaiGiangInfo loaiBaiGiang;
+            private CapDoHSKInfo capDoHSK;
+            private ChuDeInfo chuDe;
+            private GiangVienInfo giangVien;
+
+            // Getters and Setters
+            public Long getId() { return id; }
+            public void setId(Long id) { this.id = id; }
+
+            public String getMaBaiGiang() { return maBaiGiang; }
+            public void setMaBaiGiang(String maBaiGiang) { this.maBaiGiang = maBaiGiang; }
+
+            public String getTieuDe() { return tieuDe; }
+            public void setTieuDe(String tieuDe) { this.tieuDe = tieuDe; }
+
+            public String getMoTa() { return moTa; }
+            public void setMoTa(String moTa) { this.moTa = moTa; }
+
+            public String getNgayTao() { return ngayTao; }
+            public void setNgayTao(String ngayTao) { this.ngayTao = ngayTao; }
+
+            public String getNgayCapNhat() { return ngayCapNhat; }
+            public void setNgayCapNhat(String ngayCapNhat) { this.ngayCapNhat = ngayCapNhat; }
+
+            public Integer getLuotXem() { return luotXem; }
+            public void setLuotXem(Integer luotXem) { this.luotXem = luotXem; }
+
+            public Integer getThoiLuong() { return thoiLuong; }
+            public void setThoiLuong(Integer thoiLuong) { this.thoiLuong = thoiLuong; }
+
+            public String getHinhAnh() { return hinhAnh; }
+            public void setHinhAnh(String hinhAnh) { this.hinhAnh = hinhAnh; }
+
+            public String getVideoURL() { return videoURL; }
+            public void setVideoURL(String videoURL) { this.videoURL = videoURL; }
+
+            public String getAudioURL() { return audioURL; }
+            public void setAudioURL(String audioURL) { this.audioURL = audioURL; }
+
+            public Boolean getTrangThai() { return trangThai; }
+            public void setTrangThai(Boolean trangThai) { this.trangThai = trangThai; }
+
+            public Boolean getLaBaiGiangGoi() { return laBaiGiangGoi; }
+            public void setLaBaiGiangGoi(Boolean laBaiGiangGoi) { this.laBaiGiangGoi = laBaiGiangGoi; }
+
+            public LoaiBaiGiangInfo getLoaiBaiGiang() { return loaiBaiGiang; }
+            public void setLoaiBaiGiang(LoaiBaiGiangInfo loaiBaiGiang) { this.loaiBaiGiang = loaiBaiGiang; }
+
+            public CapDoHSKInfo getCapDoHSK() { return capDoHSK; }
+            public void setCapDoHSK(CapDoHSKInfo capDoHSK) { this.capDoHSK = capDoHSK; }
+
+            public ChuDeInfo getChuDe() { return chuDe; }
+            public void setChuDe(ChuDeInfo chuDe) { this.chuDe = chuDe; }
+
+            public GiangVienInfo getGiangVien() { return giangVien; }
+            public void setGiangVien(GiangVienInfo giangVien) { this.giangVien = giangVien; }
+        }
+
+        public static class DetailResponse extends SimpleResponse {
+            private String noiDung;
+
+            public String getNoiDung() { return noiDung; }
+            public void setNoiDung(String noiDung) { this.noiDung = noiDung; }
+        }
+
+        public static class StatsResponse {
+            private Integer tongSoBaiGiang;
+            private Integer baiGiangCongKhai;
+            private Integer baiGiangGoi;
+            private Integer tongLuotXem;
+            private Double luotXemTrungBinh;
+
+            // Getters and Setters
+            public Integer getTongSoBaiGiang() { return tongSoBaiGiang; }
+            public void setTongSoBaiGiang(Integer tongSoBaiGiang) { this.tongSoBaiGiang = tongSoBaiGiang; }
+
+            public Integer getBaiGiangCongKhai() { return baiGiangCongKhai; }
+            public void setBaiGiangCongKhai(Integer baiGiangCongKhai) { this.baiGiangCongKhai = baiGiangCongKhai; }
+
+            public Integer getBaiGiangGoi() { return baiGiangGoi; }
+            public void setBaiGiangGoi(Integer baiGiangGoi) { this.baiGiangGoi = baiGiangGoi; }
+
+            public Integer getTongLuotXem() { return tongLuotXem; }
+            public void setTongLuotXem(Integer tongLuotXem) { this.tongLuotXem = tongLuotXem; }
+
+            public Double getLuotXemTrungBinh() { return luotXemTrungBinh; }
+            public void setLuotXemTrungBinh(Double luotXemTrungBinh) { this.luotXemTrungBinh = luotXemTrungBinh; }
+        }
+
+        // ===== NESTED INFO CLASSES =====
+
+        public static class LoaiBaiGiangInfo {
+            private Integer id;
+            private String ten;
+
+            public Integer getId() { return id; }
+            public void setId(Integer id) { this.id = id; }
+
+            public String getTen() { return ten; }
+            public void setTen(String ten) { this.ten = ten; }
+        }
+
+        public static class CapDoHSKInfo {
+            private Integer id;
+            private String ten;
+            private Integer capDo;
+
+            public Integer getId() { return id; }
+            public void setId(Integer id) { this.id = id; }
+
+            public String getTen() { return ten; }
+            public void setTen(String ten) { this.ten = ten; }
+
+            public Integer getCapDo() { return capDo; }
+            public void setCapDo(Integer capDo) { this.capDo = capDo; }
+        }
+
+        public static class ChuDeInfo {
+            private Integer id;
+            private String ten;
+
+            public Integer getId() { return id; }
+            public void setId(Integer id) { this.id = id; }
+
+            public String getTen() { return ten; }
+            public void setTen(String ten) { this.ten = ten; }
+        }
+
+        public static class GiangVienInfo {
+            private Long id;
+            private String hoTen;
+            private String email;
+
+            public Long getId() { return id; }
+            public void setId(Long id) { this.id = id; }
+
+            public String getHoTen() { return hoTen; }
+            public void setHoTen(String hoTen) { this.hoTen = hoTen; }
+
+            public String getEmail() { return email; }
+            public void setEmail(String email) { this.email = email; }
+        }
     }
 }

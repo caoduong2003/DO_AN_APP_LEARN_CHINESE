@@ -262,7 +262,6 @@ public class GuestLimitationHelper {
                 .setMessage("Bạn có thể trải nghiệm miễn phí:\n\n" +
                         "• 3 bài giảng mỗi ngày\n" +
                         "• 5 từ vựng mỗi bài\n" +
-                        "• 10 lần dịch thuật mỗi ngày\n\n" +
                         "Đăng ký để có trải nghiệm đầy đủ!")
                 .setPositiveButton("Bắt đầu học", null)
                 .setNegativeButton("Đăng ký ngay", (dialog, which) -> {
@@ -272,7 +271,7 @@ public class GuestLimitationHelper {
     }
 
     /**
-     * 🎯 Lấy usage tracker
+     *  Lấy usage tracker
      */
     public GuestUsageTracker getUsageTracker() {
         return usageTracker;

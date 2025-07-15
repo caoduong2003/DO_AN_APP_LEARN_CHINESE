@@ -2,33 +2,54 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Search -->
+    <!-- Search Action - SỬ DỤNG ICON CÓ SẴN -->
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search"
-        android:title="Tìm kiếm"
+        android:title="Tìm kiếm bài giảng"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
 
-    <!-- View Toggle -->
+    <!-- Manage Lessons Action - SỬ DỤNG ICON CÓ SẴN -->
+    <item
+        android:id="@+id/action_manage_lessons"
+        android:icon="@drawable/ic_settings"
+        android:title="Quản lý bài giảng"
+        app:showAsAction="ifRoom" />
+
+    <!-- View Toggle Action - SỬ DỤNG ICON CÓ SẴN -->
     <item
         android:id="@+id/action_view_toggle"
         android:icon="@drawable/ic_view_module"
-        android:title="Chuyển đổi chế độ xem"
+        android:title="Chuyển đổi hiển thị"
         app:showAsAction="ifRoom" />
 
-    <!-- Refresh -->
+    <!-- Refresh Action - SỬ DỤNG ICON CÓ SẴN -->
     <item
         android:id="@+id/action_refresh"
         android:icon="@drawable/ic_refresh"
         android:title="Làm mới"
         app:showAsAction="ifRoom" />
 
-    <!-- Settings -->
+    <!-- Statistics Action - SỬ DỤNG ICON CÓ SẴN -->
+    <item
+        android:id="@+id/action_statistics"
+        android:icon="@drawable/ic_info"
+        android:title="Thống kê chi tiết"
+        app:showAsAction="never" />
+
+    <!-- Settings Action - SỬ DỤNG ICON CÓ SẴN -->
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings"
         android:title="Cài đặt"
+        app:showAsAction="never" />
+
+    <!-- Help Action - SỬ DỤNG ICON CÓ SẴN -->
+    <item
+        android:id="@+id/action_help"
+        android:icon="@drawable/ic_help"
+        android:title="Trợ giúp"
         app:showAsAction="never" />
 
 </menu>

@@ -1,0 +1,17 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Background gradient -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:startColor="@color/primary"
+                android:endColor="@color/primary_dark"
+                android:angle="135" />
+        </shape>
+    </item>
+    <!-- Optional pattern overlay -->
+    <item android:top="0dp" android:left="0dp" android:right="0dp" android:bottom="0dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#10FFFFFF" />
+        </shape>
+    </item>
+</layer-list>

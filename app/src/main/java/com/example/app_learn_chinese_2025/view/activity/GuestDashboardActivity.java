@@ -11,6 +11,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -55,6 +56,10 @@ public class GuestDashboardActivity extends AppCompatActivity implements
     private SessionManager sessionManager;
     private BaiGiangAdapter baiGiangAdapter;
     private List<BaiGiang> baiGiangList;
+
+    // 🔧 THÊM BIẾN ĐỂ QUẢN LÝ DIALOG VÀ LIFECYCLE
+    private AlertDialog currentDialog;
+    private boolean isActivityDestroyed = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -189,6 +194,11 @@ public class GuestDashboardActivity extends AppCompatActivity implements
     }
 
     private void showGuestProfileDialog() {
+        // 🔧 SAFE CHECK TRƯỚC KHI HIỂN THỊ DIALOG
+        if (isActivityDestroyed || isFinishing()) {
+            return;
+        }
+
         GuestUsageTracker.UsageStats stats = limitationHelper.getUsageTracker().getTodayStats();
 
         String profileInfo = String.format(
@@ -205,79 +215,114 @@ public class GuestDashboardActivity extends AppCompatActivity implements
                 stats.translationsToday, stats.maxTranslationsPerDay
         );
 
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Thông tin chế độ khách")
-                .setMessage(profileInfo)
-                .setPositiveButton("Đăng ký ngay", (dialog, which) -> {
-                    startActivity(new Intent(this, RegisterActivity.class));
-                })
-                .setNegativeButton("Đóng", null)
-                .show();
+        try {
+            new AlertDialog.Builder(this)
+                    .setTitle("Thông tin chế độ khách")
+                    .setMessage(profileInfo)
+                    .setPositiveButton("Đăng ký ngay", (dialog, which) -> {
+                        safeNavigateToRegister();
+                    })
+                    .setNegativeButton("Đóng", null)
+                    .show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing profile dialog: " + e.getMessage());
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.guest_menu, menu);
-        return true;
+        try {
+            getMenuInflater().inflate(R.menu.guest_menu, menu);
+            return true;
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating options menu: " + e.getMessage());
+            return false;
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (isActivityDestroyed || isFinishing()) {
+            return super.onOptionsItemSelected(item);
+        }
+
         int id = item.getItemId();
 
-        if (id == R.id.action_upgrade) {
-            showUpgradeDialog();
-            return true;
-        } else if (id == R.id.action_login) {
-            startActivity(new Intent(this, LoginActivity.class));
-            return true;
-        } else if (id == R.id.action_register) {
-            startActivity(new Intent(this, RegisterActivity.class));
-            return true;
-        } else if (id == R.id.action_refresh) {
-            loadGuestData();
-            return true;
-        } else if (id == R.id.action_help) {
-            showHelpDialog();
-            return true;
-        } else if (id == R.id.action_about) {
-            showAboutDialog();
-            return true;
+        try {
+            if (id == R.id.action_upgrade) {
+                showUpgradeDialog();
+                return true;
+            } else if (id == R.id.action_login) {
+                safeNavigateToLogin();
+                return true;
+            } else if (id == R.id.action_register) {
+                safeNavigateToRegister();
+                return true;
+            } else if (id == R.id.action_refresh) {
+                loadGuestData();
+                return true;
+            } else if (id == R.id.action_help) {
+                showHelpDialog();
+                return true;
+            } else if (id == R.id.action_about) {
+                showAboutDialog();
+                return true;
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling menu item: " + e.getMessage());
         }
 
         return super.onOptionsItemSelected(item);
     }
 
     private void showHelpDialog() {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Trợ giúp")
-                .setIcon(R.drawable.ic_help)
-                .setMessage("Hướng dẫn sử dụng chế độ khách:\n\n" +
-                        "• Bạn có thể xem 3 bài giảng mỗi ngày\n" +
-                        "• Mỗi bài giảng hiển thị 5 từ vựng đầu tiên\n" +
-                        "• Có thể dịch thuật 10 lần mỗi ngày\n" +
-                        "• Đăng ký để trải nghiệm đầy đủ!")
-                .setPositiveButton("Đăng ký ngay", (dialog, which) -> {
-                    startActivity(new Intent(this, RegisterActivity.class));
-                })
-                .setNegativeButton("Đóng", null)
-                .show();
+        // 🔧 SAFE CHECK
+        if (isActivityDestroyed || isFinishing()) {
+            return;
+        }
+
+        try {
+            new AlertDialog.Builder(this)
+                    .setTitle("Trợ giúp")
+                    .setIcon(R.drawable.ic_help)
+                    .setMessage("Hướng dẫn sử dụng chế độ khách:\n\n" +
+                            "• Bạn có thể xem 3 bài giảng mỗi ngày\n" +
+                            "• Mỗi bài giảng hiển thị 5 từ vựng đầu tiên\n" +
+                            "• Có thể dịch thuật 10 lần mỗi ngày\n" +
+                            "• Đăng ký để trải nghiệm đầy đủ!")
+                    .setPositiveButton("Đăng ký ngay", (dialog, which) -> {
+                        safeNavigateToRegister();
+                    })
+                    .setNegativeButton("Đóng", null)
+                    .show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing help dialog: " + e.getMessage());
+        }
     }
 
     private void showAboutDialog() {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Giới thiệu")
-                .setIcon(R.drawable.ic_info)
-                .setMessage("Ứng dụng Học Tiếng Trung\n\n" +
-                        "Phiên bản: 1.0.0\n" +
-                        "Phát triển bởi: Nhóm phát triển\n\n" +
-                        "Ứng dụng giúp bạn học tiếng Trung một cách hiệu quả với:\n" +
-                        "• Bài giảng phong phú\n" +
-                        "• Từ vựng chi tiết\n" +
-                        "• Dịch thuật thông minh\n" +
-                        "• Theo dõi tiến trình")
-                .setPositiveButton("Đóng", null)
-                .show();
+        // 🔧 SAFE CHECK
+        if (isActivityDestroyed || isFinishing()) {
+            return;
+        }
+
+        try {
+            new AlertDialog.Builder(this)
+                    .setTitle("Giới thiệu")
+                    .setIcon(R.drawable.ic_info)
+                    .setMessage("Ứng dụng Học Tiếng Trung\n\n" +
+                            "Phiên bản: 1.0.0\n" +
+                            "Phát triển bởi: Nhóm phát triển\n\n" +
+                            "Ứng dụng giúp bạn học tiếng Trung một cách hiệu quả với:\n" +
+                            "• Bài giảng phong phú\n" +
+                            "• Từ vựng chi tiết\n" +
+                            "• Dịch thuật thông minh\n" +
+                            "• Theo dõi tiến trình")
+                    .setPositiveButton("Đóng", null)
+                    .show();
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing about dialog: " + e.getMessage());
+        }
     }
 
     // GuestController.OnGuestDataListener Implementation
@@ -285,8 +330,10 @@ public class GuestDashboardActivity extends AppCompatActivity implements
     public void onStatsLoaded(Map<String, Object> stats) {
         Log.d(TAG, "📊 Stats loaded: " + stats.toString());
         runOnUiThread(() -> {
-            showLoading(false);
-            updateUsageInfo();
+            if (!isActivityDestroyed && !isFinishing()) {
+                showLoading(false);
+                updateUsageInfo();
+            }
         });
     }
 
@@ -295,13 +342,14 @@ public class GuestDashboardActivity extends AppCompatActivity implements
         Log.d(TAG, "📚 BaiGiang list loaded: " + baiGiangList.size() + " items");
 
         runOnUiThread(() -> {
-            showLoading(false);
-            this.baiGiangList.clear();
-            this.baiGiangList.addAll(baiGiangList);
-            baiGiangAdapter.notifyDataSetChanged();
+            if (!isActivityDestroyed && !isFinishing()) {
+                showLoading(false);
+                this.baiGiangList.clear();
+                this.baiGiangList.addAll(baiGiangList);
+                baiGiangAdapter.notifyDataSetChanged();
 
-            Toast.makeText(this, "Tải được " + baiGiangList.size() + " bài giảng",
-                    Toast.LENGTH_SHORT).show();
+                safeShowToast("Tải được " + baiGiangList.size() + " bài giảng");
+            }
         });
     }
 
@@ -339,10 +387,12 @@ public class GuestDashboardActivity extends AppCompatActivity implements
     public void onError(String message) {
         Log.e(TAG, "❌ Error: " + message);
 
-        runOnUiThread(() -> {
-            showLoading(false);
-            Toast.makeText(this, "Lỗi: " + message, Toast.LENGTH_SHORT).show();
-        });
+        if (!isActivityDestroyed && !isFinishing()) {
+            runOnUiThread(() -> {
+                showLoading(false);
+                safeShowToast("Lỗi: " + message);
+            });
+        }
     }
 
     // BaiGiangAdapter.OnBaiGiangItemClickListener Implementation
@@ -359,25 +409,28 @@ public class GuestDashboardActivity extends AppCompatActivity implements
             updateUsageInfo();
 
             // Open lesson detail
-            Intent intent = new Intent(this, GuestLessonDetailActivity.class);
-            intent.putExtra("baiGiangId", baiGiang.getID());
-            intent.putExtra("tieuDe", baiGiang.getTieuDe());
-            startActivity(intent);
+            try {
+                Intent intent = new Intent(this, GuestLessonDetailActivity.class);
+                intent.putExtra("baiGiangId", baiGiang.getID());
+                intent.putExtra("tieuDe", baiGiang.getTieuDe());
+                startActivity(intent);
+            } catch (Exception e) {
+                Log.e(TAG, "Error opening lesson detail: " + e.getMessage());
+                safeShowToast("Lỗi mở bài giảng");
+            }
         }
     }
 
     @Override
     public void onEditClick(BaiGiang baiGiang) {
         // Not available in guest mode
-        Toast.makeText(this, "Chức năng chỉ dành cho tài khoản đã đăng ký",
-                Toast.LENGTH_SHORT).show();
+        safeShowToast("Chức năng chỉ dành cho tài khoản đã đăng ký");
     }
 
     @Override
     public void onDeleteClick(BaiGiang baiGiang) {
         // Not available in guest mode
-        Toast.makeText(this, "Chức năng chỉ dành cho tài khoản đã đăng ký",
-                Toast.LENGTH_SHORT).show();
+        safeShowToast("Chức năng chỉ dành cho tài khoản đã đăng ký");
     }
 
     @Override
@@ -395,6 +448,10 @@ public class GuestDashboardActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
+
+        // Reset destroyed flag
+        isActivityDestroyed = false;
+
         Log.d(TAG, "GuestDashboardActivity resumed");
 
         // Update usage info when returning to activity
@@ -407,18 +464,200 @@ public class GuestDashboardActivity extends AppCompatActivity implements
         }
     }
 
+    // 🔧 FIX CHÍNH: onBackPressed() KHÔNG GỌI super.onBackPressed() TRƯỚC
     @Override
     public void onBackPressed() {
         Log.d(TAG, "Back button pressed in guest dashboard");
 
-        // Show exit confirmation
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Thoát ứng dụng")
-                .setMessage("Bạn có muốn thoát khỏi ứng dụng?")
-                .setPositiveButton("Thoát", (dialog, which) -> {
-                    super.onBackPressed();
-                })
-                .setNegativeButton("Hủy", null)
-                .show();
+        // 🚨 KIỂM TRA ACTIVITY KHÔNG BỊ DESTROY
+        if (isActivityDestroyed || isFinishing()) {
+            Log.w(TAG, "Activity is finishing or destroyed, skipping dialog");
+            super.onBackPressed();
+            return;
+        }
+
+        // 🔧 DISMISS DIALOG CŨ NẾU TỒN TẠI
+        if (currentDialog != null && currentDialog.isShowing()) {
+            currentDialog.dismiss();
+            currentDialog = null;
+        }
+
+        // 🎯 TẠO DIALOG MỚI VỚI SAFE CHECK
+        try {
+            currentDialog = new AlertDialog.Builder(this)
+                    .setTitle("Thoát chế độ khách")
+                    .setMessage("Bạn muốn:")
+                    .setPositiveButton("Đăng nhập/Đăng ký", (dialog, which) -> {
+                        // Quay về Welcome để đăng nhập
+                        safeBackToWelcome();
+                    })
+                    .setNegativeButton("Thoát ứng dụng", (dialog, which) -> {
+                        // Thoát hoàn toàn
+                        safeFinishAffinity();
+                    })
+                    .setNeutralButton("Ở lại", (dialog, which) -> {
+                        // Chỉ dismiss dialog
+                        if (dialog != null) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .setOnDismissListener(dialog -> {
+                        // Clear reference khi dialog bị dismiss
+                        currentDialog = null;
+                    })
+                    .create();
+
+            // 🚨 HIỂN THỊ DIALOG CHỈ KHI ACTIVITY KHÔNG BỊ DESTROY
+            if (!isActivityDestroyed && !isFinishing()) {
+                currentDialog.show();
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing dialog: " + e.getMessage());
+            // Fallback: thoát trực tiếp
+            super.onBackPressed();
+        }
+    }
+
+    /**
+     * 🔙 Safe method để quay về Welcome
+     */
+    private void safeBackToWelcome() {
+        if (isActivityDestroyed || isFinishing()) {
+            return;
+        }
+
+        try {
+            Log.d(TAG, "Going back to Welcome screen");
+
+            // Clear guest session
+            if (sessionManager != null) {
+                sessionManager.clearSession();
+            }
+
+            // Navigate to Welcome Activity
+            Intent intent = new Intent(this, GuestWelcomeActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to welcome: " + e.getMessage());
+            finish();
+        }
+    }
+
+    /**
+     * 🚪 Safe method để thoát app
+     */
+    private void safeFinishAffinity() {
+        try {
+            finishAffinity();
+        } catch (Exception e) {
+            Log.e(TAG, "Error finishing affinity: " + e.getMessage());
+            finish();
+        }
+    }
+
+    /**
+     * 🎯 Safe method để chuyển đến Login
+     */
+    private void safeNavigateToLogin() {
+        if (isActivityDestroyed || isFinishing()) {
+            return;
+        }
+
+        try {
+            Intent intent = new Intent(this, LoginActivity.class);
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to login: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 🎯 Safe method để chuyển đến Register
+     */
+    private void safeNavigateToRegister() {
+        if (isActivityDestroyed || isFinishing()) {
+            return;
+        }
+
+        try {
+            Intent intent = new Intent(this, RegisterActivity.class);
+            startActivity(intent);
+        } catch (Exception e) {
+            Log.e(TAG, "Error navigating to register: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 🍞 Safe method để hiển thị Toast
+     */
+    private void safeShowToast(String message) {
+        if (isActivityDestroyed || isFinishing()) {
+            return;
+        }
+
+        try {
+            runOnUiThread(() -> {
+                if (!isActivityDestroyed && !isFinishing()) {
+                    Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                }
+            });
+        } catch (Exception e) {
+            Log.e(TAG, "Error showing toast: " + e.getMessage());
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        // 🔧 MARK ACTIVITY AS DESTROYED
+        isActivityDestroyed = true;
+
+        // 🔧 DISMISS DIALOG NẾU VẪN ĐANG HIỂN THỊ
+        if (currentDialog != null && currentDialog.isShowing()) {
+            try {
+                currentDialog.dismiss();
+            } catch (Exception e) {
+                Log.e(TAG, "Error dismissing dialog in onDestroy: " + e.getMessage());
+            } finally {
+                currentDialog = null;
+            }
+        }
+
+        Log.d(TAG, "GuestDashboardActivity destroyed safely");
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // 🔧 DISMISS DIALOG KHI ACTIVITY PAUSE
+        if (currentDialog != null && currentDialog.isShowing()) {
+            try {
+                currentDialog.dismiss();
+                currentDialog = null;
+            } catch (Exception e) {
+                Log.e(TAG, "Error dismissing dialog in onPause: " + e.getMessage());
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // 🔧 EXTRA SAFETY: DISMISS DIALOG KHI ACTIVITY STOP
+        if (currentDialog != null && currentDialog.isShowing()) {
+            try {
+                currentDialog.dismiss();
+                currentDialog = null;
+            } catch (Exception e) {
+                Log.e(TAG, "Error dismissing dialog in onStop: " + e.getMessage());
+            }
+        }
     }
 }
