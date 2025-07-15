@@ -11,7 +11,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.app_learn_chinese_2025.R;
 import com.example.app_learn_chinese_2025.controller.AuthController;
-import com.example.app_learn_chinese_2025.util.AutoIPManager;
 import com.example.app_learn_chinese_2025.util.Constants;
 import com.example.app_learn_chinese_2025.util.SessionManager;
 
@@ -28,7 +27,6 @@ public class SplashActivity extends AppCompatActivity {
 
         // 🎯 KHỞI TẠO SMART CONSTANTS NGAY ĐẦU TIÊN
         Constants.initialize(this);
-        AutoIPManager.getInstance(this).autoDetectAndRegisterServerIP();
         Log.d(TAG, "📡 Smart Constants initialized - auto-detection started");
 
         authController = new AuthController(this);

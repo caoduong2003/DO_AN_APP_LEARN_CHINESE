@@ -9,16 +9,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * 🚀 Smart Constants - Tự động phát hiện server URL
- * FIXED: Không có circular dependency
- */
+
 public class Constants {
     private static final String TAG = "SMART_CONSTANTS";
 
     // 🎯 Fallback URLs cho các trường hợp khác nhau
     private static final String EMULATOR_URL = "http://10.0.2.2:8080/";
-    private static final String DEFAULT_REAL_DEVICE_URL = "http://192.168.50.71:8080/";
+    private static final String DEFAULT_REAL_DEVICE_URL = "http://192.168.10.115:8080/";
     private static final String LOCALHOST_URL = "http://localhost:8080/";
 
     // 🔄 Dynamic server URL - sẽ được tự động detect
@@ -87,14 +84,6 @@ public class Constants {
         // ✅ Start auto detection
         startAutoDetection();
 
-        // ✅ Start AutoIPManager - ONLY if context is set
-        try {
-            AutoIPManager.getInstance(context).autoDetectAndRegisterServerIP();
-            Log.d(TAG, "🤖 AutoIPManager started");
-        } catch (Exception e) {
-            Log.e(TAG, "❌ AutoIPManager failed: " + e.getMessage());
-            // Continue without AutoIPManager
-        }
 
         Log.d(TAG, "✅ Smart Constants initialized successfully");
     }
@@ -114,20 +103,6 @@ public class Constants {
             return detectedServerUrl;
         }
 
-        // 2. Try AutoIPManager - WITH NULL CHECK
-        try {
-            AutoIPManager autoManager = AutoIPManager.getInstance(appContext);
-            if (autoManager != null) {
-                String autoIP = autoManager.getCurrentServerURL();
-                if (autoIP != null) {
-                    Log.d(TAG, "📡 Using AutoIPManager URL: " + autoIP);
-                    return autoIP;
-                }
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "❌ AutoIPManager error: " + e.getMessage());
-            // Fall through to fallback
-        }
 
         // 3. Fallback logic
         if (isEmulator()) {
