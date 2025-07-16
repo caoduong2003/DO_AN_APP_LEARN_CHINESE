@@ -31,3 +31,9 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+
+gradle.properties
+local.properties
+secrets.properties
+*.keystore

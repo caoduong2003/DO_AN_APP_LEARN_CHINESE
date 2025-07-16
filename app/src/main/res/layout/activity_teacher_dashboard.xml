@@ -106,7 +106,7 @@
                             android:background="@color/primary"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="5dp">
 
                             <ImageView
                                 android:layout_width="24dp"
@@ -151,7 +151,7 @@
                             android:background="#4CAF50"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="5dp">
 
                             <ImageView
                                 android:layout_width="24dp"
@@ -205,7 +205,7 @@
                             android:background="#FF9800"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="5dp">
 
                             <ImageView
                                 android:layout_width="24dp"
@@ -250,7 +250,7 @@
                             android:background="#FFD700"
                             android:gravity="center"
                             android:orientation="vertical"
-                            android:padding="12dp">
+                            android:padding="5dp">
 
                             <ImageView
                                 android:layout_width="24dp"

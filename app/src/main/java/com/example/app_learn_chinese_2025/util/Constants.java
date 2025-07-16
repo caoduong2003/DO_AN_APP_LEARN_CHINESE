@@ -15,7 +15,8 @@ public class Constants {
 
     // 🎯 Fallback URLs cho các trường hợp khác nhau
     private static final String EMULATOR_URL = "http://10.0.2.2:8080/";
-    private static final String DEFAULT_REAL_DEVICE_URL = "http://192.168.10.115:8080/";
+//    private static final String DEFAULT_REAL_DEVICE_URL = "http://192.168.10.115:8080/";
+    private static final String DEFAULT_REAL_DEVICE_URL = "http://10.218.182.107:8080/";
     private static final String LOCALHOST_URL = "http://localhost:8080/";
 
     // 🔄 Dynamic server URL - sẽ được tự động detect
