@@ -9,10 +9,9 @@
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/action_settings"
-        android:icon="@drawable/ic_settings"
-        android:title="Cài đặt"
-        app:showAsAction="never" />
+        android:id="@+id/nav_visual_learning"
+        android:icon="@drawable/ic_camera"
+        android:title="Học từ vựng qua chụp ảnh" />
 
     <item
         android:id="@+id/action_logout"

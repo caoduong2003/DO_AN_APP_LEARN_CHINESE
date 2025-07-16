@@ -118,19 +118,19 @@ public class StudentDashboardActivity extends AppCompatActivity {
         // Tạo các fragments cho học viên
         baiGiangListFragment = new StudentBaiGiangListFragment();
         exerciseFragment = new StudentExerciseFragment();
-        profileFragment = new StudentProfileFragment();
+
 
         // Thêm vào list
         fragmentList.add(baiGiangListFragment);
         fragmentList.add(exerciseFragment);
-        fragmentList.add(profileFragment);
+
 
         // Setup adapter
         viewPagerAdapter = new ViewPagerAdapter(this, fragmentList);
         viewPager.setAdapter(viewPagerAdapter);
 
         // Connect TabLayout với ViewPager2
-        String[] tabTitles = {"Bài giảng", "Bài tập", "Hồ sơ"};
+        String[] tabTitles = {"Bài giảng", "Bài tập"};
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             tab.setText(tabTitles[position]);
 
@@ -141,9 +141,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
                     break;
                 case 1:
                     tab.setIcon(R.drawable.ic_quiz);
-                    break;
-                case 2:
-                    tab.setIcon(R.drawable.ic_person);
                     break;
             }
         }).attach();
@@ -165,8 +162,8 @@ public class StudentDashboardActivity extends AppCompatActivity {
                 } else if (id == R.id.nav_exercises) {
                     viewPager.setCurrentItem(1);
                     return true;
-                } else if (id == R.id.nav_profile) {
-                    viewPager.setCurrentItem(2);
+                } else if (id == R.id.nav_visual_learning) {
+                    openVisualLearning();
                     return true;
                 }
                 return false;
@@ -185,7 +182,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
                             bottomNavigation.setSelectedItemId(R.id.nav_exercises);
                             break;
                         case 2:
-                            bottomNavigation.setSelectedItemId(R.id.nav_profile);
+                            bottomNavigation.setSelectedItemId(R.id.nav_visual_learning);
                             break;
                     }
                 }
@@ -193,6 +190,11 @@ public class StudentDashboardActivity extends AppCompatActivity {
         }
 
         Log.d(TAG, "Bottom navigation setup completed");
+    }
+
+    private void openVisualLearning() {
+        Intent intent = new Intent(this, VisualLearningActivity.class);
+        startActivity(intent);
     }
 
     @Override
