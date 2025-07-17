@@ -297,7 +297,7 @@ public class StudentExerciseFragment extends Fragment implements
         Log.d(TAG, "ChuDe spinner setup completed with " + spinnerItems.size() + " items");
     }
 
-    // BaiTapController.BaiTapControllerListener implementation
+
     @Override
     public void onBaiTapListLoaded(List<BaiTap> baiTapList) {
         Log.d(TAG, "Bai tap list loaded: " + baiTapList.size() + " items");
@@ -356,4 +356,11 @@ public class StudentExerciseFragment extends Fragment implements
 
         Log.d(TAG, "Fragment destroyed");
     }
+
+
+    public void refreshData() {
+        Log.d(TAG, "Refreshing data...");
+        loadInitialData();
+    }
+
 }

@@ -22,6 +22,7 @@ import com.example.app_learn_chinese_2025.view.adapter.ViewPagerAdapter;
 import com.example.app_learn_chinese_2025.view.fragment.StudentBaiGiangListFragment;
 import com.example.app_learn_chinese_2025.view.fragment.StudentProgressFragment;
 import com.example.app_learn_chinese_2025.view.fragment.StudentProfileFragment;
+import com.example.app_learn_chinese_2025.view.fragment.VisualLearningFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -49,7 +50,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
     // Fragments
     private StudentBaiGiangListFragment baiGiangListFragment;
     private StudentExerciseFragment exerciseFragment;
-    private StudentProfileFragment profileFragment;
+    private VisualLearningFragment visualLearningFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,19 +119,19 @@ public class StudentDashboardActivity extends AppCompatActivity {
         // Tạo các fragments cho học viên
         baiGiangListFragment = new StudentBaiGiangListFragment();
         exerciseFragment = new StudentExerciseFragment();
-
+        visualLearningFragment = new VisualLearningFragment();
 
         // Thêm vào list
         fragmentList.add(baiGiangListFragment);
         fragmentList.add(exerciseFragment);
-
+        fragmentList.add(visualLearningFragment);
 
         // Setup adapter
         viewPagerAdapter = new ViewPagerAdapter(this, fragmentList);
         viewPager.setAdapter(viewPagerAdapter);
 
         // Connect TabLayout với ViewPager2
-        String[] tabTitles = {"Bài giảng", "Bài tập"};
+        String[] tabTitles = {"Bài giảng", "Bài tập", "Học từ vựng qua hình ảnh"};
         new TabLayoutMediator(tabLayout, viewPager, (tab, position) -> {
             tab.setText(tabTitles[position]);
 
@@ -141,6 +142,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
                     break;
                 case 1:
                     tab.setIcon(R.drawable.ic_quiz);
+                    break;
+                case 2:
+                    tab.setIcon(R.drawable.ic_camera);
                     break;
             }
         }).attach();
@@ -163,7 +167,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
                     viewPager.setCurrentItem(1);
                     return true;
                 } else if (id == R.id.nav_visual_learning) {
-                    openVisualLearning();
+                    viewPager.setCurrentItem(2);
                     return true;
                 }
                 return false;
@@ -192,10 +196,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
         Log.d(TAG, "Bottom navigation setup completed");
     }
 
-    private void openVisualLearning() {
-        Intent intent = new Intent(this, VisualLearningActivity.class);
-        startActivity(intent);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -210,6 +210,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
         if (id == R.id.action_refresh) {
             refreshCurrentFragment();
             return true;
+        } else if (id == R.id.nav_visual_learning) {
+            viewPager.setCurrentItem(2);
+            return true;
         } else if (id == R.id.action_settings) {
             Toast.makeText(this, "Tính năng cài đặt đang phát triển", Toast.LENGTH_SHORT).show();
             return true;
@@ -223,18 +226,61 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
     private void refreshCurrentFragment() {
         int currentItem = viewPager.getCurrentItem();
-        Fragment currentFragment = fragmentList.get(currentItem);
 
-        if (currentFragment instanceof StudentBaiGiangListFragment) {
-            ((StudentBaiGiangListFragment) currentFragment).refreshData();
-        } else if (currentFragment instanceof StudentProgressFragment) {
-            ((StudentProgressFragment) currentFragment).refreshData();
-        } else if (currentFragment instanceof StudentProfileFragment) {
-            ((StudentProfileFragment) currentFragment).refreshData();
+        Log.d(TAG, "Refreshing fragment at position: " + currentItem);
+
+        if (currentItem < 0 || currentItem >= fragmentList.size()) {
+            Log.w(TAG, "Invalid fragment position: " + currentItem);
+            Toast.makeText(this, "Lỗi làm mới", Toast.LENGTH_SHORT).show();
+            return;
         }
 
-        Toast.makeText(this, "Đã làm mới", Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "Refreshed fragment at position: " + currentItem);
+        Fragment currentFragment = fragmentList.get(currentItem);
+
+        try {
+            if (currentFragment instanceof StudentBaiGiangListFragment) {
+                Log.d(TAG, "Refreshing StudentBaiGiangListFragment");
+                ((StudentBaiGiangListFragment) currentFragment).refreshData();
+                Toast.makeText(this, "Đã làm mới danh sách bài giảng", Toast.LENGTH_SHORT).show();
+
+            } else if (currentFragment instanceof StudentExerciseFragment) {
+                Log.d(TAG, "Refreshing StudentExerciseFragment");
+                ((StudentExerciseFragment) currentFragment).refreshData();
+                Toast.makeText(this, "Đã làm mới bài tập", Toast.LENGTH_SHORT).show();
+
+            } else if (currentFragment instanceof VisualLearningFragment) {
+                Log.d(TAG, "Refreshing VisualLearningFragment");
+
+                // ✅ FIX: Thực sự gọi refresh method của fragment
+                VisualLearningFragment vlFragment = (VisualLearningFragment) currentFragment;
+
+                // Kiểm tra fragment có sẵn sàng không
+                if (vlFragment.isAdded() && !vlFragment.isDetached() && vlFragment.getView() != null) {
+                    // Gọi method refresh
+                    vlFragment.refreshData();
+                    Toast.makeText(this, "Đã làm mới camera", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "VisualLearningFragment refreshed successfully");
+                } else {
+                    Log.w(TAG, "VisualLearningFragment not ready for refresh");
+                    Toast.makeText(this, "Camera chưa sẵn sàng, vui lòng thử lại", Toast.LENGTH_SHORT).show();
+                }
+
+            } else if (currentFragment instanceof StudentProgressFragment) {
+                Log.d(TAG, "Refreshing StudentProgressFragment");
+                ((StudentProgressFragment) currentFragment).refreshData();
+                Toast.makeText(this, "Đã làm mới tiến trình", Toast.LENGTH_SHORT).show();
+
+            } else {
+                Log.w(TAG, "Unknown fragment type: " + currentFragment.getClass().getSimpleName());
+                Toast.makeText(this, "Đã làm mới", Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Error refreshing fragment: " + e.getMessage(), e);
+            Toast.makeText(this, "Lỗi làm mới: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+
+        Log.d(TAG, "Refresh completed for position: " + currentItem);
     }
 
     private void showLogoutDialog() {

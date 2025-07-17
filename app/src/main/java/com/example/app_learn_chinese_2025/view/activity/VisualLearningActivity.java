@@ -116,13 +116,42 @@ public class VisualLearningActivity extends AppCompatActivity {
     }
 
     private void setupClickListeners() {
-        captureButton.setOnClickListener(v -> captureImage());
-        retakeButton.setOnClickListener(v -> showCameraMode());
-        saveButton.setOnClickListener(v -> saveToDatabase());
-        favoriteButton.setOnClickListener(v -> toggleFavorite());
+        try {
+            if (captureButton != null) {
+                captureButton.setOnClickListener(v -> captureImage());
+            }
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-//        findViewById(R.id.btnHistory).setOnClickListener(v -> openHistory());
+            if (retakeButton != null) {
+                retakeButton.setOnClickListener(v -> showCameraMode());
+            }
+
+            if (saveButton != null) {
+                saveButton.setOnClickListener(v -> saveToDatabase());
+            }
+
+            if (favoriteButton != null) {
+                favoriteButton.setOnClickListener(v -> toggleFavorite());
+            }
+
+            // ✅ FIX: Safe findViewById with null check
+            View btnBack = findViewById(R.id.btnBack);
+            if (btnBack != null) {
+                btnBack.setOnClickListener(v -> finish());
+            }
+
+            View btnHistory = findViewById(R.id.btnHistory);
+            if (btnHistory != null) {
+                btnHistory.setOnClickListener(v -> {
+                    // TODO: Implement history functionality
+                    Toast.makeText(this, "Chức năng lịch sử đang được phát triển", Toast.LENGTH_SHORT).show();
+                });
+            }
+
+            Log.d(TAG, "✅ Click listeners setup successfully");
+
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error setting up click listeners: " + e.getMessage(), e);
+        }
     }
 
     private boolean checkCameraPermission() {
@@ -308,14 +337,28 @@ public class VisualLearningActivity extends AppCompatActivity {
     }
 
     private void saveToDatabase() {
+        // Validation dữ liệu
         if (currentResponse == null || currentImagePath == null) {
             Toast.makeText(this, "Không có dữ liệu để lưu", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // ✅ FIX: Khai báo biến hocVienId ở scope đúng
+        long hocVienId = 0; // Giá trị mặc định
+
         User currentUser = sessionManager.getUserDetails();
         if (currentUser != null) {
-            long hocVienId = currentUser.getID();
+            hocVienId = currentUser.getID();
+        } else {
+            // ✅ FIX: Xử lý trường hợp user null
+            Toast.makeText(this, "Vui lòng đăng nhập để lưu từ vựng", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // ✅ FIX: Validation hocVienId
+        if (hocVienId <= 0) {
+            Toast.makeText(this, "Lỗi thông tin người dùng", Toast.LENGTH_SHORT).show();
+            return;
         }
 
         VisualLearning visualLearning = new VisualLearning(
@@ -363,32 +406,43 @@ public class VisualLearningActivity extends AppCompatActivity {
     }
 
     private void showCameraMode() {
-        // Show camera components
-        previewView.setVisibility(View.VISIBLE);
-        captureButton.setVisibility(View.VISIBLE);
+        try {
+            // Initialize UI components with null checks
+            previewView = findViewById(R.id.previewView);
+            capturedImageView = findViewById(R.id.capturedImageView);
+            resultObjectText = findViewById(R.id.resultObjectText);
+            resultVocabularyText = findViewById(R.id.resultVocabularyText);
+            resultPinyinText = findViewById(R.id.resultPinyinText);
+            resultVietnameseText = findViewById(R.id.resultVietnameseText);
+            resultExampleText = findViewById(R.id.resultExampleText);
+            captureButton = findViewById(R.id.captureButton);
+            retakeButton = findViewById(R.id.retakeButton);
+            saveButton = findViewById(R.id.saveButton);
+            loadingProgress = findViewById(R.id.loadingProgress);
+            resultContainer = findViewById(R.id.resultContainer);
+            favoriteButton = findViewById(R.id.favoriteButton);
 
-        // Hide result components
-        capturedImageView.setVisibility(View.GONE);
-        retakeButton.setVisibility(View.GONE);
-        resultContainer.setVisibility(View.GONE);
-        saveButton.setVisibility(View.GONE);
-        favoriteButton.setVisibility(View.GONE);
-        loadingProgress.setVisibility(View.GONE);
+            // ✅ FIX: Check if all required views were found
+            if (previewView == null || capturedImageView == null || captureButton == null) {
+                throw new RuntimeException("Required views not found in layout");
+            }
 
-        // Reset data
-        currentImagePath = null;
-        currentResponse = null;
+            // Initialize data components
+            repository = new VisualLearningRepository(getApplication());
+            claudeApiManager = new ClaudeApiManager();
+            sessionManager = new SessionManager(this);
 
-        // Reset button states
-        captureButton.setEnabled(true);
-        saveButton.setEnabled(true);
-        saveButton.setText("Lưu vào bộ sưu tập");
+            // Initial state
+            showCameraMode();
+
+            Log.d(TAG, "✅ All components initialized successfully");
+
+        } catch (Exception e) {
+            Log.e(TAG, "❌ Error initializing components: " + e.getMessage(), e);
+            Toast.makeText(this, "Lỗi khởi tạo ứng dụng", Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
-
-//    private void openHistory() {
-//        Intent intent = new Intent(this, VisualLearningHistoryActivity.class);
-//        startActivity(intent);
-//    }
 
     @Override
     protected void onDestroy() {

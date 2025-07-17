@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Camera Preview -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Captured Image Display -->
+    <ImageView
+        android:id="@+id/capturedImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:scaleType="centerCrop" />
+
+    <!-- Loading Progress -->
+    <ProgressBar
+        android:id="@+id/loadingProgress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
+    <!-- Top Bar with History Button -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@drawable/bg_top_gradient">
+
+        <!-- Instructions Text -->
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📸 Hướng camera vào đồ vật để học từ vựng"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:gravity="center_vertical" />
+
+        <!-- History Button -->
+        <Button
+            android:id="@+id/historyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="Lịch sử"
+            android:textSize="12sp"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_button_history"
+            android:paddingHorizontal="12dp"
+            android:minWidth="0dp" />
+
+    </LinearLayout>
+
+    <!-- Bottom Controls -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:background="@drawable/bg_bottom_controls">
+
+        <!-- Retake Button -->
+        <Button
+            android:id="@+id/retakeButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="Chụp lại"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginEnd="8dp"
+            android:visibility="gone" />
+
+        <!-- Capture Button -->
+        <Button
+            android:id="@+id/captureButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="Chụp ảnh"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_button_primary"
+            android:layout_marginBottom="90dp" />
+
+        <!-- Save Button -->
+        <Button
+            android:id="@+id/saveButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="Lưu"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_button_success"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+    <!-- Results Container -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/resultContainer"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="80dp"
+        android:background="@drawable/bg_rounded_white"
+        android:padding="16dp"
+        android:visibility="gone"
+        android:elevation="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Header -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="📝 Kết quả phân tích"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="#424242"
+                android:gravity="center"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Object Name -->
+            <TextView
+                android:id="@+id/resultObjectText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Đồ vật: ..."
+                android:textSize="16sp"
+                android:textColor="#424242"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_rounded_light_gray"
+                android:padding="12dp" />
+
+            <!-- Chinese Vocabulary -->
+            <TextView
+                android:id="@+id/resultVocabularyText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="中文: ..."
+                android:textSize="16sp"
+                android:textColor="#424242"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_rounded_light_gray"
+                android:padding="12dp" />
+
+            <!-- Pinyin -->
+            <TextView
+                android:id="@+id/resultPinyinText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Pinyin: ..."
+                android:textSize="16sp"
+                android:textColor="#424242"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_rounded_light_gray"
+                android:padding="12dp" />
+
+            <!-- Vietnamese Meaning -->
+            <TextView
+                android:id="@+id/resultVietnameseText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tiếng Việt: ..."
+                android:textSize="16sp"
+                android:textColor="#424242"
+                android:layout_marginBottom="8dp"
+                android:background="@drawable/bg_rounded_light_gray"
+                android:padding="12dp" />
+
+            <!-- Example Sentence -->
+            <TextView
+                android:id="@+id/resultExampleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ví dụ: ..."
+                android:textSize="14sp"
+                android:textColor="#666666"
+                android:background="@drawable/bg_rounded_light_gray"
+                android:padding="12dp" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</FrameLayout>

@@ -1,21 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black"
     tools:context=".view.activity.VisualLearningActivity">
+
+    <!-- Camera Preview -->
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Captured Image Display -->
+    <ImageView
+        android:id="@+id/capturedImageView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:scaleType="centerCrop" />
 
     <!-- Top Bar -->
     <LinearLayout
-        android:id="@+id/topBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
+        android:layout_gravity="top"
         android:padding="16dp"
-        android:background="#80000000"
-        android:gravity="center_vertical">
+        android:background="@drawable/bg_top_bar_gradient">
 
         <ImageButton
             android:id="@+id/btnBack"
@@ -23,17 +35,19 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_arrow_back"
-            android:contentDescription="Quay lại" />
+            android:contentDescription="Quay lại"
+            app:tint="@android:color/white" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Học qua hình ảnh"
-            android:textColor="@android:color/white"
-            android:textSize="20sp"
+            android:text="Học từ vựng qua chụp ảnh"
+            android:textSize="18sp"
             android:textStyle="bold"
-            android:gravity="center" />
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:layout_gravity="center_vertical" />
 
         <ImageButton
             android:id="@+id/btnHistory"
@@ -41,79 +55,60 @@
             android:layout_height="48dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_history"
-            android:contentDescription="Lịch sử" />
+            android:contentDescription="Lịch sử"
+            app:tint="@android:color/white" />
 
     </LinearLayout>
-
-    <!-- Camera Preview -->
-    <androidx.camera.view.PreviewView
-        android:id="@+id/previewView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="80dp"
-        android:layout_marginBottom="200dp" />
-
-    <!-- Captured Image Display -->
-    <ImageView
-        android:id="@+id/capturedImageView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="80dp"
-        android:layout_marginBottom="200dp"
-        android:scaleType="centerCrop"
-        android:visibility="gone" />
 
     <!-- Loading Progress -->
     <ProgressBar
         android:id="@+id/loadingProgress"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone" />
 
-    <!-- Capture Button -->
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/captureButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="120dp"
-        android:contentDescription="TODO"
-        android:src="@drawable/ic_camera"
-        app:backgroundTint="@color/primary"
-        app:tint="@android:color/white"
-        app:fabSize="normal" />
-
-    <!-- Bottom Control Panel -->
+    <!-- Bottom Controls -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:background="#80000000"
-        android:gravity="center">
+        android:background="@drawable/bg_bottom_bar_gradient">
 
+        <!-- Retake Button -->
         <Button
             android:id="@+id/retakeButton"
             android:layout_width="0dp"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:layout_weight="1"
-            android:layout_marginEnd="8dp"
             android:text="Chụp lại"
             android:textColor="@android:color/white"
-            android:background="@drawable/btn_outline_white"
+            android:background="@drawable/bg_button_secondary"
+            android:layout_marginEnd="8dp"
             android:visibility="gone" />
 
+        <!-- Capture Button -->
+        <Button
+            android:id="@+id/captureButton"
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="Chụp ảnh"
+            android:textColor="@android:color/white"
+            android:background="@drawable/bg_button_primary"
+            android:layout_marginEnd="8dp" />
+
+        <!-- Save Button -->
         <Button
             android:id="@+id/saveButton"
             android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="2"
-            android:layout_marginStart="8dp"
-            android:text="Lưu vào bộ sưu tập"
+            android:layout_height="56dp"
+            android:layout_weight="1"
+            android:text="Lưu"
             android:textColor="@android:color/white"
-            android:background="@drawable/btn_primary"
+            android:background="@drawable/bg_button_success"
             android:visibility="gone" />
 
     </LinearLayout>
@@ -122,7 +117,7 @@
     <androidx.core.widget.NestedScrollView
         android:id="@+id/resultContainer"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="300dp"
         android:layout_gravity="bottom"
         android:layout_marginBottom="80dp"
         android:background="@drawable/bg_rounded_white"
@@ -180,11 +175,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="中文: ..."
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="@color/primary"
+                android:textSize="16sp"
+                android:textColor="#424242"
                 android:layout_marginBottom="8dp"
-                android:background="@drawable/bg_rounded_primary_light"
+                android:background="@drawable/bg_rounded_light_gray"
                 android:padding="12dp" />
 
             <!-- Pinyin -->
@@ -217,14 +211,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Ví dụ: ..."
-                android:textSize="16sp"
-                android:textColor="#424242"
+                android:textSize="14sp"
+                android:textColor="#666666"
                 android:background="@drawable/bg_rounded_light_gray"
-                android:padding="12dp"
-                android:lineSpacingMultiplier="1.2" />
+                android:padding="12dp" />
 
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+</FrameLayout>
